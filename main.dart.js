@@ -34417,7 +34417,7 @@ biB(a,b,c){var s,r,q,p=J.FB(b,t.N)
 for(s="assets/"+a+"/",r=0;r<b;r=q){q=r+1
 p[r]=s+q+"."+c}return p},
 biC(a,b,c){var s,r,q,p=J.FB(b,t.N)
-for(s="https://github.com/AhmedAbdElrahman117/AA-Portfolio/tree/main/assets/assets/"+a+"/",r=0;r<b;r=q){q=r+1
+for(s="https://raw.githubusercontent.com/AhmedAbdElrahman117/AA-Portfolio/refs/heads/main/assets/assets/"+a+"/",r=0;r<b;r=q){q=r+1
 p[r]=s+q+"."+c}return p},
 PT(a,b,c){var s=$.wF().b
 s===$&&A.a()
