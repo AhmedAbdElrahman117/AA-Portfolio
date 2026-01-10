@@ -489,9 +489,10 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <p>&copy; 2024 Ahmed Abdelrahman. All rights reserved.</p>
+            <p>&copy; <span id="currentYear"></span> Ahmed Abdelrahman. All rights reserved.</p>
         </div>
     </footer>
+    <script>document.getElementById('currentYear').textContent = new Date().getFullYear();</script>
 
     <!-- Project Details Modal -->
     <div id="projectModal" class="modal">

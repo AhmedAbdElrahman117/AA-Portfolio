@@ -74,6 +74,11 @@
 html {
     scroll-behavior: smooth;
     font-size: var(--font-size-base);
+    overflow-x: hidden;
+}
+
+html, body {
+    max-width: 100vw;
 }
 
 body {
@@ -334,7 +339,7 @@ ul, ol {
 .drawer {
     position: fixed;
     top: 0;
-    left: -300px;
+    left: 0;
     width: 280px;
     height: 100vh;
     background-color: var(--bg-primary);
@@ -342,10 +347,11 @@ ul, ol {
     transition: var(--transition-normal);
     border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
     box-shadow: var(--shadow-lg);
+    transform: translateX(-100%);
 }
 
 .drawer.open {
-    left: 0;
+    transform: translateX(0);
 }
 
 .drawer-overlay {
@@ -435,6 +441,7 @@ ul, ol {
 
 .main-content {
     padding-top: var(--navbar-height);
+    overflow-x: hidden;
 }
 
 .section {
@@ -442,7 +449,9 @@ ul, ol {
     padding: var(--section-padding) 0;
     display: flex;
     align-items: center;
+    justify-content: center;
     position: relative;
+    overflow-x: hidden;
 }
 
 .section-container {
@@ -450,6 +459,17 @@ ul, ol {
     width: 100%;
     margin: 0 auto;
     padding: 0 var(--spacing-lg);
+    overflow-x: hidden;
+}
+
+/* Ensure all content grids take full width */
+.home-content,
+.about-content,
+.contact-content,
+.services-grid,
+.projects-grid,
+.certificates-grid {
+    width: 100%;
 }
 
 .section-header {

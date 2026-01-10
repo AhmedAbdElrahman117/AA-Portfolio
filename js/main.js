@@ -300,12 +300,19 @@ function generateProjects() {
     `).join('');
 }
 
+// Check if device is touch-enabled (mobile)
+function isTouchDevice() {
+    return ('ontouchstart' in window) || 
+           (navigator.maxTouchPoints > 0) || 
+           (window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+}
+
 function generateCertificates() {
     const certificatesGrid = document.querySelector('.certificates-grid');
     if (!certificatesGrid) return;
     
     certificatesGrid.innerHTML = certificatesData.map((cert, index) => `
-        <a href="${cert.url}" target="_blank" class="certificate-card animate-on-scroll" style="--stagger: ${index}">
+        <a href="${cert.url}" target="_blank" class="certificate-card animate-on-scroll" style="--stagger: ${index}" data-url="${cert.url}">
             <div class="certificate-image">
                 <img src="${cert.image}" alt="${cert.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'placeholder-image\\'><i class=\\'fas fa-certificate\\'></i></div>'">
                 <div class="certificate-overlay">
@@ -315,6 +322,50 @@ function generateCertificates() {
             </div>
         </a>
     `).join('');
+
+    // Add two-tap behavior for mobile
+    if (isTouchDevice()) {
+        initCertificateTouchBehavior();
+    }
+}
+
+// Two-tap behavior for certificates on mobile
+function initCertificateTouchBehavior() {
+    const certificates = document.querySelectorAll('.certificate-card');
+    let activeCertificate = null;
+
+    certificates.forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Only apply on touch devices
+            if (!isTouchDevice()) return;
+
+            // If this card already has overlay shown, allow the link to open
+            if (this.classList.contains('overlay-active')) {
+                // Let the default link behavior happen
+                return;
+            }
+
+            // Prevent default link behavior on first tap
+            e.preventDefault();
+
+            // Remove active state from previously active certificate
+            if (activeCertificate && activeCertificate !== this) {
+                activeCertificate.classList.remove('overlay-active');
+            }
+
+            // Show overlay on this certificate
+            this.classList.add('overlay-active');
+            activeCertificate = this;
+        });
+    });
+
+    // Close overlay when tapping outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.certificate-card') && activeCertificate) {
+            activeCertificate.classList.remove('overlay-active');
+            activeCertificate = null;
+        }
+    });
 }
 
 // ====================================
