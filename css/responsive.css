@@ -1,0 +1,824 @@
+/* ====================================
+   AA Portfolio - Responsive Styles
+   ==================================== */
+
+/* ====================================
+   Large Desktop (1200px+)
+   ==================================== */
+@media (min-width: 1200px) {
+    .section-container {
+        max-width: 1200px;
+    }
+    
+    .projects-grid,
+    .certificates-grid,
+    .services-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ====================================
+   Desktop (992px - 1199px)
+   ==================================== */
+@media (max-width: 1199px) {
+    :root {
+        --section-padding: 80px;
+    }
+    
+    .section-container {
+        max-width: 960px;
+    }
+    
+    .home-animation lottie-player {
+        max-width: 400px;
+    }
+}
+
+/* ====================================
+   Tablet Landscape (768px - 991px)
+   ==================================== */
+@media (max-width: 991px) {
+    :root {
+        --navbar-height: 60px;
+        --font-size-4xl: 32px;
+        --font-size-3xl: 28px;
+    }
+    
+    /* Navigation */
+    .nav-menu {
+        display: none;
+    }
+    
+    .hamburger {
+        display: flex;
+    }
+    
+    /* Home Section */
+    .home-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+        text-align: center;
+    }
+    
+    .home-text {
+        align-items: center;
+    }
+    
+    .social-buttons {
+        justify-content: center;
+    }
+    
+    .home-buttons {
+        justify-content: center;
+    }
+    
+    .home-animation {
+        order: -1;
+    }
+    
+    .home-animation lottie-player {
+        max-width: 350px;
+    }
+    
+    /* About Section */
+    .about-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+        text-align: center;
+    }
+    
+    .about-text {
+        text-align: left;
+    }
+    
+    /* Services Grid */
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Projects Grid */
+    .projects-grid,
+    .certificates-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Contact */
+    .contact-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+    
+    .contact-info {
+        text-align: center;
+    }
+    
+    .info-item {
+        justify-content: center;
+    }
+    
+    .social-follow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    /* Modal */
+    .project-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .project-stats {
+        justify-content: center;
+    }
+    
+    .project-links {
+        justify-content: center;
+    }
+}
+
+/* ====================================
+   Tablet Portrait (600px - 767px)
+   ==================================== */
+@media (max-width: 767px) {
+    :root {
+        --spacing-3xl: 48px;
+        --section-padding: 60px;
+        --font-size-4xl: 28px;
+        --font-size-3xl: 24px;
+        --font-size-2xl: 20px;
+    }
+    
+    /* Section Header */
+    .section-header {
+        margin-bottom: var(--spacing-xl);
+    }
+    
+    /* Skills */
+    .tech-stack {
+        gap: var(--spacing-md);
+    }
+    
+    .tech-card {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .tech-card img {
+        width: 40px;
+        height: 40px;
+    }
+    
+    /* Language Skills */
+    .language-skills {
+        gap: var(--spacing-xl);
+    }
+    
+    .circular-progress {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .circular-progress::before {
+        width: 76px;
+        height: 76px;
+    }
+    
+    /* Image Container */
+    .image-container {
+        width: 220px;
+        height: 220px;
+    }
+    
+    /* Splash Screen */
+    .splash-logo {
+        margin-bottom: 15px;
+    }
+    
+    .logo-letter {
+        font-size: 60px;
+    }
+    
+    .splash-ring {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .splash-ring.ring-2 {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .splash-orb.orb-1 {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .splash-orb.orb-2 {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .splash-orb.orb-3 {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .splash-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .splash-text .welcome-text {
+        font-size: 16px;
+        letter-spacing: 3px;
+    }
+    
+    .splash-text .portfolio-text {
+        font-size: 32px;
+    }
+    
+    .splash-loader {
+        width: 160px;
+    }
+}
+
+/* ====================================
+   Mobile Landscape (480px - 599px)
+   ==================================== */
+@media (max-width: 599px) {
+    :root {
+        --navbar-height: 56px;
+        --section-padding: 50px;
+        --spacing-lg: 20px;
+        --font-size-4xl: 24px;
+        --font-size-3xl: 22px;
+        --font-size-2xl: 18px;
+        --font-size-xl: 16px;
+    }
+    
+    /* Typography */
+    body {
+        font-size: 14px;
+    }
+    
+    /* Nav */
+    .logo {
+        font-size: var(--font-size-lg);
+    }
+    
+    /* Home */
+    .welcome-label {
+        font-size: var(--font-size-xl);
+    }
+    
+    .typewriter-container {
+        font-size: var(--font-size-2xl);
+        min-height: 35px;
+    }
+    
+    .home-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .home-buttons .btn {
+        width: 100%;
+    }
+    
+    .home-animation lottie-player {
+        max-width: 280px;
+    }
+    
+    /* Services Grid */
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Projects Grid */
+    .projects-grid,
+    .certificates-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Portfolio Tabs */
+    .portfolio-tabs {
+        flex-direction: row;
+        width: 100%;
+    }
+    
+    .tab-btn {
+        flex: 1;
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--font-size-sm);
+    }
+    
+    /* Service Card */
+    .service-icon {
+        width: 60px;
+        height: 60px;
+        font-size: var(--font-size-xl);
+    }
+    
+    /* Soft Skills */
+    .soft-skills {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Contact Form */
+    .contact-form {
+        padding: var(--spacing-md);
+    }
+    
+    /* Modal */
+    .modal {
+        padding: var(--spacing-sm);
+    }
+    
+    .modal-content {
+        border-radius: var(--radius-md);
+    }
+    
+    .modal-body {
+        padding: var(--spacing-md);
+    }
+    
+    .project-header-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .project-header-info h2 {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .project-stats {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+    
+    .stat-item {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
+    .stat-value {
+        font-size: var(--font-size-xl);
+    }
+    
+    .screenshots-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Toast */
+    .toast-container {
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        bottom: var(--spacing-md);
+    }
+    
+    .toast {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    /* Drawer */
+    .drawer {
+        width: 260px;
+    }
+}
+
+/* ====================================
+   Mobile Portrait (< 480px)
+   ==================================== */
+@media (max-width: 479px) {
+    :root {
+        --section-padding: 40px;
+        --font-size-4xl: 22px;
+        --font-size-3xl: 20px;
+    }
+    
+    /* Section Container */
+    .section-container {
+        padding: 0 var(--spacing-md);
+    }
+    
+    /* Tech Cards */
+    .tech-stack {
+        gap: var(--spacing-sm);
+    }
+    
+    .tech-card {
+        width: 85px;
+        height: 85px;
+        padding: var(--spacing-sm);
+    }
+    
+    .tech-card img {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .tech-card span {
+        font-size: 12px;
+    }
+    
+    /* Language Skills */
+    .language-skills {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    /* Social Buttons */
+    .social-buttons {
+        gap: var(--spacing-sm);
+    }
+    
+    .social-btn {
+        width: 40px;
+        height: 40px;
+        font-size: var(--font-size-base);
+    }
+    
+    /* Image Container */
+    .image-container {
+        width: 180px;
+        height: 180px;
+    }
+    
+    /* Header Underline */
+    .header-underline {
+        width: 80px;
+        height: 4px;
+    }
+    
+    /* Splash Screen */
+    .splash-logo {
+        margin-bottom: 10px;
+    }
+    
+    .logo-letter {
+        font-size: 50px;
+    }
+    
+    .splash-ring {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .splash-ring.ring-2 {
+        width: 240px;
+        height: 240px;
+    }
+    
+    .splash-orb.orb-1 {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .splash-orb.orb-2 {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .splash-orb.orb-3 {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .splash-icons {
+        gap: 0;
+    }
+    
+    .icon-connector {
+        width: 20px;
+    }
+    
+    .splash-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+    
+    .splash-text .welcome-text {
+        font-size: 14px;
+        letter-spacing: 2px;
+    }
+    
+    .splash-text .portfolio-text {
+        font-size: 26px;
+    }
+    
+    .splash-loader {
+        width: 140px;
+    }
+    
+    .splash-grid {
+        background-size: 30px 30px;
+    }
+    
+    .splash-particles span {
+        width: 4px;
+        height: 4px;
+    }
+
+    /* Project Card */
+    .project-image {
+        height: 180px;
+    }
+    
+    .project-info {
+        padding: var(--spacing-md);
+    }
+    
+    .project-info h3 {
+        font-size: var(--font-size-lg);
+    }
+    
+    /* Screenshots */
+    .screenshots-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+}
+
+/* ====================================
+   Extra Small Devices (< 360px)
+   ==================================== */
+@media (max-width: 359px) {
+    :root {
+        --spacing-md: 12px;
+        --spacing-lg: 16px;
+    }
+    
+    .nav-container {
+        padding: 0 var(--spacing-sm);
+    }
+    
+    .logo {
+        font-size: var(--font-size-base);
+    }
+    
+    .tech-card {
+        width: 75px;
+        height: 75px;
+    }
+    
+    .tech-card img {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .image-container {
+        width: 160px;
+        height: 160px;
+    }
+    
+    .circular-progress {
+        width: 90px;
+        height: 90px;
+    }
+    
+    .circular-progress::before {
+        width: 68px;
+        height: 68px;
+    }
+}
+
+/* ====================================
+   Height-based Media Queries
+   ==================================== */
+@media (max-height: 700px) {
+    .section {
+        min-height: auto;
+        padding: 60px 0;
+    }
+    
+    .home-section {
+        min-height: 100vh;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .home-content {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .home-animation {
+        order: 0;
+    }
+    
+    .home-animation lottie-player {
+        max-width: 250px;
+    }
+    
+    /* Splash Screen - Small Mobile */
+    .splash-logo {
+        margin-bottom: 5px;
+    }
+    
+    .logo-letter {
+        font-size: 40px;
+    }
+    
+    .splash-ring {
+        width: 160px;
+        height: 160px;
+    }
+    
+    .splash-ring.ring-2 {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .splash-orb.orb-1,
+    .splash-orb.orb-2 {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .splash-orb.orb-3 {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .splash-icons {
+        gap: 0;
+    }
+    
+    .icon-connector {
+        width: 15px;
+    }
+    
+    .splash-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .splash-text .welcome-text {
+        font-size: 12px;
+    }
+    
+    .splash-text .portfolio-text {
+        font-size: 22px;
+    }
+    
+    .splash-loader {
+        width: 120px;
+    }
+    
+    .splash-loading-text {
+        font-size: 10px;
+    }
+    
+    .splash-content {
+        gap: 20px;
+    }
+}
+
+/* ====================================
+   Print Styles
+   ==================================== */
+@media print {
+    .navbar,
+    .drawer,
+    .drawer-overlay,
+    .animated-background,
+    .splash-screen,
+    .modal,
+    .toast-container {
+        display: none !important;
+    }
+    
+    .main-content {
+        padding-top: 0;
+    }
+    
+    .section {
+        min-height: auto;
+        padding: 20px 0;
+        page-break-inside: avoid;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .gradient-text {
+        -webkit-text-fill-color: black;
+        background: none;
+    }
+    
+    a {
+        color: black;
+        text-decoration: underline;
+    }
+}
+
+/* ====================================
+   Reduced Motion
+   ==================================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    html {
+        scroll-behavior: auto;
+    }
+    
+    .animate-on-scroll {
+        opacity: 1;
+        transform: none;
+    }
+    
+    .splash-screen {
+        display: none;
+    }
+}
+
+/* ====================================
+   High Contrast Mode
+   ==================================== */
+@media (prefers-contrast: high) {
+    :root {
+        --text-secondary: rgba(255, 255, 255, 0.9);
+        --text-muted: rgba(255, 255, 255, 0.8);
+        --border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .btn-outline {
+        border-width: 3px;
+    }
+    
+    .nav-link::after {
+        height: 4px;
+    }
+}
+
+/* ====================================
+   Dark/Light Mode Support
+   ==================================== */
+@media (prefers-color-scheme: light) {
+    /* This portfolio is designed for dark mode,
+       but you can add light mode styles here if needed */
+}
+
+/* ====================================
+   Touch Device Optimizations
+   ==================================== */
+@media (hover: none) and (pointer: coarse) {
+    /* Remove hover effects on touch devices */
+    .tech-card:hover,
+    .project-card:hover,
+    .certificate-card:hover,
+    .service-card:hover {
+        transform: none;
+    }
+    
+    /* Increase tap targets */
+    .nav-link,
+    .drawer-link,
+    .btn,
+    .social-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Show certificate overlay by default on touch */
+    .certificate-overlay {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* ====================================
+   Landscape Tablet Optimizations
+   ==================================== */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    .home-content {
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+    }
+    
+    .home-text {
+        text-align: left;
+        align-items: flex-start;
+    }
+    
+    .social-buttons,
+    .home-buttons {
+        justify-content: flex-start;
+    }
+    
+    .home-animation {
+        order: 0;
+    }
+}
