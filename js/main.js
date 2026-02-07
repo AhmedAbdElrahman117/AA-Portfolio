@@ -24,15 +24,115 @@ let currentTypewriterIndex = 0;
 let isTyping = false;
 
 // ====================================
+// Shimmer Skeleton Generators
+// ====================================
+function generateTechStackSkeleton() {
+    const container = document.querySelector('.tech-stack');
+    if (!container) return;
+    
+    container.innerHTML = Array(12).fill().map((_, i) => `
+        <div class="tech-card-skeleton animate-on-scroll" style="--stagger: ${i}">
+            <div class="shimmer shimmer-icon"></div>
+            <div class="shimmer shimmer-label"></div>
+        </div>
+    `).join('');
+}
+
+function generateProjectsSkeleton() {
+    const grid = document.querySelector('.projects-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = Array(6).fill().map((_, i) => `
+        <div class="project-card-skeleton animate-on-scroll" style="--stagger: ${i}">
+            <div class="shimmer shimmer-project-image"></div>
+            <div class="shimmer-project-info">
+                <div class="shimmer shimmer-title"></div>
+                <div class="shimmer shimmer-desc"></div>
+                <div class="shimmer shimmer-desc short"></div>
+                <div class="shimmer shimmer-btn"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function generateCertificatesSkeleton() {
+    const grid = document.querySelector('.certificates-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = Array(6).fill().map((_, i) => `
+        <div class="certificate-card-skeleton shimmer animate-on-scroll" style="--stagger: ${i}"></div>
+    `).join('');
+}
+
+function generateSoftSkillsSkeleton() {
+    const container = document.querySelector('.soft-skills');
+    if (!container) return;
+    
+    container.innerHTML = Array(6).fill().map((_, i) => `
+        <div class="skill-bar-skeleton animate-on-scroll" style="--stagger: ${i}">
+            <div class="shimmer-skill-header">
+                <div class="shimmer shimmer-skill-name"></div>
+                <div class="shimmer shimmer-skill-percent"></div>
+            </div>
+            <div class="shimmer shimmer-progress"></div>
+        </div>
+    `).join('');
+}
+
+function generateLangSkillsSkeleton() {
+    const container = document.querySelector('.language-skills');
+    if (!container) return;
+    
+    container.innerHTML = Array(2).fill().map((_, i) => `
+        <div class="language-card-skeleton animate-on-scroll" style="--stagger: ${i}">
+            <div class="shimmer shimmer-circle"></div>
+            <div class="shimmer shimmer-lang-name"></div>
+            <div class="shimmer shimmer-lang-level"></div>
+        </div>
+    `).join('');
+}
+
+function generateAboutSkeleton() {
+    const aboutText = document.querySelector('.about-text');
+    const aboutImage = document.querySelector('.about-image img');
+    
+    if (aboutImage) {
+        aboutImage.style.opacity = '0';
+    }
+    
+    if (aboutText) {
+        aboutText.innerHTML = Array(4).fill().map(() => `
+            <p>
+                <span class="shimmer shimmer-text long"></span>
+                <span class="shimmer shimmer-text long"></span>
+                <span class="shimmer shimmer-text"></span>
+            </p>
+        `).join('');
+    }
+}
+
+// Show all shimmer skeletons
+function showAllSkeletons() {
+    generateTechStackSkeleton();
+    generateProjectsSkeleton();
+    generateCertificatesSkeleton();
+    generateSoftSkillsSkeleton();
+    generateLangSkillsSkeleton();
+    generateAboutSkeleton();
+}
+
+// ====================================
 // CV Download Function
 // ====================================
 function downloadCV() {
-    const cvPath = 'assets/CV.pdf';
+    // Use dynamic CV data from Firebase
+    const cvPath = cvData.path || 'assets/CV.pdf';
+    const cvFilename = cvData.filename || 'Ahmed_Abdelrahman_CV.pdf';
     
     // Create a temporary link element
     const link = document.createElement('a');
     link.href = cvPath;
-    link.download = 'Ahmed_Abdelrahman_CV.pdf';
+    link.download = cvFilename;
     link.target = '_blank';
     
     // Append to body, click, and remove
@@ -45,6 +145,162 @@ function downloadCV() {
 
 // Make it available globally
 window.downloadCV = downloadCV;
+
+// ====================================
+// Dynamic Content Update
+// ====================================
+function updateDynamicContent() {
+    // Update social links
+    if (!isSectionLoading('social')) {
+        updateSocialLinks();
+    }
+    
+    // Update about section
+    if (!isSectionLoading('about')) {
+        updateAboutSection();
+    }
+    
+    // Update contact info
+    if (!isSectionLoading('contact')) {
+        updateContactInfo();
+    }
+    
+    // Update soft skills
+    if (!isSectionLoading('softSkills')) {
+        generateSoftSkills();
+    }
+    
+    // Update language skills
+    if (!isSectionLoading('langSkills')) {
+        generateLangSkills();
+    }
+}
+
+function updateSocialLinks() {
+    // Home section social buttons
+    const socialButtons = document.querySelectorAll('.social-buttons .social-btn, .social-links a');
+    
+    socialButtons.forEach(btn => {
+        const icon = btn.querySelector('i');
+        if (!icon) return;
+        
+        if (icon.classList.contains('fa-linkedin-in')) {
+            btn.href = socialData.linkedin || '#';
+        } else if (icon.classList.contains('fa-github')) {
+            btn.href = socialData.github || '#';
+        } else if (icon.classList.contains('fa-facebook-f')) {
+            btn.href = socialData.facebook || '#';
+        } else if (icon.classList.contains('fa-envelope')) {
+            btn.href = 'mailto:' + (socialData.email || '');
+        }
+    });
+}
+
+function updateAboutSection() {
+    // Update profile image with fade-in effect
+    const profileImg = document.querySelector('.about-image img');
+    if (profileImg && aboutData.profileImage) {
+        profileImg.src = aboutData.profileImage;
+        profileImg.style.opacity = '0';
+        profileImg.onload = () => {
+            profileImg.style.transition = 'opacity 0.5s ease';
+            profileImg.style.opacity = '1';
+        };
+    }
+    
+    // Update about paragraphs
+    const aboutText = document.querySelector('.about-text');
+    if (aboutText) {
+        // Check if using new array format or old format
+        if (Array.isArray(aboutData.paragraphs) && aboutData.paragraphs.length > 0) {
+            // Clear existing paragraphs and add new ones with fade-in
+            aboutText.innerHTML = aboutData.paragraphs
+                .map((p, i) => `<p class="fade-in-content" style="animation-delay: ${i * 0.1}s">${p}</p>`)
+                .join('');
+        } else if (aboutData.aboutP1 || aboutData.aboutP2 || aboutData.aboutP3 || aboutData.aboutP4) {
+            // Generate from old format (aboutP1, aboutP2, etc.)
+            const paragraphs = [];
+            if (aboutData.aboutP1) paragraphs.push(aboutData.aboutP1);
+            if (aboutData.aboutP2) paragraphs.push(aboutData.aboutP2);
+            if (aboutData.aboutP3) paragraphs.push(aboutData.aboutP3);
+            if (aboutData.aboutP4) paragraphs.push(aboutData.aboutP4);
+            
+            aboutText.innerHTML = paragraphs
+                .map((p, i) => `<p class="fade-in-content" style="animation-delay: ${i * 0.1}s">${p}</p>`)
+                .join('');
+        }
+    }
+    
+    // Update typewriter texts if using new format
+    if (Array.isArray(aboutData.typewriterTexts)) {
+        window.typewriterTexts = aboutData.typewriterTexts;
+    } else if (aboutData.typewriterTexts) {
+        // Convert from old newline-separated format
+        window.typewriterTexts = aboutData.typewriterTexts.split('\n').filter(t => t.trim());
+    }
+}
+
+function updateContactInfo() {
+    // Update contact section info
+    // Note: h3 is child 1, so info-items are at positions 2, 3, 4
+    const addressEl = document.querySelector('.info-item:nth-child(2) .info-text span:last-child');
+    const phoneEl = document.querySelector('.info-item:nth-child(3) .info-text a');
+    const emailEl = document.querySelector('.info-item:nth-child(4) .info-text a');
+    
+    if (addressEl) addressEl.textContent = contactInfo.address || 'Egypt, Cairo';
+    if (phoneEl) {
+        phoneEl.textContent = contactInfo.phone || '+20 100 051 2414';
+        phoneEl.href = 'tel:' + (contactInfo.phone || '').replace(/\s/g, '');
+    }
+    if (emailEl) {
+        emailEl.textContent = contactInfo.email || 'ahmedaboelnaga713@gmail.com';
+        emailEl.href = 'mailto:' + (contactInfo.email || '');
+    }
+}
+
+function generateSoftSkills() {
+    const container = document.querySelector('.soft-skills');
+    if (!container) return;
+    
+    // Check if data is loaded and is an array
+    if (!softSkillsData || !Array.isArray(softSkillsData) || softSkillsData.length === 0) {
+        generateSoftSkillsSkeleton();
+        return;
+    }
+    
+    container.innerHTML = softSkillsData.map((skill, index) => `
+        <div class="skill-bar animate-on-scroll fade-in-content" style="--stagger: ${index}; animation-delay: ${index * 0.05}s">
+            <div class="skill-info">
+                <span>${skill.name}</span>
+                <span>${skill.percentage}%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress" data-progress="${skill.percentage}" style="--progress-color: ${skill.color};"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function generateLangSkills() {
+    const container = document.querySelector('.language-skills');
+    if (!container) return;
+    
+    // Check if data is loaded and is an array
+    if (!langSkillsData || !Array.isArray(langSkillsData) || langSkillsData.length === 0) {
+        generateLangSkillsSkeleton();
+        return;
+    }
+    
+    container.innerHTML = langSkillsData.map((skill, index) => `
+        <div class="language-card animate-on-scroll fade-in-content" style="--stagger: ${index}; animation-delay: ${index * 0.1}s">
+            <div class="circular-progress" data-progress="${skill.percentage}" style="--progress-color: ${skill.color};">
+                <div class="progress-value">${skill.percentage}%</div>
+            </div>
+            <span class="language-name">${skill.name}</span>
+            <span class="language-level">${skill.level}</span>
+        </div>
+    `).join('');
+}
 
 // ====================================
 // Splash Screen
@@ -158,34 +414,6 @@ function updateActiveNav(sectionId) {
     });
 }
 
-function handleScroll() {
-    const sections = document.querySelectorAll('.section');
-    const navHeight = document.querySelector('.navbar').offsetHeight;
-    const scrollPosition = window.scrollY + navHeight + window.innerHeight / 3;
-
-    let currentSection = null;
-    
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        const sectionId = section.getAttribute('id');
-
-        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-            currentSection = sectionId;
-        }
-    });
-
-    if (currentSection) {
-        updateActiveNav(currentSection);
-    }
-
-    // Update background circles position based on scroll
-    updateBackgroundPosition();
-    
-    // Update navbar background on scroll
-    updateNavbarOnScroll();
-}
-
 // ====================================
 // Navbar Scroll Effect
 // ====================================
@@ -272,8 +500,14 @@ function generateTechStack() {
     const techStackContainer = document.querySelector('.tech-stack');
     if (!techStackContainer) return;
     
+    // Check if data is loaded
+    if (!techStackData || !Array.isArray(techStackData) || techStackData.length === 0) {
+        generateTechStackSkeleton();
+        return;
+    }
+    
     techStackContainer.innerHTML = techStackData.map((tech, index) => `
-        <div class="tech-card animate-on-scroll" data-name="${tech.name}" style="--stagger: ${index}">
+        <div class="tech-card animate-on-scroll fade-in-content" data-name="${tech.name}" style="--stagger: ${index}; animation-delay: ${index * 0.03}s">
             <img src="${tech.image}" alt="${tech.name}" loading="lazy" onerror="this.style.display='none'">
             <span>${tech.name}</span>
         </div>
@@ -284,18 +518,50 @@ function generateProjects() {
     const projectsGrid = document.querySelector('.projects-grid');
     if (!projectsGrid) return;
     
+    // Check if data is loaded
+    if (!projectsData || Object.keys(projectsData).length === 0) {
+        generateProjectsSkeleton();
+        return;
+    }
+    
     projectsGrid.innerHTML = Object.values(projectsData).map((project, index) => `
-        <div class="project-card animate-on-scroll" data-project="${project.id}" style="--stagger: ${index}">
+        <div class="project-card animate-on-scroll fade-in-content" data-project="${project.id}" style="--stagger: ${index}; animation-delay: ${index * 0.08}s">
             <div class="project-image">
                 <img src="${project.image}" alt="${project.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'placeholder-image\\'><i class=\\'fas fa-image\\'></i></div>'">
             </div>
-            <div class="project-info">
-                <h3 class="gradient-text">${project.title.split(' - ')[0]}</h3>
-                <p>${project.description.substring(0, 100)}...</p>
-                <button class="btn btn-small gradient-btn view-details" data-project="${project.id}">
-                    Details <i class="fas fa-arrow-right"></i>
-                </button>
+            <div class="project-content">
+                <div class="project-header">
+                    <h3 class="gradient-text">${project.title.split(' - ')[0]}</h3>
+                </div>
+                <div class="project-description">
+                    <p>${project.description.substring(0, 100)}...</p>
+                </div>
+                <div class="project-footer">
+                    <button class="btn btn-small gradient-btn view-details" data-project="${project.id}">
+                        Details <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
+        </div>
+    `).join('');
+}
+
+function generateServices() {
+    const servicesGrid = document.querySelector('.services-grid');
+    if (!servicesGrid) return;
+    
+    // Check if data is loaded
+    if (!servicesData || !Array.isArray(servicesData) || servicesData.length === 0) {
+        return;
+    }
+    
+    servicesGrid.innerHTML = servicesData.map((service, index) => `
+        <div class="service-card animate-on-scroll fade-in-content" style="--stagger: ${index}; animation-delay: ${index * 0.08}s">
+            <div class="service-icon">
+                <i class="${service.icon}"></i>
+            </div>
+            <h3 class="gradient-text">${service.title}</h3>
+            <p>${service.description}</p>
         </div>
     `).join('');
 }
@@ -311,8 +577,14 @@ function generateCertificates() {
     const certificatesGrid = document.querySelector('.certificates-grid');
     if (!certificatesGrid) return;
     
+    // Check if data is loaded
+    if (!certificatesData || !Array.isArray(certificatesData) || certificatesData.length === 0) {
+        generateCertificatesSkeleton();
+        return;
+    }
+    
     certificatesGrid.innerHTML = certificatesData.map((cert, index) => `
-        <a href="${cert.url}" target="_blank" class="certificate-card animate-on-scroll" style="--stagger: ${index}" data-url="${cert.url}">
+        <a href="${cert.url}" target="_blank" class="certificate-card animate-on-scroll fade-in-content" style="--stagger: ${index}; animation-delay: ${index * 0.08}s" data-url="${cert.url}">
             <div class="certificate-image">
                 <img src="${cert.image}" alt="${cert.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'placeholder-image\\'><i class=\\'fas fa-certificate\\'></i></div>'">
                 <div class="certificate-overlay">
@@ -976,15 +1248,68 @@ function initParticles() {
 }
 
 // ====================================
+// Data Loaded Event Handler
+// ====================================
+function handleDataLoaded(event) {
+    const { section } = event.detail;
+    
+    switch (section) {
+        case 'social':
+            updateSocialLinks();
+            break;
+        case 'about':
+            updateAboutSection();
+            break;
+        case 'contact':
+            updateContactInfo();
+            break;
+        case 'techSkills':
+            generateTechStack();
+            initTechCardEffects();
+            break;
+        case 'softSkills':
+            generateSoftSkills();
+            animateProgressBars();
+            break;
+        case 'langSkills':
+            generateLangSkills();
+            animateCircularProgress();
+            break;
+        case 'projects':
+            generateProjects();
+            break;
+        case 'certificates':
+            generateCertificates();
+            break;
+        case 'services':
+            generateServices();
+            break;
+        case 'all':
+            // Re-initialize animations for any new content
+            initAnimations();
+            break;
+    }
+}
+
+// ====================================
 // Initialize
 // ====================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Generate dynamic content first
-    generateTechStack();
-    generateProjects();
-    generateCertificates();
+    // Show shimmer skeletons while loading
+    showAllSkeletons();
     
-    // Then initialize everything
+    // Listen for data loaded events
+    window.addEventListener('portfolioDataLoaded', handleDataLoaded);
+    
+    // Try to update any already-loaded content
+    updateDynamicContent();
+    
+    // Generate content if data is already available
+    if (!isSectionLoading('techSkills')) generateTechStack();
+    if (!isSectionLoading('projects')) generateProjects();
+    if (!isSectionLoading('certificates')) generateCertificates();
+    
+    // Initialize all UI components
     hideSplashScreen();
     initNavigation();
     initTypewriter();

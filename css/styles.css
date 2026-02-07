@@ -1252,6 +1252,9 @@ ul, ol {
     overflow: hidden;
     cursor: pointer;
     position: relative;
+    display: grid;
+    grid-template-rows: 200px 1fr;
+    min-height: 400px;
     transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
                 box-shadow 0.5s ease,
                 border-color 0.5s ease;
@@ -1324,8 +1327,47 @@ ul, ol {
     filter: brightness(0.9);
 }
 
+.project-content {
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.project-header h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+}
+
+.project-description {
+    flex: 1;
+}
+
+.project-description p {
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.project-footer {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-sm);
+}
+
+.project-footer .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+/* Legacy support for old structure */
 .project-info {
     padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .project-info h3 {
@@ -1338,11 +1380,12 @@ ul, ol {
     font-size: var(--font-size-base);
     color: var(--text-secondary);
     margin-bottom: var(--spacing-md);
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.project-info .btn {
+    align-self: flex-start;
 }
 
 /* Certificates Grid */

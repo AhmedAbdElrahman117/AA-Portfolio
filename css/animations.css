@@ -958,3 +958,278 @@
 .stat-item:hover .stat-value {
     transform: scale(1.1);
 }
+
+/* ====================================
+   Shimmer Loading Effects
+   ==================================== */
+
+/* Base shimmer animation */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+/* Shimmer skeleton base */
+.shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+    border-radius: var(--radius-sm);
+}
+
+/* Image shimmer placeholder */
+.shimmer-image {
+    width: 100%;
+    height: 100%;
+    min-height: 150px;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.03) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+    border-radius: var(--radius-md);
+}
+
+/* Text shimmer placeholder */
+.shimmer-text {
+    height: 1em;
+    width: 80%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+    border-radius: 4px;
+    margin: 0.5em 0;
+}
+
+.shimmer-text.short {
+    width: 50%;
+}
+
+.shimmer-text.long {
+    width: 100%;
+}
+
+/* Tech card skeleton */
+.tech-card-skeleton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+.tech-card-skeleton .shimmer-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-sm);
+}
+
+.tech-card-skeleton .shimmer-label {
+    width: 60px;
+    height: 14px;
+}
+
+/* Project card skeleton */
+.project-card-skeleton {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.project-card-skeleton .shimmer-project-image {
+    width: 100%;
+    height: 200px;
+}
+
+.project-card-skeleton .shimmer-project-info {
+    padding: 1.5rem;
+}
+
+.project-card-skeleton .shimmer-title {
+    height: 1.5em;
+    width: 70%;
+    margin-bottom: 1rem;
+}
+
+.project-card-skeleton .shimmer-desc {
+    height: 0.9em;
+    margin-bottom: 0.5rem;
+}
+
+.project-card-skeleton .shimmer-btn {
+    width: 100px;
+    height: 36px;
+    margin-top: 1rem;
+    border-radius: var(--radius-sm);
+}
+
+/* Certificate card skeleton */
+.certificate-card-skeleton {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    aspect-ratio: 16/9;
+}
+
+/* Skill bar skeleton */
+.skill-bar-skeleton {
+    margin-bottom: 1.5rem;
+}
+
+.skill-bar-skeleton .shimmer-skill-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.skill-bar-skeleton .shimmer-skill-name {
+    width: 100px;
+    height: 1em;
+}
+
+.skill-bar-skeleton .shimmer-skill-percent {
+    width: 40px;
+    height: 1em;
+}
+
+.skill-bar-skeleton .shimmer-progress {
+    height: 10px;
+    width: 100%;
+    border-radius: 5px;
+}
+
+/* Section loading indicator */
+.section-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    gap: 1rem;
+}
+
+.section-loading .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--gradient-start);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.section-loading .loading-text {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+/* Circular progress skeleton */
+.circular-progress-skeleton {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+/* Language card skeleton */
+.language-card-skeleton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+.language-card-skeleton .shimmer-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.language-card-skeleton .shimmer-lang-name {
+    width: 60px;
+    height: 1em;
+}
+
+.language-card-skeleton .shimmer-lang-level {
+    width: 40px;
+    height: 0.8em;
+}
+
+/* About section skeleton */
+.about-skeleton {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.about-skeleton .shimmer-profile {
+    width: 300px;
+    height: 300px;
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+}
+
+.about-skeleton .shimmer-paragraphs {
+    flex: 1;
+}
+
+.about-skeleton .shimmer-paragraph {
+    height: 1em;
+    margin-bottom: 0.8rem;
+}
+
+/* Fade in animation for loaded content */
+.fade-in-content {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hide content while loading */
+.loading-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Content loaded state */
+.content-loaded {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease;
+}

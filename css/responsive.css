@@ -245,14 +245,21 @@ body {
     gap: var(--spacing-md);
 }
 
+.project-card {
+    min-height: 350px;
+    grid-template-rows: 180px 1fr;
+}
+
 .project-image {
     height: 180px;
 }
 
+.project-content,
 .project-info {
     padding: var(--spacing-md);
 }
 
+.project-header h3,
 .project-info h3 {
     font-size: var(--font-size-lg);
 }
