@@ -151,7 +151,7 @@ const Dashboard = {
         
         // Save typewriter button
         document.getElementById('saveTypewriter').addEventListener('click', () => {
-            this.saveAbout();
+            this.saveTypewriter();
         });
         
         // Add paragraph button
@@ -161,12 +161,12 @@ const Dashboard = {
         
         // Save paragraphs button
         document.getElementById('saveParagraphs').addEventListener('click', () => {
-            this.saveAbout();
+            this.saveParagraphs();
         });
         
         // Save profile button
         document.getElementById('saveProfile').addEventListener('click', () => {
-            this.saveAbout();
+            this.saveProfile();
         });
         
         // CV form
@@ -372,8 +372,8 @@ const Dashboard = {
     
     // Section to Firebase keys mapping
     sectionToFirebaseKeys: {
-        home: ['social', 'about', 'cv'],  // about contains typewriter texts
-        about: ['about', 'cv'],
+        home: ['social', 'about', 'cv'],
+        about: ['about'],
         skills: ['techSkills', 'softSkills', 'langSkills'],
         projects: ['projects'],
         certificates: ['certificates'],
@@ -468,7 +468,6 @@ const Dashboard = {
                 break;
             case 'about':
                 this.loadAbout();
-                this.loadCV();
                 break;
             case 'skills':
                 this.loadTechSkills();
@@ -626,15 +625,6 @@ const Dashboard = {
         document.getElementById('profileImage').value = data.profileImage || '';
         document.getElementById('fullName').value = data.fullName || '';
         
-        // Load typewriter texts as array
-        const typewriterTexts = Array.isArray(data.typewriterTexts) 
-            ? data.typewriterTexts 
-            : (data.typewriterTexts || '').split('\n').filter(t => t.trim());
-        
-        const typewriterList = document.getElementById('typewriterList');
-        typewriterList.innerHTML = '';
-        typewriterTexts.forEach(text => this.addTypewriterItem(text));
-        
         // Load paragraphs as array
         let paragraphs = [];
         if (Array.isArray(data.paragraphs)) {
@@ -678,9 +668,6 @@ const Dashboard = {
             </button>
         `;
         list.appendChild(item);
-        
-        // Add change listener for auto-save
-        item.querySelector('input').addEventListener('change', () => this.saveAbout());
     },
     
     addParagraphItem(text = '') {
@@ -694,9 +681,6 @@ const Dashboard = {
             </button>
         `;
         list.appendChild(item);
-        
-        // Add change listener for auto-save
-        item.querySelector('textarea').addEventListener('change', () => this.saveAbout());
     },
     
     removeListItem(button) {
@@ -706,10 +690,7 @@ const Dashboard = {
         
         this.showDeleteDialog(`Delete ${itemType}?`, `This ${itemType.toLowerCase()} will be permanently removed.`, () => {
             item.style.animation = 'fadeOut 0.3s ease forwards';
-            setTimeout(() => {
-                item.remove();
-                this.saveAbout();
-            }, 300);
+            setTimeout(() => item.remove(), 300);
         });
     },
     
@@ -885,7 +866,69 @@ const Dashboard = {
             .filter(value => value);
     },
     
-    async saveAbout() {
+    // Helper to merge partial about data and save
+    async _saveAboutPartial(partialData, loadingMsg, successMsg) {
+        // Get existing data to merge with
+        const existingData = this.getData(this.storageKeys.about) || this.getDefaultAboutData();
+        const data = { ...existingData, ...partialData };
+        
+        this.saveData(this.storageKeys.about, data);
+        
+        try {
+            if (typeof UploadService !== 'undefined') {
+                UploadService.showLoading(loadingMsg);
+                await UploadService.saveToFirebase('about', data);
+                UploadService.updateProgress(100, 'Done!');
+                setTimeout(() => {
+                    UploadService.hideLoading();
+                    this.showResultDialog('success', 'Saved Successfully', successMsg);
+                }, 300);
+            } else {
+                this.showToast(successMsg, 'success');
+            }
+        } catch (error) {
+            if (typeof UploadService !== 'undefined') UploadService.hideLoading();
+            this.showResultDialog('error', 'Save Failed', 'Could not save to Firebase: ' + error.message);
+        }
+    },
+    
+    async saveTypewriter() {
+        const typewriterInputs = document.querySelectorAll('#typewriterList .dynamic-list-item input');
+        const typewriterTexts = Array.from(typewriterInputs)
+            .map(input => input.value.trim())
+            .filter(text => text);
+        
+        if (typewriterTexts.length === 0) {
+            this.showToast('Please add at least one typewriter text', 'error');
+            return;
+        }
+        
+        await this._saveAboutPartial(
+            { typewriterTexts },
+            'Saving typewriter texts...',
+            'Typewriter texts have been saved.'
+        );
+    },
+    
+    async saveParagraphs() {
+        const paragraphInputs = document.querySelectorAll('#paragraphsList .dynamic-list-item textarea');
+        const paragraphs = Array.from(paragraphInputs)
+            .map(textarea => textarea.value.trim())
+            .filter(text => text);
+        
+        if (paragraphs.length === 0) {
+            this.showToast('Please add at least one paragraph', 'error');
+            return;
+        }
+        
+        await this._saveAboutPartial(
+            { paragraphs },
+            'Saving paragraphs...',
+            'About paragraphs have been saved.'
+        );
+    },
+    
+    async saveProfile() {
         // Clear previous errors
         this.clearFieldError('profileImage');
         this.clearFieldError('fullName');
@@ -894,10 +937,9 @@ const Dashboard = {
         let profileImage = profileImageInput.value.trim();
         const fullName = document.getElementById('fullName').value.trim();
         
-        // Check for pending file upload
         const hasPendingFile = typeof UploadService !== 'undefined' && UploadService.hasPendingFile(profileImageInput.id);
         
-        // Validation (before upload)
+        // Validation
         let hasError = false;
         
         if (!profileImage && !hasPendingFile) {
@@ -917,11 +959,9 @@ const Dashboard = {
             UploadService.updateProgress(10, 'Preparing upload...');
             
             try {
-                // Get old image URL for deletion
                 const currentData = this.getData(this.storageKeys.about);
                 const oldImageUrl = currentData?.profileImage;
                 
-                // Delete old image from Cloudinary if it exists
                 if (oldImageUrl) {
                     UploadService.updateProgress(20, 'Deleting old image...');
                     await UploadService.deleteFromCloudinary(oldImageUrl);
@@ -931,7 +971,6 @@ const Dashboard = {
                 profileImage = await UploadService.uploadPendingFile(profileImageInput.id, 'portfolio');
                 profileImageInput.value = profileImage;
                 profileImageInput.style.color = '';
-                UploadService.updateProgress(70, 'Saving to Firebase...');
             } catch (error) {
                 UploadService.hideLoading();
                 this.showToast('Upload failed: ' + error.message, 'error');
@@ -939,41 +978,26 @@ const Dashboard = {
             }
         }
         
-        // Collect typewriter texts
-        const typewriterInputs = document.querySelectorAll('#typewriterList .dynamic-list-item input');
-        const typewriterTexts = Array.from(typewriterInputs)
-            .map(input => input.value.trim())
-            .filter(text => text);
-        
-        // Collect paragraphs
-        const paragraphInputs = document.querySelectorAll('#paragraphsList .dynamic-list-item textarea');
-        const paragraphs = Array.from(paragraphInputs)
-            .map(textarea => textarea.value.trim())
-            .filter(text => text);
-        
-        const data = {
-            profileImage: profileImage,
-            fullName: fullName,
-            typewriterTexts: typewriterTexts,
-            paragraphs: paragraphs
-        };
+        // Get existing data and merge
+        const existingData = this.getData(this.storageKeys.about) || this.getDefaultAboutData();
+        const data = { ...existingData, profileImage, fullName };
         
         this.saveData(this.storageKeys.about, data);
         
-        // Sync to Firebase
         try {
             if (typeof UploadService !== 'undefined') {
                 if (!hasPendingFile) {
                     UploadService.showLoading('Saving to Firebase...');
                 }
+                UploadService.updateProgress(70, 'Saving to Firebase...');
                 await UploadService.saveToFirebase('about', data);
                 UploadService.updateProgress(100, 'Done!');
                 setTimeout(() => {
                     UploadService.hideLoading();
-                    this.showResultDialog('success', 'Saved Successfully', 'About section has been saved to the cloud.');
+                    this.showResultDialog('success', 'Saved Successfully', 'Profile has been saved.');
                 }, 300);
             } else {
-                this.showToast('About section saved locally', 'success');
+                this.showToast('Profile saved locally', 'success');
             }
         } catch (error) {
             if (typeof UploadService !== 'undefined') UploadService.hideLoading();
