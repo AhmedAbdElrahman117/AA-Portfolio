@@ -5,12 +5,9 @@
 'use strict';
 
 const UploadService = {
-    // Cloudinary configuration (loaded from config.js)
-    cloudinary: window.CONFIG ? window.CONFIG.cloudinary : {
-        cloudName: 'db2hsfkzd',
-        uploadPreset: 'portfolio_unsigned',
-        apiKey: '864717488794595'
-    },
+    // Backend API endpoints for file uploads (secured on Cloudinary Workers)
+    uploadAPI: 'https://cloudinary-uploader.ahmedaboelnaga713.workers.dev/upload',
+    deleteAPI: 'https://cloudinary-uploader.ahmedaboelnaga713.workers.dev/delete',
     
     // Firebase configuration (loaded from config.js)
     firebase: window.CONFIG ? window.CONFIG.firebase : {
@@ -172,22 +169,26 @@ const UploadService = {
         }
     },
     
-    // Upload blob to Cloudinary
+    // Upload blob via backend API
     async uploadBlobToCloudinary(blob, folder, filename) {
         const formData = new FormData();
         formData.append('file', blob, filename);
-        formData.append('upload_preset', this.cloudinary.uploadPreset);
         formData.append('folder', folder);
         
-        const response = await fetch(
-            `https://api.cloudinary.com/v1_1/${this.cloudinary.cloudName}/auto/upload`,
-            { method: 'POST', body: formData }
-        );
+        const response = await fetch(this.uploadAPI, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Upload failed: ${errorText}`);
+        }
         
         const data = await response.json();
         
-        if (!response.ok) {
-            throw new Error(data.error?.message || 'Cloudinary upload failed');
+        if (!data.secure_url) {
+            throw new Error('Upload failed: No URL returned');
         }
         
         return data.secure_url;
@@ -198,65 +199,22 @@ const UploadService = {
         return url && typeof url === 'string' && url.includes('res.cloudinary.com');
     },
     
-    // Extract public_id from Cloudinary URL
-    // URL format: https://res.cloudinary.com/cloud_name/resource_type/upload/vXXX/folder/filename.ext
-    getPublicIdFromUrl(url) {
-        if (!this.isCloudinaryUrl(url)) return null;
-        
-        try {
-            const uploadMatch = url.match(/\/upload\/(?:v\d+\/)?(.+)$/);
-            if (!uploadMatch) return null;
-            
-            let publicId = uploadMatch[1];
-            const lastDotIndex = publicId.lastIndexOf('.');
-            if (lastDotIndex > 0) {
-                publicId = publicId.substring(0, lastDotIndex);
-            }
-            
-            return publicId;
-        } catch (error) {
-            return null;
-        }
-    },
-    
-    // Generate SHA-1 signature for Cloudinary API authentication
-    async generateSignature(params) {
-        const sortedParams = Object.keys(params).sort().map(key => `${key}=${params[key]}`).join('&');
-        const stringToSign = sortedParams + this.cloudinary.apiSecret;
-        
-        const encoder = new TextEncoder();
-        const data = encoder.encode(stringToSign);
-        const hashBuffer = await crypto.subtle.digest('SHA-1', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    },
-    
-    // Delete file from Cloudinary with proper authentication
+    // Delete file via backend API
     async deleteFromCloudinary(url) {
         if (!this.isCloudinaryUrl(url)) return false;
         
-        const publicId = this.getPublicIdFromUrl(url);
-        if (!publicId) return false;
-        
         try {
-            const timestamp = Math.floor(Date.now() / 1000);
-            const params = { public_id: publicId, timestamp: timestamp };
-            const signature = await this.generateSignature(params);
-            
             const formData = new FormData();
-            formData.append('public_id', publicId);
-            formData.append('timestamp', timestamp.toString());
-            formData.append('api_key', this.cloudinary.apiKey);
-            formData.append('signature', signature);
+            formData.append('link', url);
             
-            let resourceType = 'image';
-            if (url.includes('/video/')) resourceType = 'video';
-            else if (url.includes('/raw/')) resourceType = 'raw';
+            const response = await fetch(this.deleteAPI, {
+                method: 'POST',
+                body: formData
+            });
             
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${this.cloudinary.cloudName}/${resourceType}/destroy`,
-                { method: 'POST', body: formData }
-            );
+            if (!response.ok) {
+                return false;
+            }
             
             const data = await response.json();
             return data.result === 'ok' || data.result === 'not found';
