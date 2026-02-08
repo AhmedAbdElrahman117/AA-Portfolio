@@ -12,8 +12,17 @@ if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0) {
 }
 
 // Add splash-active class to both html and body
-document.documentElement.classList.add('splash-active');
-document.body.classList.add('splash-active');
+// Use DOMContentLoaded to ensure DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        document.documentElement.classList.add('splash-active');
+        document.body.classList.add('splash-active');
+    });
+} else {
+    // DOM already loaded
+    document.documentElement.classList.add('splash-active');
+    document.body.classList.add('splash-active');
+}
 
 // DOM Elements
 const splashScreen = document.getElementById('splash-screen');
@@ -353,6 +362,15 @@ window.addEventListener('wheel', preventScroll, { passive: false });
 window.addEventListener('touchmove', preventScroll, { passive: false });
 
 function hideSplashScreen() {
+    // Ensure splash screen exists
+    if (!splashScreen) {
+        console.warn('Splash screen element not found, unlocking scroll immediately');
+        document.documentElement.classList.remove('splash-active');
+        document.body.classList.remove('splash-active');
+        splashActive = false;
+        return;
+    }
+    
     // Wait for all splash animations to complete (loader bar takes ~4s total)
     setTimeout(() => {
         splashScreen.classList.add('hide');
@@ -373,6 +391,19 @@ function hideSplashScreen() {
         }, 1000);
     }, 4200);
 }
+
+// Failsafe: Ensure scrolling is re-enabled after max 6 seconds
+setTimeout(() => {
+    if (splashActive) {
+        console.warn('Splash screen timeout - force unlocking scroll');
+        document.documentElement.classList.remove('splash-active');
+        document.body.classList.remove('splash-active');
+        splashActive = false;
+        window.removeEventListener('scroll', preventScroll);
+        window.removeEventListener('wheel', preventScroll);
+        window.removeEventListener('touchmove', preventScroll);
+    }
+}, 6000);
 
 // ====================================
 // Navigation
@@ -1453,6 +1484,19 @@ document.addEventListener('DOMContentLoaded', () => {
     initKeyboardNavigation();
     preloadImages();
     initParticles();
+});
+
+// Additional failsafe on window load
+window.addEventListener('load', () => {
+    // Double-check that splash screen will be hidden
+    setTimeout(() => {
+        if (splashActive) {
+            console.warn('Window load - ensuring splash unlocks');
+            document.documentElement.classList.remove('splash-active');
+            document.body.classList.remove('splash-active');
+            splashActive = false;
+        }
+    }, 6500);
 });
 
 // Page visibility handling not needed
