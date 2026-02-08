@@ -2,9 +2,11 @@
    AA Portfolio Dashboard - Authentication
    ==================================== */
 
+'use strict';
+
 const Auth = {
-    // Default credentials (in production, use proper backend authentication)
-    defaultCredentials: {
+    // Default credentials (loaded from config.js)
+    defaultCredentials: window.CONFIG ? window.CONFIG.admin : {
         username: 'admin',
         password: 'admin'
     },
@@ -28,7 +30,7 @@ const Auth = {
                 const creds = JSON.parse(saved);
                 this.defaultCredentials = creds;
             } catch (e) {
-                console.error('Failed to load credentials');
+                // Failed to load credentials - silent error handling
             }
         }
     },

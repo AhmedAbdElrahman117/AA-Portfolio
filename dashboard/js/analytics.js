@@ -3,13 +3,15 @@
    Fetches visitor data from Firebase
    ==================================== */
 
+'use strict';
+
 const Analytics = {
     db: null,
     firestoreMethods: null,
     visits: [],
     
-    // Firebase configuration
-    firebase: {
+    // Firebase configuration (loaded from config.js)
+    firebase: window.CONFIG ? window.CONFIG.firebase : {
         apiKey: "AIzaSyC1Hr7L6yp27w6E9wInccgpPFMSSrBRvwE",
         authDomain: "portfolio-e911a.firebaseapp.com",
         projectId: "portfolio-e911a",
@@ -34,7 +36,6 @@ const Analytics = {
             this.db = getFirestore(app);
             this.firestoreMethods = { collection, getDocs, query, orderBy, limit, deleteDoc, doc, onSnapshot };
         } catch (error) {
-            console.error('Firebase initialization failed:', error);
             throw error;
         }
     },
@@ -84,7 +85,7 @@ const Analytics = {
             this.unsubscribers.push(unsubVisits);
             
         } catch (error) {
-            console.error('Failed to subscribe to visits:', error);
+            // Failed to subscribe - silent error handling
         }
     },
     
@@ -163,7 +164,6 @@ const Analytics = {
             
             return this.visits;
         } catch (error) {
-            console.error('Failed to fetch visits:', error);
             return [];
         }
     },
@@ -390,7 +390,6 @@ const Analytics = {
                 Dashboard.showToast('Analytics data cleared', 'success');
             }
         } catch (error) {
-            console.error('Failed to clear data:', error);
             if (typeof Dashboard !== 'undefined') {
                 Dashboard.showToast('Failed to clear data: ' + error.message, 'error');
             }

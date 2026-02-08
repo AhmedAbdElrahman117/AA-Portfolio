@@ -2,17 +2,18 @@
    AA Portfolio Dashboard - Upload Service
    ==================================== */
 
+'use strict';
+
 const UploadService = {
-    // Cloudinary configuration
-    cloudinary: {
+    // Cloudinary configuration (loaded from config.js)
+    cloudinary: window.CONFIG ? window.CONFIG.cloudinary : {
         cloudName: 'db2hsfkzd',
-        uploadPreset: 'portfolio_unsigned', // You need to create this preset in Cloudinary dashboard
-        apiKey: '864717488794595',
-        apiSecret: 'zZqgp1PbXFPbSlwOXB-M87eq-5g'
+        uploadPreset: 'portfolio_unsigned',
+        apiKey: '864717488794595'
     },
     
-    // Firebase configuration
-    firebase: {
+    // Firebase configuration (loaded from config.js)
+    firebase: window.CONFIG ? window.CONFIG.firebase : {
         apiKey: "AIzaSyC1Hr7L6yp27w6E9wInccgpPFMSSrBRvwE",
         authDomain: "portfolio-e911a.firebaseapp.com",
         projectId: "portfolio-e911a",
@@ -48,7 +49,6 @@ const UploadService = {
                 this.db = getFirestore(this.app);
                 this.firestoreMethods = { collection, doc, setDoc, getDoc };
             } catch (error) {
-                console.error('Firebase initialization failed:', error);
                 this.initPromise = null;
                 throw error;
             }
@@ -85,7 +85,6 @@ const UploadService = {
                 }
                 return null;
             } catch (error) {
-                console.error(`Error fetching ${section} from Firebase:`, error);
                 throw error;
             }
         })();
@@ -102,7 +101,6 @@ const UploadService = {
             await setDoc(docRef, { data: data, updatedAt: new Date().toISOString() });
             return true;
         } catch (error) {
-            console.error(`Error saving ${section} to Firebase:`, error);
             throw error;
         }
     },
@@ -170,7 +168,6 @@ const UploadService = {
             
             return await this.uploadBlobToCloudinary(blob, folder, this.getFileName(filePath));
         } catch (error) {
-            console.error('Error uploading file:', filePath, error);
             throw error;
         }
     },
@@ -190,7 +187,6 @@ const UploadService = {
         const data = await response.json();
         
         if (!response.ok) {
-            console.error('Cloudinary error:', data);
             throw new Error(data.error?.message || 'Cloudinary upload failed');
         }
         
@@ -219,7 +215,6 @@ const UploadService = {
             
             return publicId;
         } catch (error) {
-            console.error('Error extracting public_id:', error);
             return null;
         }
     },
@@ -266,7 +261,6 @@ const UploadService = {
             const data = await response.json();
             return data.result === 'ok' || data.result === 'not found';
         } catch (error) {
-            console.error('Cloudinary deletion error:', error.message);
             return false;
         }
     },
@@ -363,7 +357,6 @@ const UploadService = {
             this.pendingFiles.delete(inputId);
             return url;
         } catch (error) {
-            console.error('Failed to upload pending file:', error);
             throw error;
         }
     },

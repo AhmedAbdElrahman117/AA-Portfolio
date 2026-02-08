@@ -2,6 +2,9 @@
    AA Portfolio - Main JavaScript
    ==================================== */
 
+'use strict';
+
+
 // DOM Elements
 const splashScreen = document.getElementById('splash-screen');
 const hamburger = document.getElementById('hamburger');
@@ -22,6 +25,23 @@ const typewriterElement = document.getElementById('typewriter');
 // State
 let currentTypewriterIndex = 0;
 let isTyping = false;
+
+// Cached layout measurements (prevent forced reflows)
+let cachedNavHeight = 70;
+let cachedBodyScrollHeight = 0;
+let cachedWindowHeight = 0;
+let animationFrameId = null;
+
+// Initialize cached values
+function updateCachedMeasurements() {
+    // Use requestAnimationFrame to avoid forced reflow during initialization
+    requestAnimationFrame(() => {
+        const navbar = document.querySelector('.navbar');
+        if (navbar) cachedNavHeight = navbar.offsetHeight;
+        cachedBodyScrollHeight = document.body.scrollHeight;
+        cachedWindowHeight = window.innerHeight;
+    });
+}
 
 // ====================================
 // Shimmer Skeleton Generators
@@ -362,24 +382,35 @@ function initNavigation() {
     let lastSection = null;
     
     const updateSectionOnScrollStop = debounce(() => {
-        const sections = document.querySelectorAll('.section');
-        const navHeight = 70;
-        const scrollPosition = window.scrollY + navHeight + window.innerHeight / 3;
+        if (animationFrameId) return;
         
-        let currentSection = null;
-        for (const section of sections) {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.offsetHeight;
-            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-                currentSection = section.getAttribute('id');
-                break;
+        animationFrameId = requestAnimationFrame(() => {
+            const sections = document.querySelectorAll('.section');
+            const scrollPosition = window.scrollY + cachedNavHeight + window.innerHeight / 3;
+            
+            // Batch all layout reads together
+            const sectionData = Array.from(sections).map(section => ({
+                id: section.getAttribute('id'),
+                top: section.offsetTop,
+                height: section.offsetHeight
+            }));
+            
+            // Find current section from batched data
+            let currentSection = null;
+            for (const data of sectionData) {
+                if (scrollPosition >= data.top && scrollPosition < data.top + data.height) {
+                    currentSection = data.id;
+                    break;
+                }
             }
-        }
-        
-        if (currentSection && currentSection !== lastSection) {
-            lastSection = currentSection;
-            updateActiveNav(currentSection);
-        }
+            
+            if (currentSection && currentSection !== lastSection) {
+                lastSection = currentSection;
+                updateActiveNav(currentSection);
+            }
+            
+            animationFrameId = null;
+        });
     }, 80); // 150ms after scroll stops
     
     window.addEventListener('scroll', updateSectionOnScrollStop, { passive: true });
@@ -394,11 +425,12 @@ function initNavigation() {
 function scrollToSection(sectionId) {
     const section = document.getElementById(sectionId);
     if (section) {
-        const navHeight = document.querySelector('.navbar').offsetHeight;
-        const sectionTop = section.offsetTop - navHeight;
-        window.scrollTo({
-            top: sectionTop,
-            behavior: 'smooth'
+        requestAnimationFrame(() => {
+            const sectionTop = section.offsetTop - cachedNavHeight;
+            window.scrollTo({
+                top: sectionTop,
+                behavior: 'smooth'
+            });
         });
     }
 }
@@ -433,7 +465,7 @@ function updateNavbarOnScroll() {
 // ====================================
 function updateBackgroundPosition() {
     const scrollY = window.scrollY;
-    const maxScroll = document.body.scrollHeight - window.innerHeight;
+    const maxScroll = cachedBodyScrollHeight - cachedWindowHeight;
     const scrollPercent = maxScroll > 0 ? scrollY / maxScroll : 0;
 
     const circles = document.querySelectorAll('.bg-circle');
@@ -701,24 +733,35 @@ function initTechCardEffects() {
     const techCards = document.querySelectorAll('.tech-card');
     
     techCards.forEach(card => {
+        let cardRect = null;
+        
+        card.addEventListener('mouseenter', () => {
+            // Cache rect on mouse enter
+            cardRect = card.getBoundingClientRect();
+        });
+        
         card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = ((e.clientX - rect.left) / rect.width) * 100;
-            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            if (!cardRect) cardRect = card.getBoundingClientRect();
             
-            card.style.setProperty('--mouse-x', `${x}%`);
-            card.style.setProperty('--mouse-y', `${y}%`);
-            
-            // 3D tilt effect
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = (e.clientY - rect.top - centerY) / 10;
-            const rotateY = (e.clientX - rect.left - centerX) / 10;
-            
-            card.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            requestAnimationFrame(() => {
+                const x = ((e.clientX - cardRect.left) / cardRect.width) * 100;
+                const y = ((e.clientY - cardRect.top) / cardRect.height) * 100;
+                
+                card.style.setProperty('--mouse-x', `${x}%`);
+                card.style.setProperty('--mouse-y', `${y}%`);
+                
+                // 3D tilt effect
+                const centerX = cardRect.width / 2;
+                const centerY = cardRect.height / 2;
+                const rotateX = (e.clientY - cardRect.top - centerY) / 10;
+                const rotateY = (e.clientX - cardRect.left - centerX) / 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            });
         });
         
         card.addEventListener('mouseleave', () => {
+            cardRect = null; // Clear cache
             card.style.transform = '';
         });
     });
@@ -732,24 +775,26 @@ function initTabs() {
         btn.addEventListener('click', (e) => {
             const tab = btn.getAttribute('data-tab');
             
-            // Add click ripple effect
-            const rect = btn.getBoundingClientRect();
-            const ripple = document.createElement('span');
-            ripple.className = 'tab-ripple';
-            ripple.style.cssText = `
-                position: absolute;
-                background: rgba(255, 255, 255, 0.3);
-                border-radius: 50%;
-                transform: scale(0);
-                animation: tabRipple 0.6s ease-out;
-                pointer-events: none;
-                width: 100px;
-                height: 100px;
-                left: ${e.clientX - rect.left - 50}px;
-                top: ${e.clientY - rect.top - 50}px;
-            `;
-            btn.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
+            // Add click ripple effect with requestAnimationFrame
+            requestAnimationFrame(() => {
+                const rect = btn.getBoundingClientRect();
+                const ripple = document.createElement('span');
+                ripple.className = 'tab-ripple';
+                ripple.style.cssText = `
+                    position: absolute;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: tabRipple 0.6s ease-out;
+                    pointer-events: none;
+                    width: 100px;
+                    height: 100px;
+                    left: ${e.clientX - rect.left - 50}px;
+                    top: ${e.clientY - rect.top - 50}px;
+                `;
+                btn.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
             
             // Update active tab button with animation
             tabBtns.forEach(b => {
@@ -758,13 +803,18 @@ function initTabs() {
             });
             btn.classList.add('active');
             
-            // Update active tab content with enhanced animation
+            // Update active tab content with enhanced animation (no forced reflow)
             tabContents.forEach(content => {
                 if (content.id === `${tab}-tab`) {
                     content.classList.add('active');
-                    content.style.animation = 'none';
-                    content.offsetHeight; // Trigger reflow
-                    content.style.animation = 'tabFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    
+                    // Reset animation without forcing reflow
+                    requestAnimationFrame(() => {
+                        content.style.animation = 'none';
+                        requestAnimationFrame(() => {
+                            content.style.animation = 'tabFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                        });
+                    });
                     
                     // Animate children with stagger
                     const cards = content.querySelectorAll('.project-card, .certificate-card');
@@ -772,10 +822,12 @@ function initTabs() {
                         card.style.opacity = '0';
                         card.style.transform = 'translateY(20px)';
                         setTimeout(() => {
-                            card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-                            card.style.opacity = '1';
-                            card.style.transform = 'translateY(0)';
-                        }, index * 80);
+                            requestAnimationFrame(() => {
+                                card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            });
+                        }, index * 70);
                     });
                 } else {
                     content.classList.remove('active');
@@ -1130,6 +1182,17 @@ function showToast(message, type = 'success') {
 // ====================================
 // Utility Functions
 // ====================================
+
+// Initialize cached measurements after DOM load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateCachedMeasurements);
+} else {
+    updateCachedMeasurements();
+}
+
+// Update on resize
+window.addEventListener('resize', debounce(updateCachedMeasurements, 200), { passive: true });
+
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {

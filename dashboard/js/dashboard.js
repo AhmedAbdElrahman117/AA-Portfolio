@@ -2,6 +2,75 @@
    AA Portfolio Dashboard - Main JavaScript
    ==================================== */
 
+'use strict';
+
+// Performance & Security Enhancements
+(function() {
+    // Disable console methods
+    if (typeof window !== 'undefined') {
+        const noop = () => {};
+        const methods = ['log', 'debug', 'info', 'warn', 'table', 'trace', 'dir', 'group', 'groupEnd', 'clear', 'count', 'time', 'timeEnd'];
+        methods.forEach(method => {
+            console[method] = noop;
+        });
+    }
+    
+    // Disable right-click
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    
+    // Disable view source shortcuts
+    document.addEventListener('keydown', e => {
+        if (
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+            (e.ctrlKey && e.key === 'U')
+        ) {
+            e.preventDefault();
+            return false;
+        }
+    });
+})();
+
+// DOM Element Cache for performance
+const DOMCache = {
+    _cache: {},
+    get(id) {
+        if (!this._cache[id]) {
+            this._cache[id] = document.getElementById(id);
+        }
+        return this._cache[id];
+    },
+    clear() {
+        this._cache = {};
+    }
+};
+
+// Performance utilities
+const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+};
+
+const throttle = (func, limit) => {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+};
+
 const Dashboard = {
     // Storage keys
     storageKeys: {
@@ -447,7 +516,6 @@ const Dashboard = {
             this.loadedSections.add(sectionId);
             
         } catch (error) {
-            console.error(`Failed to load ${sectionId} from Firebase:`, error);
             this.hideSectionLoading(sectionId);
             this.showToast(`Failed to load ${sectionId}: ${error.message}`, 'error');
             // Still load UI with empty data
@@ -663,7 +731,7 @@ const Dashboard = {
         item.className = 'dynamic-list-item';
         item.innerHTML = `
             <input type="text" value="${this.escapeHtml(text)}" placeholder="Enter typewriter text...">
-            <button type="button" class="btn-delete" onclick="Dashboard.removeListItem(this)">
+            <button type="button" class="btn-delete" onclick="Dashboard.removeListItem(this)" aria-label="Delete item">
                 <i class="fas fa-trash"></i>
             </button>
         `;
@@ -676,7 +744,7 @@ const Dashboard = {
         item.className = 'dynamic-list-item';
         item.innerHTML = `
             <textarea rows="3" placeholder="Enter paragraph text...">${this.escapeHtml(text)}</textarea>
-            <button type="button" class="btn-delete" onclick="Dashboard.removeListItem(this)">
+            <button type="button" class="btn-delete" onclick="Dashboard.removeListItem(this)" aria-label="Delete item">
                 <i class="fas fa-trash"></i>
             </button>
         `;
@@ -816,7 +884,7 @@ const Dashboard = {
         item.className = 'modal-dynamic-item';
         item.innerHTML = `
             <input type="text" value="" placeholder="${placeholder}">
-            <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+            <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove item"><i class="fas fa-times"></i></button>
         `;
         list.appendChild(item);
         
@@ -1160,10 +1228,10 @@ const Dashboard = {
                     <h4>${skill.name}</h4>
                 </div>
                 <div class="item-card-actions">
-                    <button class="btn btn-outline btn-small" onclick="Dashboard.editTechSkill(${skill.id})">
+                    <button class="btn btn-outline btn-small" onclick="Dashboard.editTechSkill(${skill.id})" aria-label="Edit tech stack item">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteTechSkill(${skill.id})">
+                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteTechSkill(${skill.id})" aria-label="Delete tech stack item">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -1270,10 +1338,10 @@ const Dashboard = {
                     <span class="list-item-value">${skill.percentage}%</span>
                 </div>
                 <div class="list-item-actions">
-                    <button class="btn btn-outline btn-small" onclick="Dashboard.editSoftSkill(${skill.id})">
+                    <button class="btn btn-outline btn-small" onclick="Dashboard.editSoftSkill(${skill.id})" aria-label="Edit soft skill">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteSoftSkill(${skill.id})">
+                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteSoftSkill(${skill.id})" aria-label="Delete soft skill">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -1368,10 +1436,10 @@ const Dashboard = {
                     <span class="list-item-value">${skill.percentage}%</span>
                 </div>
                 <div class="list-item-actions">
-                    <button class="btn btn-outline btn-small" onclick="Dashboard.editLangSkill(${skill.id})">
+                    <button class="btn btn-outline btn-small" onclick="Dashboard.editLangSkill(${skill.id})" aria-label="Edit language skill">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteLangSkill(${skill.id})">
+                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteLangSkill(${skill.id})" aria-label="Delete language skill">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -1544,7 +1612,7 @@ const Dashboard = {
                     <button class="btn btn-outline btn-small" onclick="Dashboard.editProject('${project.id}')">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteProject('${project.id}')">
+                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteProject('${project.id}')" aria-label="Delete project">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -1655,10 +1723,10 @@ const Dashboard = {
                     <h4>${cert.title}</h4>
                 </div>
                 <div class="item-card-actions">
-                    <button class="btn btn-outline btn-small" onclick="Dashboard.editCertificate(${cert.id})">
+                    <button class="btn btn-outline btn-small" onclick="Dashboard.editCertificate(${cert.id})" aria-label="Edit certificate">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteCertificate(${cert.id})">
+                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteCertificate(${cert.id})" aria-label="Delete certificate">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -1763,10 +1831,10 @@ const Dashboard = {
                     <p class="item-card-description">${service.description.substring(0, 80)}...</p>
                 </div>
                 <div class="item-card-actions">
-                    <button class="btn btn-outline btn-small" onclick="Dashboard.editService(${service.id})">
+                    <button class="btn btn-outline btn-small" onclick="Dashboard.editService(${service.id})" aria-label="Edit service">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteService(${service.id})">
+                    <button class="btn btn-danger btn-small" onclick="Dashboard.deleteService(${service.id})" aria-label="Delete service">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -2019,12 +2087,12 @@ const Dashboard = {
                                 ${technologies.length > 0 ? technologies.map(tech => `
                                     <div class="modal-dynamic-item">
                                         <input type="text" value="${this.escapeHtml(tech)}" placeholder="e.g., Flutter">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove technology"><i class="fas fa-times"></i></button>
                                     </div>
                                 `).join('') : `
                                     <div class="modal-dynamic-item">
                                         <input type="text" value="" placeholder="e.g., Flutter">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove technology"><i class="fas fa-times"></i></button>
                                     </div>
                                 `}
                             </div>
@@ -2038,12 +2106,12 @@ const Dashboard = {
                                 ${packages.length > 0 ? packages.map(pkg => `
                                     <div class="modal-dynamic-item">
                                         <input type="text" value="${this.escapeHtml(pkg)}" placeholder="e.g., flutter_bloc">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove package"><i class="fas fa-times"></i></button>
                                     </div>
                                 `).join('') : `
                                     <div class="modal-dynamic-item">
                                         <input type="text" value="" placeholder="e.g., flutter_bloc">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove package"><i class="fas fa-times"></i></button>
                                     </div>
                                 `}
                             </div>
@@ -2057,12 +2125,12 @@ const Dashboard = {
                                 ${features.length > 0 ? features.map(feature => `
                                     <div class="modal-dynamic-item">
                                         <input type="text" value="${this.escapeHtml(feature)}" placeholder="e.g., User authentication">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove feature"><i class="fas fa-times"></i></button>
                                     </div>
                                 `).join('') : `
                                     <div class="modal-dynamic-item">
                                         <input type="text" value="" placeholder="e.g., User authentication">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove feature"><i class="fas fa-times"></i></button>
                                     </div>
                                 `}
                             </div>
@@ -2076,7 +2144,7 @@ const Dashboard = {
                                 ${screenshots.map(screenshot => `
                                     <div class="modal-dynamic-item">
                                         <input type="text" value="${this.escapeHtml(screenshot)}" placeholder="assets/project/1.png">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove screenshot"><i class="fas fa-times"></i></button>
                                     </div>
                                 `).join('') || ''}
                             </div>
@@ -2470,7 +2538,6 @@ const Dashboard = {
             this.showResultDialog('success', 'Saved Successfully', `${itemType} has been saved to the cloud.`);
             
         } catch (error) {
-            console.error('Save error:', error);
             if (typeof UploadService !== 'undefined') {
                 UploadService.hideLoading();
             }

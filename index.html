@@ -5,27 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Ahmed Abdelrahman - Flutter Developer Portfolio">
     <meta name="keywords" content="Flutter, Developer, Mobile App, Portfolio, Ahmed Abdelrahman">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#2196F3">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <!-- Enable compression for static assets -->
+    <meta http-equiv="Accept-CH" content="DPR, Width, Viewport-Width">
+    
     <title>AA Portfolio - Ahmed Abdelrahman</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="icons/portfolio.png">
     <link rel="apple-touch-icon" href="icons/portfolio.png">
+    <link rel="manifest" href="manifest.json">
     
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
+    <!-- Resource Hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="dns-prefetch" href="https://www.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    <link rel="dns-prefetch" href="https://res.cloudinary.com">
+    <link rel="preconnect" href="https://firebasestorage.googleapis.com">
     
-    <!-- Lottie Player -->
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <!-- Preload Critical Fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" as="style">
+    
+    <!-- Preload Critical Resources for LCP -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" as="style">
+    <link rel="preload" href="assets/ProgrammingComputer.json" as="fetch" crossorigin>
+    <link rel="preload" href="assets/me.webp" as="image">
+    <link rel="preload" href="css/styles.css?v=7" as="style">
+    <link rel="preload" href="css/animations.css?v=7" as="style">
+    
+    <!-- Preload Font Awesome fonts -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Critical Inline CSS for LCP (splash screen text) -->
+    <style>
+        /* Critical gradient text styles to prevent render delay */
+        .gradient-text {
+            background: linear-gradient(135deg, #2196F3, #673AB7, #E91E63);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        /* Ensure fonts load without blocking */
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    </style>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/styles.css?v=7" fetchpriority="high">
+    <link rel="stylesheet" href="css/animations.css?v=7">
+    <link rel="stylesheet" href="css/responsive.css?v=7" media="print" onload="this.media='all'">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" media="print" onload="this.media='all'">
+    
+    <!-- Google Fonts - Load synchronously for LCP element -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="css/responsive.css?v=7">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </noscript>
     
 </head>
 <body>
@@ -132,7 +180,7 @@
         <div class="drawer-content">
             <div class="drawer-header">
                 <span class="gradient-text">Menu</span>
-                <button class="close-drawer" id="closeDrawer"><i class="fas fa-times"></i></button>
+                <button class="close-drawer" id="closeDrawer" aria-label="Close menu"><i class="fas fa-times"></i></button>
             </div>
             <div class="drawer-links">
                 <a href="#home" class="drawer-link active" data-section="home"><i class="fas fa-home"></i> Home</a>
@@ -160,16 +208,16 @@
                             <span class="cursor">|</span>
                         </h1>
                         <div class="social-buttons">
-                            <a href="https://www.linkedin.com/in/ahmed-abo-el-naga-b200892a5/" target="_blank" class="social-btn" aria-label="LinkedIn">
+                            <a href="https://www.linkedin.com/in/ahmed-abo-el-naga-b200892a5/" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="LinkedIn">
                                 <i class="fab fa-linkedin-in"></i>
                             </a>
-                            <a href="https://github.com/AhmedAbdElrahman117" target="_blank" class="social-btn" aria-label="GitHub">
+                            <a href="https://github.com/AhmedAbdElrahman117" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="GitHub">
                                 <i class="fab fa-github"></i>
                             </a>
                             <a href="mailto:ahmedaboelnaga713@gmail.com" class="social-btn" aria-label="Email">
                                 <i class="fas fa-envelope"></i>
                             </a>
-                            <a href="https://www.facebook.com/lorr.ahmed.37/" target="_blank" class="social-btn" aria-label="Facebook">
+                            <a href="https://www.facebook.com/lorr.ahmed.37/" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Facebook">
                                 <i class="fab fa-facebook-f"></i>
                             </a>
                         </div>
@@ -187,6 +235,7 @@
                             src="assets/ProgrammingComputer.json" 
                             background="transparent" 
                             speed="1" 
+                            style="width: 100%; height: 500px;"
                             loop 
                             autoplay>
                         </lottie-player>
@@ -205,7 +254,13 @@
                 <div class="about-content">
                     <div class="about-image animate-on-scroll slide-left">
                         <div class="glossy-container image-container">
-                            <img src="assets/me.webp" alt="Ahmed Abdelrahman" loading="lazy">
+                            <img src="assets/me.webp" 
+                                 alt="Ahmed Abdelrahman" 
+                                 loading="eager" 
+                                 fetchpriority="high"
+                                 width="400" 
+                                 height="400"
+                                 decoding="async">
                         </div>
                     </div>
                     <div class="about-text animate-on-scroll slide-right">
@@ -408,13 +463,13 @@
                         <div class="social-follow">
                             <h4>Follow Me</h4>
                             <div class="social-links">
-                                <a href="https://www.linkedin.com/in/ahmed-abo-el-naga-b200892a5/" target="_blank" aria-label="LinkedIn">
+                                <a href="https://www.linkedin.com/in/ahmed-abo-el-naga-b200892a5/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                                     <i class="fab fa-linkedin-in"></i>
                                 </a>
-                                <a href="https://github.com/AhmedAbdElrahman117" target="_blank" aria-label="GitHub">
+                                <a href="https://github.com/AhmedAbdElrahman117" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                                     <i class="fab fa-github"></i>
                                 </a>
-                                <a href="https://www.facebook.com/lorr.ahmed.37/" target="_blank" aria-label="Facebook">
+                                <a href="https://www.facebook.com/lorr.ahmed.37/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                                     <i class="fab fa-facebook-f"></i>
                                 </a>
                             </div>
@@ -424,16 +479,16 @@
                     <div class="contact-form animate-on-scroll slide-right">
                         <form id="contactForm">
                             <div class="form-group">
-                                <input type="text" id="name" name="name" placeholder="Your Name" required>
+                                <input type="text" id="name" name="name" placeholder="Your Name" required autocomplete="name">
                             </div>
                             <div class="form-group">
-                                <input type="email" id="email" name="email" placeholder="Your Email" required>
+                                <input type="email" id="email" name="email" placeholder="Your Email" required autocomplete="email" inputmode="email">
                             </div>
                             <div class="form-group">
-                                <input type="text" id="subject" name="subject" placeholder="Subject" required>
+                                <input type="text" id="subject" name="subject" placeholder="Subject" required autocomplete="off">
                             </div>
                             <div class="form-group">
-                                <textarea id="message" name="message" placeholder="Your Message" rows="5" required></textarea>
+                                <textarea id="message" name="message" placeholder="Your Message" rows="5" required autocomplete="off"></textarea>
                             </div>
                             <button type="submit" class="btn gradient-btn btn-full">
                                 <i class="fas fa-paper-plane"></i> Send Message
@@ -456,7 +511,7 @@
     <!-- Project Details Modal -->
     <div id="projectModal" class="modal">
         <div class="modal-content">
-            <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+            <button class="modal-close" id="modalClose" aria-label="Close modal"><i class="fas fa-times"></i></button>
             <div class="modal-body" id="modalBody">
                 <!-- Dynamic content will be loaded here -->
             </div>
@@ -468,7 +523,31 @@
 
 
     <!-- JavaScript -->
-    <script src="js/data.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Configuration (must load first) -->
+    <script src="config.js?v=7"></script>
+    
+    <!-- Main scripts -->
+    <script src="js/data.js?v=7" defer></script>
+    <script src="js/main.js?v=7" defer></script>
+    
+    <!-- Lazy-load Lottie Player when needed -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lazy-load Lottie Player when visible
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !window.lottieLoaded) {
+                        window.lottieLoaded = true;
+                        const script = document.createElement('script');
+                        script.src = 'https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js';
+                        document.head.appendChild(script);
+                        observer.disconnect();
+                    }
+                });
+            });
+            const lottieElement = document.querySelector('lottie-player');
+            if (lottieElement) observer.observe(lottieElement);
+        });
+    </script>
 </body>
 </html>

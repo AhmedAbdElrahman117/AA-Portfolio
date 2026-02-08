@@ -2,8 +2,10 @@
    AA Portfolio - Firebase Data Loading
    ==================================== */
 
-// Firebase configuration
-const firebaseConfig = {
+'use strict';
+
+// Firebase configuration (loaded from config.js)
+const firebaseConfig = window.CONFIG ? window.CONFIG.firebase : {
     apiKey: "AIzaSyC1Hr7L6yp27w6E9wInccgpPFMSSrBRvwE",
     authDomain: "portfolio-e911a.firebaseapp.com",
     projectId: "portfolio-e911a",
@@ -133,14 +135,25 @@ async function initFirebase() {
     
     try {
         const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
-        const { getFirestore, doc, getDoc, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const { getFirestore, doc, getDoc, onSnapshot, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
         
         const apps = getApps();
         firebaseApp = apps.length ? apps[0] : initializeApp(firebaseConfig);
-        firebaseDb = getFirestore(firebaseApp);
+        
+        // Initialize Firestore with optimized cache settings for better performance
+        try {
+            firebaseDb = initializeFirestore(firebaseApp, {
+                localCache: persistentLocalCache({
+                    tabManager: persistentMultipleTabManager()
+                })
+            });
+        } catch (e) {
+            // Fallback to default if already initialized
+            firebaseDb = getFirestore(firebaseApp);
+        }
+        
         firestoreMethods = { doc, getDoc, onSnapshot };
     } catch (error) {
-        console.error('Firebase init failed:', error);
         throw error;
     }
 }
@@ -159,7 +172,6 @@ async function fetchDocument(collectionName, docId) {
         }
         return null;
     } catch (error) {
-        console.error(`Failed to fetch ${collectionName}/${docId}:`, error);
         return null;
     }
 }
@@ -176,7 +188,7 @@ function subscribeToDocument(collectionName, docId, callback) {
             callback(null);
         }
     }, (error) => {
-        console.error(`Snapshot error for ${collectionName}/${docId}:`, error);
+        // Silent error handling
     });
     
     portfolioUnsubscribers.push(unsubscribe);
@@ -300,7 +312,6 @@ async function loadPortfolioData() {
         
         return true;
     } catch (error) {
-        console.error('Failed to load portfolio data:', error);
         // Even on error, use defaults and mark as loaded
         markAllAsLoaded();
         return false;
@@ -357,7 +368,7 @@ function getBrowserName(userAgent) {
 async function getVisitorGeoData() {
     try {
         // Using ip-api.com (free, no API key needed, 45 req/min limit)
-        const response = await fetch('http://ip-api.com/json/?fields=query,country,city,isp,org');
+        const response = await fetch('https://ip-api.com/json/?fields=query,country,city,isp,org');
         if (response.ok) {
             const data = await response.json();
             return {
@@ -383,7 +394,7 @@ async function getVisitorGeoData() {
                 };
             }
         } catch (e) {
-            console.error('Geolocation fallback failed:', e);
+            // Geolocation fallback failed - silent error handling
         }
     }
     return { ip: 'Unknown', country: 'Unknown', city: 'Unknown', isp: 'Unknown', org: 'Unknown' };
@@ -434,7 +445,6 @@ async function recordVisitor() {
         setupSessionDurationTracking();
     } catch (error) {
         // Silent fail - don't interrupt user experience
-        console.error('Failed to record visit:', error);
     }
 }
 
