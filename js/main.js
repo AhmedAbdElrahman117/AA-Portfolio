@@ -4,6 +4,12 @@
 
 'use strict';
 
+// Force scroll to top immediately and lock position
+if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0) {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+}
 
 // DOM Elements
 const splashScreen = document.getElementById('splash-screen');
@@ -325,12 +331,41 @@ function generateLangSkills() {
 // ====================================
 // Splash Screen
 // ====================================
+
+// Prevent scroll during splash screen
+let splashActive = true;
+const preventScroll = (e) => {
+    if (splashActive) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.scrollTo(0, 0);
+        return false;
+    }
+};
+
+// Add scroll prevention listeners
+window.addEventListener('scroll', preventScroll, { passive: false });
+window.addEventListener('wheel', preventScroll, { passive: false });
+window.addEventListener('touchmove', preventScroll, { passive: false });
+
 function hideSplashScreen() {
     // Wait for all splash animations to complete (loader bar takes ~4s total)
     setTimeout(() => {
         splashScreen.classList.add('hide');
         setTimeout(() => {
             splashScreen.style.display = 'none';
+            // Allow scrolling again
+            splashActive = false;
+            // Re-enable vertical scrolling after splash is hidden
+            document.body.style.position = '';
+            document.body.style.overflowX = 'hidden';
+            document.body.style.overflowY = 'auto';
+            // Force scroll to top one more time
+            window.scrollTo(0, 0);
+            // Remove scroll prevention listeners
+            window.removeEventListener('scroll', preventScroll);
+            window.removeEventListener('wheel', preventScroll);
+            window.removeEventListener('touchmove', preventScroll);
             initAnimations();
         }, 1000);
     }, 4200);
@@ -538,12 +573,15 @@ function generateTechStack() {
         return;
     }
     
-    techStackContainer.innerHTML = techStackData.map((tech, index) => `
+    techStackContainer.innerHTML = techStackData.map((tech, index) => {
+        // image field contains the tech icon URL
+        const imageSource = tech.image || '';
+        return `
         <div class="tech-card animate-on-scroll fade-in-content" data-name="${tech.name}" style="--stagger: ${index}; animation-delay: ${index * 0.03}s">
-            <img src="${tech.image}" alt="${tech.name}" loading="lazy" onerror="this.style.display='none'">
+            <img src="${imageSource}" alt="${tech.name}" loading="lazy" onerror="this.style.display='none'" crossorigin="anonymous">
             <span>${tech.name}</span>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function generateProjects() {
@@ -556,10 +594,13 @@ function generateProjects() {
         return;
     }
     
-    projectsGrid.innerHTML = Object.values(projectsData).map((project, index) => `
+    projectsGrid.innerHTML = Object.values(projectsData).map((project, index) => {
+        // image field is for the project thumbnail
+        const imageSource = project.image || '';
+        return `
         <div class="project-card animate-on-scroll fade-in-content" data-project="${project.id}" style="--stagger: ${index}; animation-delay: ${index * 0.08}s">
             <div class="project-image">
-                <img src="${project.image}" alt="${project.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'placeholder-image\\'><i class=\\'fas fa-image\\'></i></div>'">
+                <img src="${imageSource}" alt="${project.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'placeholder-image\\'><i class=\\'fas fa-image\\'></i></div>'" crossorigin="anonymous">
             </div>
             <div class="project-content">
                 <div class="project-header">
@@ -575,7 +616,7 @@ function generateProjects() {
                 </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function generateServices() {
@@ -615,17 +656,22 @@ function generateCertificates() {
         return;
     }
     
-    certificatesGrid.innerHTML = certificatesData.map((cert, index) => `
-        <a href="${cert.url}" target="_blank" class="certificate-card animate-on-scroll fade-in-content" style="--stagger: ${index}; animation-delay: ${index * 0.08}s" data-url="${cert.url}">
+    certificatesGrid.innerHTML = certificatesData.map((cert, index) => {
+        // image field is for displaying the certificate image
+        const imageSource = cert.image || '';
+        // url field is the link to the certificate (e.g., Udemy certificate page)
+        const linkUrl = cert.url || cert.link || '#';
+        return `
+        <a href="${linkUrl}" target="_blank" class="certificate-card animate-on-scroll fade-in-content" style="--stagger: ${index}; animation-delay: ${index * 0.08}s" data-url="${linkUrl}">
             <div class="certificate-image">
-                <img src="${cert.image}" alt="${cert.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'placeholder-image\\'><i class=\\'fas fa-certificate\\'></i></div>'">
+                <img src="${imageSource}" alt="${cert.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'placeholder-image\\'><i class=\\'fas fa-certificate\\'></i></div>'" crossorigin="anonymous">
                 <div class="certificate-overlay">
                     <span class="gradient-text">${cert.title}</span>
                     <span class="view-btn">View <i class="fas fa-external-link-alt"></i></span>
                 </div>
             </div>
         </a>
-    `).join('');
+    `}).join('');
 
     // Add two-tap behavior for mobile
     if (isTouchDevice()) {
@@ -932,11 +978,14 @@ function closeProjectModal() {
 }
 
 function generateProjectDetails(project) {
+    // image field is the main project image
+    const mainImageSource = project.image || '';
+    
     return `
         <div class="project-details">
             <div class="project-header">
                 <div class="project-header-image">
-                    <img src="${project.image}" alt="${project.title}" loading="lazy">
+                    <img src="${mainImageSource}" alt="${project.title}" loading="lazy" crossorigin="anonymous">
                 </div>
                 <div class="project-header-info">
                     <h2 class="gradient-text">${project.title}</h2>
@@ -1001,11 +1050,19 @@ function generateProjectDetails(project) {
                 <div class="project-section">
                     <h3 class="gradient-text"><i class="fas fa-images"></i> Screenshots (${project.screenshots.length})</h3>
                     <div class="screenshots-grid">
-                        ${project.screenshots.map((screenshot, index) => `
-                            <div class="screenshot-item" data-index="${index}" data-src="${screenshot}">
-                                <img src="${screenshot}" alt="Screenshot ${index + 1}" loading="lazy">
+                        ${project.screenshots.map((screenshot, index) => {
+                            // Handle both string URLs and objects with image/url properties from Firestore
+                            let screenshotUrl = '';
+                            if (typeof screenshot === 'string') {
+                                screenshotUrl = screenshot;
+                            } else if (screenshot && typeof screenshot === 'object') {
+                                screenshotUrl = screenshot.image || screenshot.url || '';
+                            }
+                            return screenshotUrl ? `
+                            <div class="screenshot-item" data-index="${index}" data-src="${screenshotUrl}">
+                                <img src="${screenshotUrl}" alt="Screenshot ${index + 1}" loading="lazy" crossorigin="anonymous">
                             </div>
-                        `).join('')}
+                        ` : ''}).join('')}
                     </div>
                 </div>
             ` : ''}
@@ -1357,7 +1414,17 @@ function handleDataLoaded(event) {
 // ====================================
 // Initialize
 // ====================================
+// Disable scroll restoration and force scroll to top
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Force scroll to top and prevent any scrolling
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
     // Show shimmer skeletons while loading
     showAllSkeletons();
     

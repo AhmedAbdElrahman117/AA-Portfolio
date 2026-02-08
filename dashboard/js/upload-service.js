@@ -126,6 +126,7 @@ const UploadService = {
             overlay.querySelector('.upload-loading-message').textContent = message;
             overlay.style.display = 'flex';
         }
+        if (window.Dashboard) window.Dashboard.lockScroll();
     },
     
     // Update progress
@@ -144,6 +145,7 @@ const UploadService = {
         const overlay = document.getElementById('uploadLoadingOverlay');
         if (overlay) {
             overlay.style.display = 'none';
+            if (window.Dashboard) window.Dashboard.unlockScroll();
         }
     },
     

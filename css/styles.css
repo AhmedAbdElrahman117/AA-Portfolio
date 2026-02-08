@@ -107,7 +107,9 @@ body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
-    overflow-x: hidden;
+    overflow: hidden; /* Prevent scrolling during splash screen */
+    position: fixed; /* Lock scroll position during splash */
+    width: 100%;
     min-height: 100vh;
     touch-action: manipulation;
 }

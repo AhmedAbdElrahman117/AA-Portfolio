@@ -94,15 +94,14 @@ const defaultData = {
     ]
 };
 
-// Data state - initialized with defaults
+// Data state - start empty to force Firestore data (fallback to defaults only if Firestore fails)
 let projectsData = {};
-defaultData.projects.forEach(p => { projectsData[p.id] = p; });
-let certificatesData = [...defaultData.certificates];
-let servicesData = [...defaultData.services];
+let certificatesData = [];
+let servicesData = [];
 let contactInfo = { ...defaultData.contact };
-let techStackData = [...defaultData.techSkills];
-let softSkillsData = [...defaultData.softSkills];
-let langSkillsData = [...defaultData.langSkills];
+let techStackData = [];
+let softSkillsData = [];
+let langSkillsData = [];
 let aboutData = { ...defaultData.about };
 let socialData = { ...defaultData.social };
 let cvData = { ...defaultData.cv };
@@ -245,6 +244,9 @@ async function loadPortfolioData() {
         subscribeToDocument('portfolio', 'techSkills', (docData) => {
             if (docData && docData.data && Array.isArray(docData.data)) {
                 techStackData = docData.data;
+            } else {
+                // Fallback to defaults if no Firestore data
+                techStackData = [...defaultData.techSkills];
             }
             loadingState.techSkills = false;
             dispatchDataLoaded('techSkills');
@@ -273,6 +275,10 @@ async function loadPortfolioData() {
                 docData.data.forEach(p => {
                     projectsData[p.id] = p;
                 });
+            } else {
+                // Fallback to defaults if no Firestore data
+                projectsData = {};
+                defaultData.projects.forEach(p => { projectsData[p.id] = p; });
             }
             loadingState.projects = false;
             dispatchDataLoaded('projects');
@@ -281,6 +287,9 @@ async function loadPortfolioData() {
         subscribeToDocument('portfolio', 'certificates', (docData) => {
             if (docData && docData.data && Array.isArray(docData.data)) {
                 certificatesData = docData.data;
+            } else {
+                // Fallback to defaults if no Firestore data
+                certificatesData = [...defaultData.certificates];
             }
             loadingState.certificates = false;
             dispatchDataLoaded('certificates');

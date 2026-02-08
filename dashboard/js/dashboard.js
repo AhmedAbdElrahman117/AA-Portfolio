@@ -94,8 +94,14 @@ const Dashboard = {
     firebaseData: {},
     loadedSections: new Set(),
     
+    // Cached DOM elements
+    contentWrapper: null,
+    
     // Initialize dashboard
     async init() {
+        // Cache frequently used elements
+        this.contentWrapper = document.querySelector('.content-wrapper');
+        
         this.bindNavigation();
         this.bindForms();
         this.bindSkillsTabs();
@@ -111,6 +117,26 @@ const Dashboard = {
         // Load the initial active section (home)
         await this.loadSectionData('home');
         Analytics.renderStats();
+    },
+    
+    // ====================================
+    // Scroll Lock Helpers
+    // ====================================
+    
+    lockScroll() {
+        document.body.classList.add('scroll-lock');
+        if (this.contentWrapper) {
+            this.contentWrapper.classList.add('scroll-lock');
+            console.log('Scroll locked');
+        }
+    },
+    
+    unlockScroll() {
+        document.body.classList.remove('scroll-lock');
+        if (this.contentWrapper) {
+            this.contentWrapper.classList.remove('scroll-lock');
+            console.log('Scroll unlocked');
+        }
     },
     
     // ====================================
@@ -162,11 +188,13 @@ const Dashboard = {
         const closeSidebar = () => {
             sidebar.classList.remove('open');
             if (overlay) overlay.classList.remove('show');
+            this.unlockScroll();
         };
         
         const openSidebar = () => {
             sidebar.classList.add('open');
             if (overlay) overlay.classList.add('show');
+            this.lockScroll();
         };
         
         toggle.addEventListener('click', () => {
@@ -358,13 +386,13 @@ const Dashboard = {
         img.src = src;
         this.centerDialogInViewport(modal);
         modal.classList.add('show');
-        document.body.style.overflow = 'hidden';
+        this.lockScroll();
     },
     
     closeImageViewer() {
         const modal = document.getElementById('imageViewerModal');
         modal.classList.remove('show');
-        document.body.style.overflow = '';
+        this.unlockScroll();
     },
     
     testCvDownload() {
@@ -2230,6 +2258,7 @@ const Dashboard = {
         body.innerHTML = formHtml;
         this.centerDialogInViewport(modal);
         modal.classList.add('show');
+        this.lockScroll();
         
         // Initialize uploadable fields for this modal type
         if (typeof UploadService !== 'undefined') {
@@ -2279,6 +2308,7 @@ const Dashboard = {
     
     closeModal() {
         document.getElementById('itemModal').classList.remove('show');
+        this.unlockScroll();
         this.currentEditItem = null;
         this.currentEditType = null;
     },
@@ -2626,11 +2656,13 @@ const Dashboard = {
         this.pendingDelete = callback;
         this.centerDialogInViewport(dialog);
         dialog.classList.add('show');
+        this.lockScroll();
     },
     
     hideDeleteDialog() {
         const dialog = document.getElementById('deleteDialog');
         dialog.classList.remove('show');
+        this.unlockScroll();
         this.pendingDelete = null;
         
         // Reset confirm button to default
@@ -2699,11 +2731,13 @@ const Dashboard = {
         
         this.centerDialogInViewport(dialog);
         dialog.classList.add('show');
+        this.lockScroll();
     },
     
     hideResultDialog() {
         const dialog = document.getElementById('resultDialog');
         dialog.classList.remove('show');
+        this.unlockScroll();
         
         if (this.resultDialogCallback) {
             this.resultDialogCallback();
