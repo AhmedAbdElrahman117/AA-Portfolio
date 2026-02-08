@@ -11,6 +11,10 @@ if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0) {
     document.body.scrollTop = 0;
 }
 
+// Add splash-active class to both html and body
+document.documentElement.classList.add('splash-active');
+document.body.classList.add('splash-active');
+
 // DOM Elements
 const splashScreen = document.getElementById('splash-screen');
 const hamburger = document.getElementById('hamburger');
@@ -356,10 +360,9 @@ function hideSplashScreen() {
             splashScreen.style.display = 'none';
             // Allow scrolling again
             splashActive = false;
-            // Re-enable vertical scrolling after splash is hidden
-            document.body.style.position = '';
-            document.body.style.overflowX = 'hidden';
-            document.body.style.overflowY = 'auto';
+            // Remove splash-active class to re-enable scrolling
+            document.documentElement.classList.remove('splash-active');
+            document.body.classList.remove('splash-active');
             // Force scroll to top one more time
             window.scrollTo(0, 0);
             // Remove scroll prevention listeners

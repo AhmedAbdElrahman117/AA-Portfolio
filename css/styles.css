@@ -92,6 +92,7 @@ html {
     scroll-behavior: smooth;
     font-size: var(--font-size-base);
     overflow-x: hidden;
+    height: 100%;
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -107,11 +108,17 @@ body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
-    overflow: hidden; /* Prevent scrolling during splash screen */
-    position: fixed; /* Lock scroll position during splash */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
     width: 100%;
     min-height: 100vh;
     touch-action: manipulation;
+}
+
+/* Lock scroll during splash screen */
+html.splash-active,
+body.splash-active {
+    overflow: hidden !important;
+    height: 100vh;
 }
 
 /* Selection */
