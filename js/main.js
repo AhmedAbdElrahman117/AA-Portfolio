@@ -755,10 +755,17 @@ function initCertificateTouchBehavior() {
 // ====================================
 // Scroll Animations
 // ====================================
+let scrollObserver = null; // Global observer instance
+
 function initAnimations() {
     const animatedElements = document.querySelectorAll('.animate-on-scroll');
 
-    const observer = new IntersectionObserver((entries) => {
+    // Clear existing observer if any
+    if (scrollObserver) {
+        scrollObserver.disconnect();
+    }
+
+    scrollObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
@@ -777,10 +784,12 @@ function initAnimations() {
         });
     }, {
         threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: '0px 0px -100px 0px'
     });
 
-    animatedElements.forEach(el => observer.observe(el));
+    animatedElements.forEach(el => {
+        scrollObserver.observe(el);
+    });
     
     // Initialize tech card mouse tracking
     initTechCardEffects();
@@ -1484,6 +1493,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initKeyboardNavigation();
     preloadImages();
     initParticles();
+    
+    // Initialize animations after a short delay to ensure all content is rendered
+    setTimeout(() => {
+        initAnimations();
+        // Re-trigger animations when new content is loaded dynamically
+        window.addEventListener('portfolioDataLoaded', () => {
+            setTimeout(() => initAnimations(), 100);
+        }, { once:false });
+    }, 100);
 });
 
 // Additional failsafe on window load
