@@ -1291,7 +1291,7 @@ select.has-error {
 
 /* Image Viewer Modal */
 .image-viewer-modal {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -1617,7 +1617,7 @@ select.has-error {
    ==================================== */
 
 .modal {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;

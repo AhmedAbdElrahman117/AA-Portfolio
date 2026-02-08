@@ -5,9 +5,11 @@
 'use strict';
 
 const UploadService = {
-    // Backend API endpoints for file uploads (secured on Cloudinary Workers)
-    uploadAPI: 'https://cloudinary-uploader.ahmedaboelnaga713.workers.dev/upload',
-    deleteAPI: 'https://cloudinary-uploader.ahmedaboelnaga713.workers.dev/delete',
+    // Backend API endpoints for file upload/delete
+    apiEndpoints: {
+        upload: 'https://cloudinary-uploader.ahmedaboelnaga713.workers.dev/upload',
+        delete: 'https://cloudinary-uploader.ahmedaboelnaga713.workers.dev/delete'
+    },
     
     // Firebase configuration (loaded from config.js)
     firebase: window.CONFIG ? window.CONFIG.firebase : {
@@ -145,44 +147,26 @@ const UploadService = {
         }
     },
     
-    // Upload file to Cloudinary from assets folder
-    async uploadToCloudinary(filePath, folder = 'portfolio') {
-        if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
-            return filePath;
-        }
-        
-        try {
-            const fetchPath = '../' + filePath;
-            const response = await fetch(fetchPath);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
-            }
-            
-            const blob = await response.blob();
-            if (blob.size === 0) {
-                throw new Error('File is empty');
-            }
-            
-            return await this.uploadBlobToCloudinary(blob, folder, this.getFileName(filePath));
-        } catch (error) {
-            throw error;
-        }
-    },
-    
-    // Upload blob via backend API
+    // Upload blob to backend (which uploads to Cloudinary)
     async uploadBlobToCloudinary(blob, folder, filename) {
-        const formData = new FormData();
-        formData.append('file', blob, filename);
-        formData.append('folder', folder);
+        // Convert blob to base64
+        const base64 = await this.blobToBase64(blob);
         
-        const response = await fetch(this.uploadAPI, {
+        const response = await fetch(this.apiEndpoints.upload, {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                file: base64,
+                folder: folder,
+                filename: filename
+            })
         });
         
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Upload failed: ${errorText}`);
+            throw new Error(errorText || 'Upload failed');
         }
         
         const data = await response.json();
@@ -194,30 +178,43 @@ const UploadService = {
         return data.secure_url;
     },
     
+    // Convert blob to base64 string
+    async blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    },
+    
     // Check if URL is a Cloudinary URL
     isCloudinaryUrl(url) {
         return url && typeof url === 'string' && url.includes('res.cloudinary.com');
     },
     
-    // Delete file via backend API
+    // Delete file from backend (which deletes from Cloudinary)
     async deleteFromCloudinary(url) {
         if (!this.isCloudinaryUrl(url)) return false;
         
         try {
-            const formData = new FormData();
-            formData.append('link', url);
-            
-            const response = await fetch(this.deleteAPI, {
+            const response = await fetch(this.apiEndpoints.delete, {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    link: url
+                })
             });
             
-            if (!response.ok) {
-                return false;
+            // Consider both successful response and 404 as success
+            // (file already deleted or doesn't exist)
+            if (response.ok) {
+                return true;
             }
             
-            const data = await response.json();
-            return data.result === 'ok' || data.result === 'not found';
+            return false;
         } catch (error) {
             return false;
         }
@@ -233,11 +230,6 @@ const UploadService = {
             }
         }
         return results;
-    },
-    
-    // Get filename from path
-    getFileName(path) {
-        return path.split('/').pop();
     },
     
     // ====================================

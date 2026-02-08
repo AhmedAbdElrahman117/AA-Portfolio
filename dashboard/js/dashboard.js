@@ -356,6 +356,7 @@ const Dashboard = {
         const modal = document.getElementById('imageViewerModal');
         const img = document.getElementById('imageViewerImg');
         img.src = src;
+        this.centerDialogInViewport(modal);
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
     },
@@ -2227,6 +2228,7 @@ const Dashboard = {
         }
         
         body.innerHTML = formHtml;
+        this.centerDialogInViewport(modal);
         modal.classList.add('show');
         
         // Initialize uploadable fields for this modal type
@@ -2622,6 +2624,7 @@ const Dashboard = {
         confirmBtnEl.innerHTML = `<i class="fas ${confirmBtn.icon}"></i> ${confirmBtn.text}`;
         
         this.pendingDelete = callback;
+        this.centerDialogInViewport(dialog);
         dialog.classList.add('show');
     },
     
@@ -2633,6 +2636,20 @@ const Dashboard = {
         // Reset confirm button to default
         const confirmBtnEl = document.getElementById('deleteDialogConfirm');
         confirmBtnEl.innerHTML = '<i class="fas fa-trash"></i> Delete';
+    },
+    
+    centerDialogInViewport(dialog) {
+        // Calculate the center position of the current viewport
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        
+        // Set the dialog to cover the entire viewport from the current scroll position
+        dialog.style.top = scrollTop + 'px';
+        dialog.style.left = scrollLeft + 'px';
+        dialog.style.height = viewportHeight + 'px';
+        dialog.style.width = viewportWidth + 'px';
     },
     
     bindDeleteDialog() {
@@ -2680,6 +2697,7 @@ const Dashboard = {
         messageEl.textContent = message;
         this.resultDialogCallback = callback;
         
+        this.centerDialogInViewport(dialog);
         dialog.classList.add('show');
     },
     

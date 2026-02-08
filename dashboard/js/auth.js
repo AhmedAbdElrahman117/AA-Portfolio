@@ -5,33 +5,53 @@
 'use strict';
 
 const Auth = {
-    // Default credentials (loaded from config.js)
-    defaultCredentials: window.CONFIG ? window.CONFIG.admin : {
-        username: 'admin',
-        password: 'admin'
-    },
+    // Firebase Auth
+    auth: null,
+    firebaseApp: null,
     
     // Session key
     sessionKey: 'aa_dashboard_session',
-    credentialsKey: 'aa_dashboard_credentials',
+    
+    // Email domain
+    emailDomain: '@aa.com',
     
     // Initialize
-    init() {
-        this.loadCredentials();
+    async init() {
+        await this.initFirebase();
         this.checkSession();
         this.bindEvents();
     },
     
-    // Load custom credentials if set
-    loadCredentials() {
-        const saved = localStorage.getItem(this.credentialsKey);
-        if (saved) {
-            try {
-                const creds = JSON.parse(saved);
-                this.defaultCredentials = creds;
-            } catch (e) {
-                // Failed to load credentials - silent error handling
-            }
+    // Initialize Firebase Auth
+    async initFirebase() {
+        if (this.auth) return;
+        
+        try {
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+            const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+            
+            const firebaseConfig = window.CONFIG ? window.CONFIG.firebase : {
+                apiKey: "AIzaSyC1Hr7L6yp27w6E9wInccgpPFMSSrBRvwE",
+                authDomain: "portfolio-e911a.firebaseapp.com",
+                projectId: "portfolio-e911a",
+                storageBucket: "portfolio-e911a.firebasestorage.app",
+                messagingSenderId: "16738302709",
+                appId: "1:16738302709:web:3a17868a9bbfa3ba0563bc",
+                measurementId: "G-4HJNGVNDS5"
+            };
+            
+            this.firebaseApp = initializeApp(firebaseConfig);
+            this.auth = getAuth(this.firebaseApp);
+            this.firebaseMethods = { signInWithEmailAndPassword, onAuthStateChanged, signOut };
+            
+            // Listen for auth state changes
+            this.firebaseMethods.onAuthStateChanged(this.auth, (user) => {
+                if (user) {
+                    this.handleAuthSuccess(user);
+                }
+            });
+        } catch (error) {
+            // Silent error handling
         }
     },
     
@@ -68,11 +88,11 @@ const Auth = {
             });
             
             // Clear field errors on input
-            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             
-            if (usernameInput) {
-                usernameInput.addEventListener('input', () => this.clearFieldError('username'));
+            if (emailInput) {
+                emailInput.addEventListener('input', () => this.clearFieldError('email'));
             }
             if (passwordInput) {
                 passwordInput.addEventListener('input', () => this.clearFieldError('password'));
@@ -134,10 +154,10 @@ const Auth = {
     },
     
     // Handle login
-    handleLogin() {
-        const usernameInput = document.getElementById('username');
+    async handleLogin() {
+        const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const username = usernameInput.value.trim();
+        const emailUsername = emailInput.value.trim();
         const password = passwordInput.value;
         const errorEl = document.getElementById('loginError');
         
@@ -148,8 +168,8 @@ const Auth = {
         // Validate fields
         let hasError = false;
         
-        if (!username) {
-            this.showFieldError('username', 'Please enter your username');
+        if (!emailUsername) {
+            this.showFieldError('email', 'Please enter your email');
             hasError = true;
         }
         
@@ -160,21 +180,42 @@ const Auth = {
         
         if (hasError) return;
         
-        if (username === this.defaultCredentials.username && 
-            password === this.defaultCredentials.password) {
-            // Create session
-            const session = {
-                username: username,
-                loginTime: Date.now(),
-                expiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
-            };
-            localStorage.setItem(this.sessionKey, JSON.stringify(session));
+        // Construct full email with domain
+        const fullEmail = emailUsername + this.emailDomain;
+        
+        try {
+            // Show loading state
+            const submitBtn = document.querySelector('#loginForm button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
             
-            this.showDashboard(username);
-        } else {
-            // Show field-level errors for invalid credentials
-            this.showFieldError('username', 'Invalid username or password');
-            this.showFieldError('password', 'Invalid username or password');
+            // Sign in with Firebase
+            await this.firebaseMethods.signInWithEmailAndPassword(this.auth, fullEmail, password);
+            
+            // Success handled by onAuthStateChanged listener
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        } catch (error) {
+            // Restore button state
+            const submitBtn = document.querySelector('#loginForm button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            
+            // Handle errors
+            let errorMessage = 'Invalid email or password';
+            
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                errorMessage = 'Invalid email or password';
+            } else if (error.code === 'auth/too-many-requests') {
+                errorMessage = 'Too many failed attempts. Please try again later';
+            } else if (error.code === 'auth/network-request-failed') {
+                errorMessage = 'Network error. Please check your connection';
+            }
+            
+            // Show field-level errors
+            this.showFieldError('email', errorMessage);
+            this.showFieldError('password', errorMessage);
             
             // Shake animation
             const container = document.querySelector('.login-container');
@@ -183,14 +224,35 @@ const Auth = {
         }
     },
     
+    // Handle successful authentication
+    handleAuthSuccess(user) {
+        // Create session
+        const session = {
+            email: user.email,
+            uid: user.uid,
+            loginTime: Date.now(),
+            expiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        };
+        localStorage.setItem(this.sessionKey, JSON.stringify(session));
+        
+        // Extract username from email (before @aa.com)
+        const username = user.email.split('@')[0];
+        this.showDashboard(username);
+    },
+    
     // Handle logout
-    handleLogout() {
+    async handleLogout() {
         // Show confirmation dialog before logging out
         if (typeof Dashboard !== 'undefined' && Dashboard.showDeleteDialog) {
             Dashboard.showDeleteDialog(
                 'Logout',
                 'Are you sure you want to log out?',
-                () => {
+                async () => {
+                    try {
+                        await this.firebaseMethods.signOut(this.auth);
+                    } catch (error) {
+                        // Silent error handling
+                    }
                     localStorage.removeItem(this.sessionKey);
                     this.showLogin();
                 },
@@ -199,6 +261,11 @@ const Auth = {
         } else {
             // Fallback to native confirm
             if (confirm('Are you sure you want to log out?')) {
+                try {
+                    await this.firebaseMethods.signOut(this.auth);
+                } catch (error) {
+                    // Silent error handling
+                }
                 localStorage.removeItem(this.sessionKey);
                 this.showLogin();
             }
@@ -222,13 +289,6 @@ const Auth = {
         document.getElementById('loginScreen').classList.remove('hidden');
         document.getElementById('dashboard').classList.add('hidden');
         document.getElementById('loginForm').reset();
-    },
-    
-    // Update credentials
-    updateCredentials(username, password) {
-        const creds = { username, password };
-        localStorage.setItem(this.credentialsKey, JSON.stringify(creds));
-        this.defaultCredentials = creds;
     }
 };
 
