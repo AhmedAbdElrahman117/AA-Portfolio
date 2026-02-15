@@ -9,7 +9,8 @@
    ==================================== */
 
 /* Prevent horizontal scroll on mobile */
-html, body {
+html,
+body {
     overflow-x: hidden;
     max-width: 100%;
 }
@@ -21,8 +22,10 @@ html, body {
 }
 
 * {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
 }
 
 :root {
@@ -317,18 +320,19 @@ body {
 }
 
 .modal-body {
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
 }
 
 .project-header {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: var(--spacing-lg);
 }
 
 .project-header-image {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
 }
 
 .project-header-info h2 {
@@ -355,7 +359,8 @@ body {
 
 .screenshots-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
+    column-gap: var(--spacing-sm);
+    row-gap: 32px;
 }
 
 /* Drawer */
@@ -604,12 +609,13 @@ body {
     }
 
     .modal-body {
-        padding: var(--spacing-lg);
+        padding: var(--spacing-xl);
     }
 
     /* Screenshots grid */
     .screenshots-grid {
         grid-template-columns: repeat(3, 1fr);
+        row-gap: 32px;
     }
 
     /* Toast positioning */
@@ -750,6 +756,7 @@ body {
     /* Screenshots 4 columns */
     .screenshots-grid {
         grid-template-columns: repeat(4, 1fr);
+        row-gap: 32px;
     }
 
     /* Portfolio tabs */
@@ -1003,6 +1010,7 @@ body {
         flex-direction: row;
         align-items: flex-start;
         text-align: left;
+        gap: var(--spacing-lg);
     }
 
     .project-stats {
@@ -1047,12 +1055,14 @@ body {
 
     .section-container {
         max-width: 1200px;
+        padding: 0 var(--spacing-lg);
     }
 
     .projects-grid,
     .certificates-grid,
     .services-grid {
         grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-xl);
     }
 
     .home-animation lottie-player {
@@ -1063,6 +1073,25 @@ body {
         width: 280px;
         height: 280px;
     }
+
+    /* Better spacing for project modal */
+    .project-header {
+        gap: var(--spacing-2xl);
+    }
+
+    .project-section {
+        padding: var(--spacing-xl) 0;
+    }
+
+    /* Improved tech stack grid */
+    .tech-stack {
+        gap: var(--spacing-lg);
+    }
+
+    .tech-card {
+        width: 100px;
+        height: 100px;
+    }
 }
 
 /* ====================================
@@ -1071,6 +1100,36 @@ body {
 @media (min-width: 1400px) {
     .section-container {
         max-width: 1320px;
+        padding: 0 var(--spacing-xl);
+    }
+
+    :root {
+        --font-size-4xl: 42px;
+        --font-size-3xl: 36px;
+    }
+
+    .projects-grid,
+    .certificates-grid,
+    .services-grid {
+        gap: var(--spacing-2xl);
+    }
+
+    .home-animation lottie-player {
+        max-width: 500px;
+    }
+}
+
+/* ====================================
+   Extra Large Desktop (1600px+)
+   ==================================== */
+@media (min-width: 1600px) {
+    .section-container {
+        max-width: 1440px;
+    }
+
+    .projects-grid,
+    .certificates-grid {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
@@ -1181,6 +1240,7 @@ body {
    Touch Device Optimizations
    ==================================== */
 @media (hover: none) and (pointer: coarse) {
+
     /* Remove hover effects on touch devices */
     .tech-card:hover,
     .project-card:hover,
@@ -1224,6 +1284,7 @@ body {
    Accessibility - Reduced Motion
    ==================================== */
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -1269,6 +1330,7 @@ body {
    Print Styles
    ==================================== */
 @media print {
+
     .navbar,
     .drawer,
     .drawer-overlay,

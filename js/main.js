@@ -4,25 +4,9 @@
 
 'use strict';
 
-// Force scroll to top immediately and lock position
-if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0) {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-}
-
-// Add splash-active class to both html and body
-// Use DOMContentLoaded to ensure DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        document.documentElement.classList.add('splash-active');
-        document.body.classList.add('splash-active');
-    });
-} else {
-    // DOM already loaded
-    document.documentElement.classList.add('splash-active');
-    document.body.classList.add('splash-active');
-}
+// Add splash-active class synchronously to prevent flash
+document.documentElement.classList.add('splash-active');
+document.body.classList.add('splash-active');
 
 // DOM Elements
 const splashScreen = document.getElementById('splash-screen');
@@ -68,7 +52,7 @@ function updateCachedMeasurements() {
 function generateTechStackSkeleton() {
     const container = document.querySelector('.tech-stack');
     if (!container) return;
-    
+
     container.innerHTML = Array(12).fill().map((_, i) => `
         <div class="tech-card-skeleton animate-on-scroll" style="--stagger: ${i}">
             <div class="shimmer shimmer-icon"></div>
@@ -80,7 +64,7 @@ function generateTechStackSkeleton() {
 function generateProjectsSkeleton() {
     const grid = document.querySelector('.projects-grid');
     if (!grid) return;
-    
+
     grid.innerHTML = Array(6).fill().map((_, i) => `
         <div class="project-card-skeleton animate-on-scroll" style="--stagger: ${i}">
             <div class="shimmer shimmer-project-image"></div>
@@ -97,7 +81,7 @@ function generateProjectsSkeleton() {
 function generateCertificatesSkeleton() {
     const grid = document.querySelector('.certificates-grid');
     if (!grid) return;
-    
+
     grid.innerHTML = Array(6).fill().map((_, i) => `
         <div class="certificate-card-skeleton shimmer animate-on-scroll" style="--stagger: ${i}"></div>
     `).join('');
@@ -106,7 +90,7 @@ function generateCertificatesSkeleton() {
 function generateSoftSkillsSkeleton() {
     const container = document.querySelector('.soft-skills');
     if (!container) return;
-    
+
     container.innerHTML = Array(6).fill().map((_, i) => `
         <div class="skill-bar-skeleton animate-on-scroll" style="--stagger: ${i}">
             <div class="shimmer-skill-header">
@@ -121,7 +105,7 @@ function generateSoftSkillsSkeleton() {
 function generateLangSkillsSkeleton() {
     const container = document.querySelector('.language-skills');
     if (!container) return;
-    
+
     container.innerHTML = Array(2).fill().map((_, i) => `
         <div class="language-card-skeleton animate-on-scroll" style="--stagger: ${i}">
             <div class="shimmer shimmer-circle"></div>
@@ -134,11 +118,11 @@ function generateLangSkillsSkeleton() {
 function generateAboutSkeleton() {
     const aboutText = document.querySelector('.about-text');
     const aboutImage = document.querySelector('.about-image img');
-    
+
     if (aboutImage) {
         aboutImage.style.opacity = '0';
     }
-    
+
     if (aboutText) {
         aboutText.innerHTML = Array(4).fill().map(() => `
             <p>
@@ -167,18 +151,18 @@ function downloadCV() {
     // Use dynamic CV data from Firebase
     const cvPath = cvData.path || 'assets/CV.pdf';
     const cvFilename = cvData.filename || 'Ahmed_Abdelrahman_CV.pdf';
-    
+
     // Create a temporary link element
     const link = document.createElement('a');
     link.href = cvPath;
     link.download = cvFilename;
     link.target = '_blank';
-    
+
     // Append to body, click, and remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     showToast('CV download started!', 'success');
 }
 
@@ -193,22 +177,22 @@ function updateDynamicContent() {
     if (!isSectionLoading('social')) {
         updateSocialLinks();
     }
-    
+
     // Update about section
     if (!isSectionLoading('about')) {
         updateAboutSection();
     }
-    
+
     // Update contact info
     if (!isSectionLoading('contact')) {
         updateContactInfo();
     }
-    
+
     // Update soft skills
     if (!isSectionLoading('softSkills')) {
         generateSoftSkills();
     }
-    
+
     // Update language skills
     if (!isSectionLoading('langSkills')) {
         generateLangSkills();
@@ -218,11 +202,11 @@ function updateDynamicContent() {
 function updateSocialLinks() {
     // Home section social buttons
     const socialButtons = document.querySelectorAll('.social-buttons .social-btn, .social-links a');
-    
+
     socialButtons.forEach(btn => {
         const icon = btn.querySelector('i');
         if (!icon) return;
-        
+
         if (icon.classList.contains('fa-linkedin-in')) {
             btn.href = socialData.linkedin || '#';
         } else if (icon.classList.contains('fa-github')) {
@@ -246,7 +230,7 @@ function updateAboutSection() {
             profileImg.style.opacity = '1';
         };
     }
-    
+
     // Update about paragraphs
     const aboutText = document.querySelector('.about-text');
     if (aboutText) {
@@ -263,13 +247,13 @@ function updateAboutSection() {
             if (aboutData.aboutP2) paragraphs.push(aboutData.aboutP2);
             if (aboutData.aboutP3) paragraphs.push(aboutData.aboutP3);
             if (aboutData.aboutP4) paragraphs.push(aboutData.aboutP4);
-            
+
             aboutText.innerHTML = paragraphs
                 .map((p, i) => `<p class="fade-in-content" style="animation-delay: ${i * 0.1}s">${p}</p>`)
                 .join('');
         }
     }
-    
+
     // Update typewriter texts if using new format
     if (Array.isArray(aboutData.typewriterTexts)) {
         window.typewriterTexts = aboutData.typewriterTexts;
@@ -285,7 +269,7 @@ function updateContactInfo() {
     const addressEl = document.querySelector('.info-item:nth-child(2) .info-text span:last-child');
     const phoneEl = document.querySelector('.info-item:nth-child(3) .info-text a');
     const emailEl = document.querySelector('.info-item:nth-child(4) .info-text a');
-    
+
     if (addressEl) addressEl.textContent = contactInfo.address || 'Egypt, Cairo';
     if (phoneEl) {
         phoneEl.textContent = contactInfo.phone || '+20 100 051 2414';
@@ -300,13 +284,13 @@ function updateContactInfo() {
 function generateSoftSkills() {
     const container = document.querySelector('.soft-skills');
     if (!container) return;
-    
+
     // Check if data is loaded and is an array
     if (!softSkillsData || !Array.isArray(softSkillsData) || softSkillsData.length === 0) {
         generateSoftSkillsSkeleton();
         return;
     }
-    
+
     container.innerHTML = softSkillsData.map((skill, index) => `
         <div class="skill-bar animate-on-scroll fade-in-content" style="--stagger: ${index}; animation-delay: ${index * 0.05}s">
             <div class="skill-info">
@@ -323,13 +307,13 @@ function generateSoftSkills() {
 function generateLangSkills() {
     const container = document.querySelector('.language-skills');
     if (!container) return;
-    
+
     // Check if data is loaded and is an array
     if (!langSkillsData || !Array.isArray(langSkillsData) || langSkillsData.length === 0) {
         generateLangSkillsSkeleton();
         return;
     }
-    
+
     container.innerHTML = langSkillsData.map((skill, index) => `
         <div class="language-card animate-on-scroll fade-in-content" style="--stagger: ${index}; animation-delay: ${index * 0.1}s">
             <div class="circular-progress" data-progress="${skill.percentage}" style="--progress-color: ${skill.color};">
@@ -345,21 +329,8 @@ function generateLangSkills() {
 // Splash Screen
 // ====================================
 
-// Prevent scroll during splash screen
+// Track splash screen state
 let splashActive = true;
-const preventScroll = (e) => {
-    if (splashActive) {
-        e.preventDefault();
-        e.stopPropagation();
-        window.scrollTo(0, 0);
-        return false;
-    }
-};
-
-// Add scroll prevention listeners
-window.addEventListener('scroll', preventScroll, { passive: false });
-window.addEventListener('wheel', preventScroll, { passive: false });
-window.addEventListener('touchmove', preventScroll, { passive: false });
 
 function hideSplashScreen() {
     // Ensure splash screen exists
@@ -370,7 +341,7 @@ function hideSplashScreen() {
         splashActive = false;
         return;
     }
-    
+
     // Wait for all splash animations to complete (loader bar takes ~4s total)
     setTimeout(() => {
         splashScreen.classList.add('hide');
@@ -383,10 +354,6 @@ function hideSplashScreen() {
             document.body.classList.remove('splash-active');
             // Force scroll to top one more time
             window.scrollTo(0, 0);
-            // Remove scroll prevention listeners
-            window.removeEventListener('scroll', preventScroll);
-            window.removeEventListener('wheel', preventScroll);
-            window.removeEventListener('touchmove', preventScroll);
             initAnimations();
         }, 1000);
     }, 4200);
@@ -399,9 +366,6 @@ setTimeout(() => {
         document.documentElement.classList.remove('splash-active');
         document.body.classList.remove('splash-active');
         splashActive = false;
-        window.removeEventListener('scroll', preventScroll);
-        window.removeEventListener('wheel', preventScroll);
-        window.removeEventListener('touchmove', preventScroll);
     }
 }, 6000);
 
@@ -449,21 +413,21 @@ function initNavigation() {
 
     // Scroll spy - only updates when scrolling stops (debounced)
     let lastSection = null;
-    
+
     const updateSectionOnScrollStop = debounce(() => {
         if (animationFrameId) return;
-        
+
         animationFrameId = requestAnimationFrame(() => {
             const sections = document.querySelectorAll('.section');
             const scrollPosition = window.scrollY + cachedNavHeight + window.innerHeight / 3;
-            
+
             // Batch all layout reads together
             const sectionData = Array.from(sections).map(section => ({
                 id: section.getAttribute('id'),
                 top: section.offsetTop,
                 height: section.offsetHeight
             }));
-            
+
             // Find current section from batched data
             let currentSection = null;
             for (const data of sectionData) {
@@ -472,21 +436,21 @@ function initNavigation() {
                     break;
                 }
             }
-            
+
             if (currentSection && currentSection !== lastSection) {
                 lastSection = currentSection;
                 updateActiveNav(currentSection);
             }
-            
+
             animationFrameId = null;
         });
     }, 80); // 150ms after scroll stops
-    
+
     window.addEventListener('scroll', updateSectionOnScrollStop, { passive: true });
-    
+
     // Navbar background change on scroll - lightweight
     window.addEventListener('scroll', updateNavbarOnScroll, { passive: true });
-    
+
     // Background animation on slower interval
     window.addEventListener('scroll', debounce(updateBackgroundPosition, 150), { passive: true });
 }
@@ -555,7 +519,7 @@ function initTypewriter() {
 
 function typeWriter() {
     if (isTyping) return;
-    
+
     const text = typewriterTexts[currentTypewriterIndex];
     let charIndex = 0;
     isTyping = true;
@@ -600,13 +564,13 @@ function eraseText(text) {
 function generateTechStack() {
     const techStackContainer = document.querySelector('.tech-stack');
     if (!techStackContainer) return;
-    
+
     // Check if data is loaded
     if (!techStackData || !Array.isArray(techStackData) || techStackData.length === 0) {
         generateTechStackSkeleton();
         return;
     }
-    
+
     techStackContainer.innerHTML = techStackData.map((tech, index) => {
         // image field contains the tech icon URL
         const imageSource = tech.image || '';
@@ -621,13 +585,13 @@ function generateTechStack() {
 function generateProjects() {
     const projectsGrid = document.querySelector('.projects-grid');
     if (!projectsGrid) return;
-    
+
     // Check if data is loaded
     if (!projectsData || Object.keys(projectsData).length === 0) {
         generateProjectsSkeleton();
         return;
     }
-    
+
     projectsGrid.innerHTML = Object.values(projectsData).map((project, index) => {
         // image field is for the project thumbnail
         const imageSource = project.image || '';
@@ -656,12 +620,12 @@ function generateProjects() {
 function generateServices() {
     const servicesGrid = document.querySelector('.services-grid');
     if (!servicesGrid) return;
-    
+
     // Check if data is loaded
     if (!servicesData || !Array.isArray(servicesData) || servicesData.length === 0) {
         return;
     }
-    
+
     servicesGrid.innerHTML = servicesData.map((service, index) => `
         <div class="service-card animate-on-scroll fade-in-content" style="--stagger: ${index}; animation-delay: ${index * 0.08}s">
             <div class="service-icon">
@@ -675,21 +639,21 @@ function generateServices() {
 
 // Check if device is touch-enabled (mobile)
 function isTouchDevice() {
-    return ('ontouchstart' in window) || 
-           (navigator.maxTouchPoints > 0) || 
-           (window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+    return ('ontouchstart' in window) ||
+        (navigator.maxTouchPoints > 0) ||
+        (window.matchMedia('(hover: none) and (pointer: coarse)').matches);
 }
 
 function generateCertificates() {
     const certificatesGrid = document.querySelector('.certificates-grid');
     if (!certificatesGrid) return;
-    
+
     // Check if data is loaded
     if (!certificatesData || !Array.isArray(certificatesData) || certificatesData.length === 0) {
         generateCertificatesSkeleton();
         return;
     }
-    
+
     certificatesGrid.innerHTML = certificatesData.map((cert, index) => {
         // image field is for displaying the certificate image
         const imageSource = cert.image || '';
@@ -719,7 +683,7 @@ function initCertificateTouchBehavior() {
     let activeCertificate = null;
 
     certificates.forEach(card => {
-        card.addEventListener('click', function(e) {
+        card.addEventListener('click', function (e) {
             // Only apply on touch devices
             if (!isTouchDevice()) return;
 
@@ -744,7 +708,7 @@ function initCertificateTouchBehavior() {
     });
 
     // Close overlay when tapping outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (!e.target.closest('.certificate-card') && activeCertificate) {
             activeCertificate.classList.remove('overlay-active');
             activeCertificate = null;
@@ -769,13 +733,13 @@ function initAnimations() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
-                
+
                 // Trigger progress bar animations
                 if (entry.target.closest('.skills-subsection')) {
                     animateProgressBars();
                     animateCircularProgress();
                 }
-                
+
                 // Add skill bar subsection animation class
                 if (entry.target.classList.contains('skills-subsection')) {
                     entry.target.classList.add('visible');
@@ -790,7 +754,7 @@ function initAnimations() {
     animatedElements.forEach(el => {
         scrollObserver.observe(el);
     });
-    
+
     // Initialize tech card mouse tracking
     initTechCardEffects();
 }
@@ -820,35 +784,35 @@ function animateCircularProgress() {
 // ====================================
 function initTechCardEffects() {
     const techCards = document.querySelectorAll('.tech-card');
-    
+
     techCards.forEach(card => {
         let cardRect = null;
-        
+
         card.addEventListener('mouseenter', () => {
             // Cache rect on mouse enter
             cardRect = card.getBoundingClientRect();
         });
-        
+
         card.addEventListener('mousemove', (e) => {
             if (!cardRect) cardRect = card.getBoundingClientRect();
-            
+
             requestAnimationFrame(() => {
                 const x = ((e.clientX - cardRect.left) / cardRect.width) * 100;
                 const y = ((e.clientY - cardRect.top) / cardRect.height) * 100;
-                
+
                 card.style.setProperty('--mouse-x', `${x}%`);
                 card.style.setProperty('--mouse-y', `${y}%`);
-                
+
                 // 3D tilt effect
                 const centerX = cardRect.width / 2;
                 const centerY = cardRect.height / 2;
                 const rotateX = (e.clientY - cardRect.top - centerY) / 10;
                 const rotateY = (e.clientX - cardRect.left - centerX) / 10;
-                
+
                 card.style.transform = `perspective(1000px) rotateX(${-rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
             });
         });
-        
+
         card.addEventListener('mouseleave', () => {
             cardRect = null; // Clear cache
             card.style.transform = '';
@@ -863,7 +827,7 @@ function initTabs() {
     tabBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             const tab = btn.getAttribute('data-tab');
-            
+
             // Add click ripple effect with requestAnimationFrame
             requestAnimationFrame(() => {
                 const rect = btn.getBoundingClientRect();
@@ -884,19 +848,19 @@ function initTabs() {
                 btn.appendChild(ripple);
                 setTimeout(() => ripple.remove(), 600);
             });
-            
+
             // Update active tab button with animation
             tabBtns.forEach(b => {
                 b.classList.remove('active');
                 b.style.transform = '';
             });
             btn.classList.add('active');
-            
+
             // Update active tab content with enhanced animation (no forced reflow)
             tabContents.forEach(content => {
                 if (content.id === `${tab}-tab`) {
                     content.classList.add('active');
-                    
+
                     // Reset animation without forcing reflow
                     requestAnimationFrame(() => {
                         content.style.animation = 'none';
@@ -904,7 +868,7 @@ function initTabs() {
                             content.style.animation = 'tabFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
                         });
                     });
-                    
+
                     // Animate children with stagger
                     const cards = content.querySelectorAll('.project-card, .certificate-card');
                     cards.forEach((card, index) => {
@@ -922,7 +886,7 @@ function initTabs() {
                     content.classList.remove('active');
                 }
             });
-            
+
             // Re-initialize animations for newly visible content
             setTimeout(initAnimations, 100);
         });
@@ -941,7 +905,7 @@ function initProjectModal() {
             const projectId = viewBtn.getAttribute('data-project');
             openProjectModal(projectId);
         }
-        
+
         const projectCard = e.target.closest('.project-card');
         if (projectCard && !e.target.closest('.view-details')) {
             const projectId = projectCard.getAttribute('data-project');
@@ -971,7 +935,10 @@ function openProjectModal(projectId) {
 
     modalBody.innerHTML = generateProjectDetails(project);
     projectModal.classList.add('show');
-    document.body.style.overflow = 'hidden';
+
+    // Lock scroll without changing position
+    document.body.classList.add('modal-open');
+    document.documentElement.classList.add('modal-open');
 
     // Animate project sections with stagger effect
     setTimeout(() => {
@@ -985,7 +952,7 @@ function openProjectModal(projectId) {
                 section.style.transform = 'translateY(0)';
             }, 150 + (index * 100));
         });
-        
+
         // Animate stat items
         const statItems = modalBody.querySelectorAll('.stat-item');
         statItems.forEach((stat, index) => {
@@ -997,7 +964,7 @@ function openProjectModal(projectId) {
                 stat.style.transform = 'scale(1)';
             }, 300 + (index * 100));
         });
-        
+
         // Animate tags with stagger
         const tags = modalBody.querySelectorAll('.tech-tag, .package-tag, .feature-tag');
         tags.forEach((tag, index) => {
@@ -1017,13 +984,15 @@ function openProjectModal(projectId) {
 
 function closeProjectModal() {
     projectModal.classList.remove('show');
-    document.body.style.overflow = '';
+    // Unlock scroll
+    document.body.classList.remove('modal-open');
+    document.documentElement.classList.remove('modal-open');
 }
 
 function generateProjectDetails(project) {
     // image field is the main project image
     const mainImageSource = project.image || '';
-    
+
     return `
         <div class="project-details">
             <div class="project-header">
@@ -1094,18 +1063,19 @@ function generateProjectDetails(project) {
                     <h3 class="gradient-text"><i class="fas fa-images"></i> Screenshots (${project.screenshots.length})</h3>
                     <div class="screenshots-grid">
                         ${project.screenshots.map((screenshot, index) => {
-                            // Handle both string URLs and objects with image/url properties from Firestore
-                            let screenshotUrl = '';
-                            if (typeof screenshot === 'string') {
-                                screenshotUrl = screenshot;
-                            } else if (screenshot && typeof screenshot === 'object') {
-                                screenshotUrl = screenshot.image || screenshot.url || '';
-                            }
-                            return screenshotUrl ? `
+        // Handle both string URLs and objects with image/url properties from Firestore
+        let screenshotUrl = '';
+        if (typeof screenshot === 'string') {
+            screenshotUrl = screenshot;
+        } else if (screenshot && typeof screenshot === 'object') {
+            screenshotUrl = screenshot.image || screenshot.url || '';
+        }
+        return screenshotUrl ? `
                             <div class="screenshot-item" data-index="${index}" data-src="${screenshotUrl}">
                                 <img src="${screenshotUrl}" alt="Screenshot ${index + 1}" loading="lazy" crossorigin="anonymous">
                             </div>
-                        ` : ''}).join('')}
+                        ` : ''
+    }).join('')}
                     </div>
                 </div>
             ` : ''}
@@ -1135,7 +1105,7 @@ function openImageViewer(src) {
             <img src="${src}" alt="Screenshot">
         </div>
     `;
-    
+
     // Apply styles
     viewer.style.cssText = `
         position: fixed;
@@ -1148,7 +1118,7 @@ function openImageViewer(src) {
         align-items: center;
         justify-content: center;
     `;
-    
+
     const backdrop = viewer.querySelector('.image-viewer-backdrop');
     backdrop.style.cssText = `
         position: absolute;
@@ -1159,7 +1129,7 @@ function openImageViewer(src) {
         background: rgba(0, 0, 0, 0.95);
         backdrop-filter: blur(10px);
     `;
-    
+
     const content = viewer.querySelector('.image-viewer-content');
     content.style.cssText = `
         position: relative;
@@ -1168,7 +1138,7 @@ function openImageViewer(src) {
         z-index: 1;
         animation: scaleIn 0.3s ease;
     `;
-    
+
     const closeBtn = viewer.querySelector('.image-viewer-close');
     closeBtn.style.cssText = `
         position: absolute;
@@ -1187,7 +1157,7 @@ function openImageViewer(src) {
         font-size: 18px;
         transition: transform 0.3s ease;
     `;
-    
+
     const img = viewer.querySelector('img');
     img.style.cssText = `
         max-width: 100%;
@@ -1196,21 +1166,23 @@ function openImageViewer(src) {
         border-radius: 12px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     `;
-    
+
     document.body.appendChild(viewer);
-    document.body.style.overflow = 'hidden';
-    
+
+    // Lock scroll without changing position
+
     const close = () => {
         viewer.style.opacity = '0';
         setTimeout(() => {
             viewer.remove();
             // Only restore scroll if modal is not open
             if (!projectModal.classList.contains('show')) {
-                document.body.style.overflow = '';
+                document.body.classList.remove('modal-open');
+                document.documentElement.classList.remove('modal-open');
             }
         }, 300);
     };
-    
+
     closeBtn.addEventListener('click', close);
     backdrop.addEventListener('click', close);
     document.addEventListener('keydown', function escHandler(e) {
@@ -1227,27 +1199,27 @@ function openImageViewer(src) {
 function initContactForm() {
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        
+
         const formData = new FormData(contactForm);
         const name = formData.get('name');
         const email = formData.get('email');
         const subject = formData.get('subject');
         const message = formData.get('message');
-        
+
         // Validate form
         if (!name || !email || !subject || !message) {
             showToast('Please fill in all fields', 'error');
             return;
         }
-        
+
         if (!isValidEmail(email)) {
             showToast('Please enter a valid email address', 'error');
             return;
         }
-        
+
         // Create mailto link
         const mailtoLink = `mailto:${contactInfo.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`)}`;
-        
+
         window.location.href = mailtoLink;
         showToast('Opening email client...', 'success');
         contactForm.reset();
@@ -1269,9 +1241,9 @@ function showToast(message, type = 'success') {
         <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
         <span>${message}</span>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
+
     // Remove toast after 3 seconds
     setTimeout(() => {
         toast.style.animation = 'slideIn 0.3s ease reverse';
@@ -1312,7 +1284,7 @@ function debounce(func, wait) {
 // ====================================
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
+        anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const targetId = this.getAttribute('href').substring(1);
             if (targetId) {
@@ -1347,7 +1319,7 @@ function preloadImages() {
         ...Object.values(projectsData).map(p => p.image),
         ...techStackData.map(t => t.image)
     ];
-    
+
     images.forEach(src => {
         const img = new Image();
         img.src = src;
@@ -1374,7 +1346,7 @@ function createParticle() {
         animation: floatUp ${Math.random() * 10 + 10}s linear infinite;
     `;
     document.body.appendChild(particle);
-    
+
     setTimeout(() => particle.remove(), 20000);
 }
 
@@ -1400,10 +1372,10 @@ function initParticles() {
         }
     `;
     document.head.appendChild(style);
-    
+
     // Create particles periodically
     setInterval(createParticle, 3000);
-    
+
     // Create initial particles
     for (let i = 0; i < 5; i++) {
         setTimeout(createParticle, i * 500);
@@ -1415,7 +1387,7 @@ function initParticles() {
 // ====================================
 function handleDataLoaded(event) {
     const { section } = event.detail;
-    
+
     switch (section) {
         case 'social':
             updateSocialLinks();
@@ -1467,21 +1439,21 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-    
+
     // Show shimmer skeletons while loading
     showAllSkeletons();
-    
+
     // Listen for data loaded events
     window.addEventListener('portfolioDataLoaded', handleDataLoaded);
-    
+
     // Try to update any already-loaded content
     updateDynamicContent();
-    
+
     // Generate content if data is already available
     if (!isSectionLoading('techSkills')) generateTechStack();
     if (!isSectionLoading('projects')) generateProjects();
     if (!isSectionLoading('certificates')) generateCertificates();
-    
+
     // Initialize all UI components
     hideSplashScreen();
     initNavigation();
@@ -1493,14 +1465,14 @@ document.addEventListener('DOMContentLoaded', () => {
     initKeyboardNavigation();
     preloadImages();
     initParticles();
-    
+
     // Initialize animations after a short delay to ensure all content is rendered
     setTimeout(() => {
         initAnimations();
         // Re-trigger animations when new content is loaded dynamically
         window.addEventListener('portfolioDataLoaded', () => {
             setTimeout(() => initAnimations(), 100);
-        }, { once:false });
+        }, { once: false });
     }, 100);
 });
 

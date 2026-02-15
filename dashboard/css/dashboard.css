@@ -19,7 +19,7 @@
     --error-color: #f44336;
     --success-color: #4caf50;
     --warning-color: #ff9800;
-    
+
     --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --sidebar-width: 260px;
     --header-height: 70px;
@@ -32,7 +32,9 @@
 }
 
 /* Reset */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -178,72 +180,155 @@ body.scroll-lock {
 }
 
 @keyframes orbFloat {
-    0%, 100% { transform: translate(0, 0) scale(1) translateZ(0); }
-    25% { transform: translate(50px, -30px) scale(1.1) translateZ(0); }
-    50% { transform: translate(-30px, 50px) scale(0.95) translateZ(0); }
-    75% { transform: translate(30px, 30px) scale(1.05) translateZ(0); }
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1) translateZ(0);
+    }
+
+    25% {
+        transform: translate(50px, -30px) scale(1.1) translateZ(0);
+    }
+
+    50% {
+        transform: translate(-30px, 50px) scale(0.95) translateZ(0);
+    }
+
+    75% {
+        transform: translate(30px, 30px) scale(1.05) translateZ(0);
+    }
 }
 
 /* Float animation */
 @keyframes float {
-    0%, 100% { transform: translate(0, 0) scale(1) translateZ(0); }
-    25% { transform: translate(30px, -30px) scale(1.1) translateZ(0); }
-    50% { transform: translate(-20px, 20px) scale(0.9) translateZ(0); }
-    75% { transform: translate(20px, 30px) scale(1.05) translateZ(0); }
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1) translateZ(0);
+    }
+
+    25% {
+        transform: translate(30px, -30px) scale(1.1) translateZ(0);
+    }
+
+    50% {
+        transform: translate(-20px, 20px) scale(0.9) translateZ(0);
+    }
+
+    75% {
+        transform: translate(20px, 30px) scale(1.05) translateZ(0);
+    }
 }
 
 /* Fade in animation */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Slide up animation */
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px) translateZ(0); }
-    to { opacity: 1; transform: translateY(0) translateZ(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px) translateZ(0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) translateZ(0);
+    }
 }
 
 /* Slide in from left */
 @keyframes slideInFromLeft {
-    from { opacity: 0; transform: translateX(-30px) translateZ(0); }
-    to { opacity: 1; transform: translateX(0) translateZ(0); }
+    from {
+        opacity: 0;
+        transform: translateX(-30px) translateZ(0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) translateZ(0);
+    }
 }
 
 /* Scale in animation */
 @keyframes scaleIn {
-    from { opacity: 0; transform: scale(0.95) translateZ(0); }
-    to { opacity: 1; transform: scale(1) translateZ(0); }
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateZ(0);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateZ(0);
+    }
 }
 
 /* Pulse glow animation */
 @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 10px rgba(33, 150, 243, 0.3); }
-    50% { box-shadow: 0 0 25px rgba(103, 58, 183, 0.5); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 25px rgba(103, 58, 183, 0.5);
+    }
 }
 
 /* Card float animation */
 @keyframes cardFloat {
-    0%, 100% { transform: translateY(0) translateZ(0); }
-    50% { transform: translateY(-6px) translateZ(0); }
+
+    0%,
+    100% {
+        transform: translateY(0) translateZ(0);
+    }
+
+    50% {
+        transform: translateY(-6px) translateZ(0);
+    }
 }
 
 /* Shimmer effect */
 @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
 }
 
 /* Tab content fade */
 @keyframes tabFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Fade out animation */
 @keyframes fadeOut {
-    from { opacity: 1; transform: translateX(0) translateZ(0); }
-    to { opacity: 0; transform: translateX(-20px) translateZ(0); }
+    from {
+        opacity: 1;
+        transform: translateX(0) translateZ(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(-20px) translateZ(0);
+    }
 }
 
 .login-container {
@@ -430,11 +515,27 @@ body.scroll-lock {
 }
 
 @keyframes errorShake {
-    0%, 100% { transform: translateX(0) translateZ(0); }
-    20% { transform: translateX(-4px) translateZ(0); }
-    40% { transform: translateX(4px) translateZ(0); }
-    60% { transform: translateX(-4px) translateZ(0); }
-    80% { transform: translateX(4px) translateZ(0); }
+
+    0%,
+    100% {
+        transform: translateX(0) translateZ(0);
+    }
+
+    20% {
+        transform: translateX(-4px) translateZ(0);
+    }
+
+    40% {
+        transform: translateX(4px) translateZ(0);
+    }
+
+    60% {
+        transform: translateX(-4px) translateZ(0);
+    }
+
+    80% {
+        transform: translateX(4px) translateZ(0);
+    }
 }
 
 /* Modal dynamic list error state */
@@ -763,12 +864,12 @@ select.has-error {
     transition: var(--transition-normal);
 }
 
-.toggle-switch input:checked + .toggle-slider {
+.toggle-switch input:checked+.toggle-slider {
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
     border-color: var(--gradient-start);
 }
 
-.toggle-switch input:checked + .toggle-slider::before {
+.toggle-switch input:checked+.toggle-slider::before {
     transform: translateX(24px);
     background: white;
 }
@@ -778,7 +879,7 @@ select.has-error {
     color: var(--text-secondary);
 }
 
-.toggle-switch input:checked ~ .toggle-label {
+.toggle-switch input:checked~.toggle-label {
     color: var(--gradient-start);
 }
 
@@ -811,10 +912,21 @@ select.has-error {
     will-change: transform, opacity;
 }
 
-.stat-card:nth-child(1) { animation-delay: 0.1s; }
-.stat-card:nth-child(2) { animation-delay: 0.2s; }
-.stat-card:nth-child(3) { animation-delay: 0.3s; }
-.stat-card:nth-child(4) { animation-delay: 0.4s; }
+.stat-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.stat-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
 
 .stat-card:hover {
     transform: translateY(-4px);
@@ -1402,7 +1514,7 @@ select.has-error {
     border-color: var(--gradient-start);
 }
 
-.cv-preview > i {
+.cv-preview>i {
     font-size: 40px;
     color: var(--error-color);
 }
@@ -1935,6 +2047,7 @@ select.has-error {
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -1945,11 +2058,38 @@ select.has-error {
    Responsive
    ==================================== */
 
+/* Extra Large Desktop (1600px+) - Ultra-wide optimizations */
+@media (min-width: 1600px) {
+    .items-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .analytics-charts {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+    }
+}
+
+/* Large Desktop (1200px+) - Better spacing and layout */
+@media (min-width: 1200px) {
+    .content-wrapper {
+        padding: 32px;
+    }
+
+    .stats-grid {
+        gap: 24px;
+    }
+
+    .form-grid {
+        gap: 24px;
+    }
+}
+
 @media (max-width: 1200px) {
     .analytics-charts {
         grid-template-columns: 1fr;
     }
-    
+
     .items-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1959,26 +2099,26 @@ select.has-error {
     :root {
         --sidebar-width: 220px;
     }
-    
+
     .modal-content {
         max-width: 90%;
         margin: 16px;
     }
-    
+
     .section-header-actions {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
     }
-    
+
     .section-header-actions .btn {
         width: 100%;
     }
-    
+
     .action-buttons {
         width: 100%;
     }
-    
+
     .toggle-switch {
         justify-content: flex-start;
     }
@@ -1988,155 +2128,155 @@ select.has-error {
     .sidebar {
         transform: translateX(-100%);
     }
-    
+
     .sidebar.open {
         transform: translateX(0);
         width: 280px;
     }
-    
+
     .sidebar-overlay {
         display: block;
     }
-    
+
     .sidebar-overlay.show {
         opacity: 1;
         visibility: visible;
     }
-    
+
     .main-content {
         margin-left: 0;
         max-width: 100vw;
     }
-    
+
     .sidebar-toggle {
         display: block;
     }
-    
+
     .dashboard-header {
         padding: 0 16px;
     }
-    
+
     .dashboard-header h2 {
         font-size: 18px;
     }
-    
+
     .welcome-text {
         display: none;
     }
-    
+
     /* Analytics - Stats Grid */
     .stats-grid {
         gap: 12px;
     }
-    
+
     .stat-card {
         padding: 16px;
     }
-    
+
     .stat-icon {
         width: 40px;
         height: 40px;
         font-size: 16px;
     }
-    
+
     .stat-value {
         font-size: 24px;
     }
-    
+
     .stat-label {
         font-size: 11px;
     }
-    
+
     /* Analytics - Charts */
     .analytics-charts {
         gap: 16px;
         margin-bottom: 20px;
     }
-    
+
     .chart-container {
         padding: 16px;
     }
-    
+
     .chart-container h3 {
         font-size: 14px;
         margin-bottom: 16px;
     }
-    
+
     .chart {
         height: 150px;
         gap: 4px;
         padding: 24px 0;
     }
-    
+
     .chart-bar::after {
         font-size: 9px;
         top: -20px;
     }
-    
+
     .chart-bar::before {
         font-size: 8px;
         bottom: -20px;
     }
-    
+
     /* Analytics - Recent Visits */
     .recent-visits {
         padding: 16px;
     }
-    
+
     .recent-visits h3 {
         font-size: 14px;
         margin-bottom: 16px;
     }
-    
+
     .data-table th,
     .data-table td {
         padding: 10px 12px;
         font-size: 12px;
     }
-    
+
     .data-table th {
         font-size: 10px;
     }
-    
+
     .form-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .items-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .list-item {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
     }
-    
+
     .list-item-info {
         flex-direction: column;
         align-items: flex-start;
         width: 100%;
     }
-    
+
     .list-item-progress {
         width: 100%;
     }
-    
+
     .list-item-actions {
         width: 100%;
         justify-content: flex-start;
     }
-    
+
     .list-item-actions .btn {
         flex: 1;
     }
-    
+
     .home-tabs,
     .about-tabs,
     .skills-tabs {
         flex-wrap: wrap;
     }
-    
+
     .home-tab,
     .about-tab,
     .skill-tab {
@@ -2144,21 +2284,21 @@ select.has-error {
         min-width: 120px;
         text-align: center;
     }
-    
+
     .edit-form {
         padding: 20px;
     }
-    
+
     .modal-content {
         max-width: 95%;
         max-height: 85vh;
         margin: 8px;
     }
-    
+
     .modal-header {
         padding: 16px 20px;
     }
-    
+
     .modal-body {
         padding: 20px;
     }
@@ -2169,244 +2309,244 @@ select.has-error {
         margin: 16px;
         padding: 32px 24px;
     }
-    
+
     .content-wrapper {
         padding: 12px;
     }
-    
+
     .dashboard-header {
         padding: 0 12px;
         height: 56px;
     }
-    
+
     .dashboard-header h2 {
         font-size: 16px;
     }
-    
+
     /* Toggle Switch */
     .toggle-slider {
         width: 40px;
         height: 20px;
     }
-    
+
     .toggle-slider::before {
         width: 14px;
         height: 14px;
     }
-    
-    .toggle-switch input:checked + .toggle-slider::before {
+
+    .toggle-switch input:checked+.toggle-slider::before {
         transform: translateX(20px);
     }
-    
+
     .toggle-label {
         font-size: 12px;
     }
-    
+
     /* Analytics - Stats Grid */
     .stats-grid {
         gap: 10px;
     }
-    
+
     .stat-card {
         flex-direction: row;
         justify-content: flex-start;
         gap: 16px;
         padding: 14px 16px;
     }
-    
+
     .stat-icon {
         width: 48px;
         height: 48px;
         font-size: 20px;
     }
-    
+
     .stat-info {
         text-align: left;
     }
-    
+
     .stat-value {
         font-size: 28px;
     }
-    
+
     .stat-label {
         font-size: 12px;
     }
-    
+
     /* Analytics - Charts */
     .analytics-charts {
         gap: 12px;
         margin-bottom: 16px;
     }
-    
+
     .chart-container {
         padding: 12px;
     }
-    
+
     .chart-container h3 {
         font-size: 13px;
         margin-bottom: 12px;
     }
-    
+
     .chart {
         height: 120px;
         gap: 3px;
         padding: 20px 0;
     }
-    
+
     .chart-bar::after {
         font-size: 8px;
         top: -16px;
     }
-    
+
     .chart-bar::before {
         font-size: 7px;
         bottom: -16px;
     }
-    
+
     /* Analytics - Recent Visits */
     .recent-visits {
         padding: 12px;
     }
-    
+
     .recent-visits h3 {
         font-size: 13px;
         margin-bottom: 12px;
     }
-    
+
     .table-wrapper {
         margin: 0 -12px;
         padding: 0 12px;
     }
-    
+
     .data-table {
         min-width: 800px;
     }
-    
+
     .data-table th,
     .data-table td {
         padding: 8px 10px;
         font-size: 11px;
     }
-    
+
     .data-table th {
         font-size: 9px;
     }
-    
+
     .data-table td code {
         font-size: 10px;
     }
-    
+
     .data-table td i {
         font-size: 10px;
     }
-    
+
     /* Section Header */
     .section-header-actions {
         gap: 10px;
     }
-    
+
     .section-header-actions h3 {
         font-size: 18px;
     }
-    
+
     .skills-tabs,
     .home-tabs,
     .about-tabs {
         flex-direction: column;
     }
-    
+
     .skill-tab,
     .home-tab,
     .about-tab {
         width: 100%;
     }
-    
+
     .item-card {
         padding: 16px;
     }
-    
+
     .item-card-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
     }
-    
+
     .item-card-actions {
         width: 100%;
         justify-content: flex-start;
     }
-    
+
     .edit-form {
         padding: 16px;
     }
-    
+
     .btn {
         padding: 10px 16px;
         font-size: 13px;
     }
-    
+
     .modal-header h3 {
         font-size: 16px;
     }
-    
+
     .modal-body .form-group label {
         font-size: 13px;
     }
-    
+
     .modal-body input,
     .modal-body textarea,
     .modal-body select {
         font-size: 14px;
     }
-    
+
     .delete-dialog .modal-content,
     .result-dialog .modal-content {
         padding: 24px 20px;
         max-width: 90%;
     }
-    
+
     .delete-dialog-icon,
     .result-dialog-icon {
         width: 64px;
         height: 64px;
         font-size: 28px;
     }
-    
+
     .delete-dialog h3,
     .result-dialog h3 {
         font-size: 18px;
     }
-    
+
     .delete-dialog p,
     .result-dialog p {
         font-size: 14px;
     }
-    
+
     .delete-dialog-actions,
     .result-dialog-actions {
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .delete-dialog-actions .btn,
     .result-dialog-actions .btn {
         width: 100%;
     }
-    
+
     .cv-preview {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
     }
-    
+
     .cv-preview .btn {
         width: 100%;
     }
-    
+
     .input-with-btn {
         flex-direction: column;
     }
-    
+
     .input-with-btn .btn {
         width: 100%;
     }
@@ -2417,30 +2557,30 @@ select.has-error {
         padding: 12px;
         gap: 12px;
     }
-    
+
     .stat-icon {
         width: 40px;
         height: 40px;
         font-size: 16px;
     }
-    
+
     .stat-value {
         font-size: 22px;
     }
-    
+
     .chart {
         height: 100px;
     }
-    
+
     .chart-bar::after,
     .chart-bar::before {
         display: none;
     }
-    
+
     .data-table {
         min-width: 700px;
     }
-    
+
     .sidebar.open {
         width: 100%;
     }
@@ -2476,14 +2616,31 @@ select.has-error {
 }
 
 @keyframes iconPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
 }
 
 @keyframes dialogBounce {
-    0% { transform: scale(0.8); opacity: 0; }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .delete-dialog h3 {
@@ -2703,6 +2860,7 @@ input[type="number"]::-webkit-outer-spin-button {
         opacity: 0;
         transform: translateY(-5px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
