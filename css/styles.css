@@ -2,26 +2,6 @@
    AA Portfolio - Main Styles
    ==================================== */
 
-/* Font Display Optimization */
-@font-face {
-    font-family: 'Font Awesome 6 Free';
-    font-display: swap;
-    src: url('');
-}
-
-@font-face {
-    font-family: 'Font Awesome 6 Brands';
-    font-display: swap;
-    src: url('');
-}
-
-/* Ensure all fonts use swap for better performance */
-@font-face {
-    font-family: 'Poppins';
-    font-display: swap;
-    src: url('');
-}
-
 /* CSS Variables */
 :root {
     /* Colors */
@@ -1435,31 +1415,6 @@ ol {
     gap: var(--spacing-xs);
 }
 
-/* Legacy support for old structure */
-.project-info {
-    padding: var(--spacing-lg);
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.project-info h3 {
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-    margin-bottom: var(--spacing-sm);
-}
-
-.project-info p {
-    font-size: var(--font-size-base);
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-md);
-    line-height: 1.5;
-    flex: 1;
-}
-
-.project-info .btn {
-    align-self: flex-start;
-}
 
 /* Certificates Grid */
 .certificates-grid {

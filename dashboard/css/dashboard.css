@@ -62,8 +62,6 @@ body {
     overflow-x: hidden;
     max-width: 100vw;
     touch-action: manipulation;
-    /* Performance */
-    contain: layout style paint;
     /* Prevent layout shift when overflow changes */
     scrollbar-gutter: stable;
 }
@@ -3060,4 +3058,316 @@ input[data-pending-upload="true"] {
     color: var(--text-secondary);
     margin-top: 16px;
     font-size: 14px;
+}
+
+/* ====================================
+   SweetAlert2 Custom Styles
+   ==================================== */
+
+/* CRITICAL: Ensure container is ALWAYS fixed to viewport, never absolute */
+.swal2-container,
+.swal2-container.swal2-shown,
+body.swal2-shown>.swal2-container {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    z-index: 1060 !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 10px !important;
+    background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Ensure popup centers in the flex container */
+.swal2-popup {
+    position: relative !important;
+    margin: auto !important;
+}
+
+/* Dark theme for SweetAlert2 */
+.swal2-popup.swal-dark {
+    background: var(--bg-tertiary) !important;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 30px !important;
+}
+
+.swal2-title {
+    color: var(--text-primary) !important;
+    font-family: var(--font-family);
+    font-size: 24px !important;
+    font-weight: 600;
+    margin-bottom: 20px !important;
+}
+
+.swal2-html-container {
+    color: var(--text-secondary) !important;
+    font-family: var(--font-family);
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.swal2-close {
+    color: var(--text-secondary) !important;
+    font-size: 28px !important;
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+}
+
+.swal2-close:hover {
+    opacity: 1;
+    color: var(--text-primary) !important;
+}
+
+/* Form styles within SweetAlert2 */
+.swal-form {
+    text-align: left;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.swal-form::-webkit-scrollbar {
+    width: 8px;
+}
+
+.swal-form::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.swal-form::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.swal-form::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.swal-form .form-group {
+    margin-bottom: 20px;
+}
+
+.swal-form label {
+    display: block;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.swal-form .swal2-input,
+.swal-form .swal2-textarea,
+.swal-form .swal2-select {
+    width: 100% !important;
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--text-primary) !important;
+    font-family: var(--font-family) !important;
+    font-size: 14px !important;
+    padding: 12px 16px !important;
+    margin: 0 !important;
+    transition: all var(--transition-fast);
+}
+
+.swal-form .swal2-input:focus,
+.swal-form .swal2-textarea:focus,
+.swal-form .swal2-select:focus {
+    outline: none !important;
+    border-color: var(--gradient-start) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1) !important;
+}
+
+.swal-form .swal2-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Dynamic lists in forms */
+.modal-dynamic-list {
+    margin: 10px 0 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modal-dynamic-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.modal-dynamic-item input {
+    flex: 1;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 14px;
+    padding: 10px 12px;
+    transition: all var(--transition-fast);
+}
+
+.modal-dynamic-item input:focus {
+    outline: none;
+    border-color: var(--gradient-start);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-delete-modal {
+    background: var(--error-color);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    cursor: pointer;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete-modal:hover {
+    background: #d32f2f;
+    transform: scale(1.05);
+}
+
+/* Icon preview for service form */
+.icon-preview {
+    margin-top: 10px;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-primary);
+}
+
+.icon-preview i {
+    font-size: 24px;
+    color: var(--gradient-start);
+}
+
+.icon-preview span {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* Buttons in SweetAlert2 forms */
+.swal-form .btn {
+    font-family: var(--font-family);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.swal-form .gradient-btn {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    color: white;
+}
+
+.swal-form .gradient-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+.swal-form .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.swal-form .btn-outline:hover {
+    background: var(--bg-secondary);
+    border-color: var(--gradient-start);
+}
+
+.swal-form .btn-small {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.swal-form .btn-full {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+/* SweetAlert2 confirm/cancel buttons */
+.swal2-confirm,
+.swal2-cancel {
+    font-family: var(--font-family) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    padding: 12px 32px !important;
+    border-radius: var(--radius-sm) !important;
+    transition: all var(--transition-fast) !important;
+}
+
+.swal2-confirm {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)) !important;
+}
+
+.swal2-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4) !important;
+}
+
+.swal2-cancel {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.swal2-cancel:hover {
+    background: var(--bg-tertiary) !important;
+}
+
+/* Image viewer specific styles */
+.swal2-popup.swal-image-viewer {
+    max-width: 90vw !important;
+    max-height: 90vh !important;
+    padding: 20px !important;
+}
+
+.swal2-popup.swal-image-viewer img {
+    max-width: 100%;
+    max-height: 75vh;
+    border-radius: var(--radius-md);
+}
+
+/* Modal animations */
+@keyframes swalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.swal2-show {
+    animation: swalSlideIn 0.3s ease !important;
 }

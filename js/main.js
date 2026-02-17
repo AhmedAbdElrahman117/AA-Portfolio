@@ -739,11 +739,6 @@ function initAnimations() {
                     animateProgressBars();
                     animateCircularProgress();
                 }
-
-                // Add skill bar subsection animation class
-                if (entry.target.classList.contains('skills-subsection')) {
-                    entry.target.classList.add('visible');
-                }
             }
         });
     }, {
@@ -1277,7 +1272,6 @@ function debounce(func, wait) {
     };
 }
 
-// throttle function removed - not used
 
 // ====================================
 // Smooth Scroll for anchor links
@@ -1488,5 +1482,3 @@ window.addEventListener('load', () => {
         }
     }, 6500);
 });
-
-// Page visibility handling not needed

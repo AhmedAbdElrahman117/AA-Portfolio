@@ -97,6 +97,7 @@ const Dashboard = {
     // Cached DOM elements
     contentWrapper: null,
 
+
     // Initialize dashboard
     async init() {
         // Cache frequently used elements
@@ -119,25 +120,7 @@ const Dashboard = {
         Analytics.renderStats();
     },
 
-    // ====================================
-    // Scroll Lock Helpers
-    // ====================================
 
-    lockScroll() {
-        document.body.classList.add('scroll-lock');
-        if (this.contentWrapper) {
-            this.contentWrapper.classList.add('scroll-lock');
-            console.log('Scroll locked');
-        }
-    },
-
-    unlockScroll() {
-        document.body.classList.remove('scroll-lock');
-        if (this.contentWrapper) {
-            this.contentWrapper.classList.remove('scroll-lock');
-            console.log('Scroll unlocked');
-        }
-    },
 
     // ====================================
     // Navigation
@@ -381,18 +364,25 @@ const Dashboard = {
     },
 
     openImageViewer(src) {
-        const modal = document.getElementById('imageViewerModal');
-        const img = document.getElementById('imageViewerImg');
-        img.src = src;
-        this.centerDialogInViewport(modal);
-        modal.classList.add('show');
-        this.lockScroll();
+        Swal.fire({
+            imageUrl: src,
+            imageAlt: 'Preview',
+            showConfirmButton: false,
+            showCloseButton: true,
+            width: '90%',
+            customClass: {
+                popup: 'swal-dark swal-image-viewer',
+                image: 'swal-image',
+                closeButton: 'swal-close-btn'
+            },
+            background: 'rgba(0, 0, 0, 0.95)',
+            backdrop: 'rgba(0, 0, 0, 0.9)'
+        });
     },
 
     closeImageViewer() {
-        const modal = document.getElementById('imageViewerModal');
-        modal.classList.remove('show');
-        this.unlockScroll();
+        // SweetAlert2 handles closing automatically
+        Swal.close();
     },
 
     testCvDownload() {
@@ -1997,321 +1987,334 @@ const Dashboard = {
     // Modal
     // ====================================
 
-    openModal(type, item) {
+    async openModal(type, item) {
         this.currentEditType = type;
         this.currentEditItem = item;
 
-        const modal = document.getElementById('itemModal');
-        const title = document.getElementById('modalTitle');
-        const body = document.getElementById('modalBody');
-
-        let formHtml = '';
         const isEdit = item !== null;
+        let formHtml = '';
+        let titleText = '';
 
+        // Generate form HTML (keeping existing logic)
         switch (type) {
             case 'tech':
-                title.textContent = isEdit ? 'Edit Tech Skill' : 'Add Tech Skill';
-                formHtml = `
-                    <form id="modalForm">
-                        <div class="form-group">
-                            <label>Skill Name</label>
-                            <input type="text" id="modalSkillName" required value="${item?.name || ''}" placeholder="e.g., Flutter, React, Python">
-                            <small class="field-hint">Enter the technology or skill name</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Image Path or URL</label>
-                            <input type="text" id="modalSkillImage" required value="${item?.image || ''}" placeholder="assets/TechStack/example.png or https://...">
-                            <small class="field-hint">Local path (assets/...) or full URL to the skill icon</small>
-                        </div>
-                        <button type="submit" class="btn gradient-btn btn-full">
-                            <i class="fas fa-save"></i> ${isEdit ? 'Update' : 'Add'} Skill
-                        </button>
-                    </form>
-                `;
+                titleText = isEdit ? 'Edit Tech Skill' : 'Add Tech Skill';
+                formHtml = this.generateTechForm(item);
                 break;
-
             case 'soft':
-                title.textContent = isEdit ? 'Edit Soft Skill' : 'Add Soft Skill';
-                formHtml = `
-                    <form id="modalForm">
-                        <div class="form-group">
-                            <label>Skill Name</label>
-                            <input type="text" id="modalSkillName" required value="${item?.name || ''}" placeholder="e.g., Teamwork, Leadership, Problem Solving">
-                            <small class="field-hint">Enter the soft skill name</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Proficiency Percentage</label>
-                            <input type="number" id="modalSkillPercentage" required min="0" max="100" value="${item?.percentage || 50}" placeholder="0-100">
-                            <small class="field-hint">Your proficiency level from 0 to 100</small>
-                        </div>
-                        ${this.createColorInput('modalSkillColor', item?.color || '#2196F3', 'Progress Bar Color')}
-                        <button type="submit" class="btn gradient-btn btn-full">
-                            <i class="fas fa-save"></i> ${isEdit ? 'Update' : 'Add'} Skill
-                        </button>
-                    </form>
-                `;
+                titleText = isEdit ? 'Edit Soft Skill' : 'Add Soft Skill';
+                formHtml = this.generateSoftForm(item);
                 break;
-
             case 'lang':
-                title.textContent = isEdit ? 'Edit Language' : 'Add Language';
-                formHtml = `
-                    <form id="modalForm">
-                        <div class="form-group">
-                            <label>Language Name</label>
-                            <input type="text" id="modalLangName" required value="${item?.name || ''}" placeholder="e.g., English, Arabic, German">
-                            <small class="field-hint">Enter the language name</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Proficiency Level</label>
-                            <select id="modalLangLevel" required>
-                                <option value="" disabled ${!item?.level ? 'selected' : ''}>Select proficiency level</option>
-                                <option value="Beginner" ${item?.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
-                                <option value="Elementary" ${item?.level === 'Elementary' ? 'selected' : ''}>Elementary</option>
-                                <option value="Intermediate" ${item?.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
-                                <option value="Advanced" ${item?.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
-                                <option value="Fluent" ${item?.level === 'Fluent' ? 'selected' : ''}>Fluent</option>
-                                <option value="Native" ${item?.level === 'Native' ? 'selected' : ''}>Native</option>
-                            </select>
-                            <small class="field-hint">Select your proficiency level in this language</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Proficiency Percentage</label>
-                            <input type="number" id="modalLangPercentage" required min="0" max="100" value="${item?.percentage || 50}" placeholder="0-100">
-                            <small class="field-hint">Your proficiency level from 0 to 100</small>
-                        </div>
-                        ${this.createColorInput('modalLangColor', item?.color || '#2196F3', 'Progress Bar Color')}
-                        <button type="submit" class="btn gradient-btn btn-full">
-                            <i class="fas fa-save"></i> ${isEdit ? 'Update' : 'Add'} Language
-                        </button>
-                    </form>
-                `;
+                titleText = isEdit ? 'Edit Language' : 'Add Language';
+                formHtml = this.generateLangForm(item);
                 break;
-
             case 'project':
-                title.textContent = isEdit ? 'Edit Project' : 'Add Project';
-                const features = item?.features || [];
-                const screenshots = item?.screenshots || [];
-                const technologies = item?.technologies || [];
-                const packages = item?.packages || [];
-                formHtml = `
-                    <form id="modalForm">
-                        <div class="form-group">
-                            <label>Project Title</label>
-                            <input type="text" id="modalProjectTitle" required value="${item?.title || ''}" placeholder="e.g., E-commerce App">
-                            <small class="field-hint">Enter the name of your project</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea id="modalProjectDesc" required rows="3" placeholder="Describe what this project does...">${item?.description || ''}</textarea>
-                            <small class="field-hint">Brief description of the project's purpose and features</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Image Path or URL</label>
-                            <input type="text" id="modalProjectImage" required value="${item?.image || ''}" placeholder="assets/project/logo.png or https://...">
-                            <small class="field-hint">Local path or URL to the project logo/thumbnail</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Technologies <span class="required-hint">(at least 1 required)</span></label>
-                            <div class="modal-dynamic-list" id="modalTechList">
-                                ${technologies.length > 0 ? technologies.map(tech => `
-                                    <div class="modal-dynamic-item">
-                                        <input type="text" value="${this.escapeHtml(tech)}" placeholder="e.g., Flutter">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove technology"><i class="fas fa-times"></i></button>
-                                    </div>
-                                `).join('') : `
-                                    <div class="modal-dynamic-item">
-                                        <input type="text" value="" placeholder="e.g., Flutter">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove technology"><i class="fas fa-times"></i></button>
-                                    </div>
-                                `}
-                            </div>
-                            <button type="button" class="btn btn-outline btn-small" onclick="Dashboard.addModalListItem('modalTechList', 'e.g., Flutter')">
-                                <i class="fas fa-plus"></i> Add Technology
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>Packages <span class="required-hint">(at least 1 required)</span></label>
-                            <div class="modal-dynamic-list" id="modalPackagesList">
-                                ${packages.length > 0 ? packages.map(pkg => `
-                                    <div class="modal-dynamic-item">
-                                        <input type="text" value="${this.escapeHtml(pkg)}" placeholder="e.g., flutter_bloc">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove package"><i class="fas fa-times"></i></button>
-                                    </div>
-                                `).join('') : `
-                                    <div class="modal-dynamic-item">
-                                        <input type="text" value="" placeholder="e.g., flutter_bloc">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove package"><i class="fas fa-times"></i></button>
-                                    </div>
-                                `}
-                            </div>
-                            <button type="button" class="btn btn-outline btn-small" onclick="Dashboard.addModalListItem('modalPackagesList', 'e.g., flutter_bloc')">
-                                <i class="fas fa-plus"></i> Add Package
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>Key Features <span class="required-hint">(at least 1 required)</span></label>
-                            <div class="modal-dynamic-list" id="modalFeaturesList">
-                                ${features.length > 0 ? features.map(feature => `
-                                    <div class="modal-dynamic-item">
-                                        <input type="text" value="${this.escapeHtml(feature)}" placeholder="e.g., User authentication">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove feature"><i class="fas fa-times"></i></button>
-                                    </div>
-                                `).join('') : `
-                                    <div class="modal-dynamic-item">
-                                        <input type="text" value="" placeholder="e.g., User authentication">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove feature"><i class="fas fa-times"></i></button>
-                                    </div>
-                                `}
-                            </div>
-                            <button type="button" class="btn btn-outline btn-small" onclick="Dashboard.addModalListItem('modalFeaturesList', 'e.g., User authentication')">
-                                <i class="fas fa-plus"></i> Add Feature
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>Screenshots (optional)</label>
-                            <div class="modal-dynamic-list" id="modalScreenshotsList">
-                                ${screenshots.map(screenshot => `
-                                    <div class="modal-dynamic-item">
-                                        <input type="text" value="${this.escapeHtml(screenshot)}" placeholder="assets/project/1.png">
-                                        <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)" aria-label="Remove screenshot"><i class="fas fa-times"></i></button>
-                                    </div>
-                                `).join('') || ''}
-                            </div>
-                            <button type="button" class="btn btn-outline btn-small" onclick="Dashboard.addModalListItem('modalScreenshotsList', 'assets/project/1.png')">
-                                <i class="fas fa-plus"></i> Add Screenshot
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>GitHub URL</label>
-                            <input type="url" id="modalProjectGithub" value="${item?.github || ''}" placeholder="https://github.com/username/repo">
-                            <small class="field-hint">Link to the project's GitHub repository</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Store URL (optional)</label>
-                            <input type="url" id="modalProjectStore" value="${item?.store || ''}" placeholder="https://play.google.com/store/apps/...">
-                            <small class="field-hint">Link to app store (Play Store, App Store, etc.)</small>
-                        </div>
-                        <button type="submit" class="btn gradient-btn btn-full">
-                            <i class="fas fa-save"></i> ${isEdit ? 'Update' : 'Add'} Project
-                        </button>
-                    </form>
-                `;
+                titleText = isEdit ? 'Edit Project' : 'Add Project';
+                formHtml = this.generateProjectForm(item);
                 break;
-
             case 'certificate':
-                title.textContent = isEdit ? 'Edit Certificate' : 'Add Certificate';
-                formHtml = `
-                    <form id="modalForm">
-                        <div class="form-group">
-                            <label>Certificate Title</label>
-                            <input type="text" id="modalCertTitle" required value="${item?.title || ''}" placeholder="e.g., Flutter Development Bootcamp">
-                            <small class="field-hint">Name of the certificate or course</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Image Path or URL</label>
-                            <input type="text" id="modalCertImage" required value="${item?.image || ''}" placeholder="assets/Certificates/example.jpg or https://...">
-                            <small class="field-hint">Local path or URL to the certificate image</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Certificate URL</label>
-                            <input type="url" id="modalCertUrl" required value="${item?.url || ''}" placeholder="https://www.udemy.com/certificate/...">
-                            <small class="field-hint">Link to verify the certificate online</small>
-                        </div>
-                        <button type="submit" class="btn gradient-btn btn-full">
-                            <i class="fas fa-save"></i> ${isEdit ? 'Update' : 'Add'} Certificate
-                        </button>
-                    </form>
-                `;
+                titleText = isEdit ? 'Edit Certificate' : 'Add Certificate';
+                formHtml = this.generateCertificateForm(item);
                 break;
-
             case 'service':
-                title.textContent = isEdit ? 'Edit Service' : 'Add Service';
-                formHtml = `
-                    <form id="modalForm">
-                        <div class="form-group">
-                            <label>Service Title</label>
-                            <input type="text" id="modalServiceTitle" required value="${item?.title || ''}" placeholder="e.g., Mobile App Development">
-                            <small class="field-hint">Name of the service you offer</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea id="modalServiceDesc" required rows="3" placeholder="Describe what this service includes...">${item?.description || ''}</textarea>
-                            <small class="field-hint">Brief description of the service</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Icon Class (Font Awesome)</label>
-                            <input type="text" id="modalServiceIcon" required value="${item?.icon || ''}" placeholder="e.g., fas fa-mobile-alt">
-                            <small class="field-hint">Font Awesome icon class. Browse icons at <a href="https://fontawesome.com/icons" target="_blank">fontawesome.com/icons</a></small>
-                            <div class="icon-preview" id="serviceIconPreview">
-                                <i class="${item?.icon || 'fas fa-cog'}"></i>
-                                <span>Preview</span>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn gradient-btn btn-full">
-                            <i class="fas fa-save"></i> ${isEdit ? 'Update' : 'Add'} Service
-                        </button>
-                    </form>
-                `;
+                titleText = isEdit ? 'Edit Service' : 'Add Service';
+                formHtml = this.generateServiceForm(item);
                 break;
         }
 
-        body.innerHTML = formHtml;
-        this.centerDialogInViewport(modal);
-        modal.classList.add('show');
-        this.lockScroll();
+        // Display in SweetAlert2
+        await Swal.fire({
+            title: titleText,
+            html: formHtml,
+            showConfirmButton: false,
+            showCloseButton: true,
+            width: '600px',
+            position: 'center',
+            heightAuto: false,
+            scrollbarPadding: false,
+            backdrop: true,
+            grow: false,
+            customClass: {
+                popup: 'swal-dark swal-modal',
+                title: 'swal-title',
+                htmlContainer: 'swal-html-container',
+                closeButton: 'swal-close-btn',
+                container: 'swal2-container-custom'
+            },
+            didOpen: () => {
+                // Initialize uploadable fields for this modal type
+                if (typeof UploadService !== 'undefined') {
+                    UploadService.initModalFilePickerInputs(type);
+                }
 
-        // Initialize uploadable fields for this modal type
-        if (typeof UploadService !== 'undefined') {
-            UploadService.initModalFilePickerInputs(type);
-        }
+                // Bind form submission with validation
+                const form = document.getElementById('modalForm');
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        if (this.validateForm(form)) {
+                            this.handleModalSubmit();
+                        }
+                    });
 
-        // Bind form submission with validation
-        const form = document.getElementById('modalForm');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (this.validateForm(form)) {
-                this.handleModalSubmit();
-            }
-        });
+                    // Clear errors on input
+                    form.querySelectorAll('input, textarea, select').forEach(input => {
+                        input.addEventListener('input', () => {
+                            const group = input.closest('.form-group');
+                            if (group) {
+                                group.classList.remove('has-error');
+                                input.classList.remove('has-error');
+                                const error = group.querySelector('.field-error');
+                                if (error) error.remove();
 
-        // Clear errors on input
-        form.querySelectorAll('input, textarea, select').forEach(input => {
-            input.addEventListener('input', () => {
-                const group = input.closest('.form-group');
-                if (group) {
-                    group.classList.remove('has-error');
-                    input.classList.remove('has-error');
-                    const error = group.querySelector('.field-error');
-                    if (error) error.remove();
+                                // Also clear list errors if typing in a list item
+                                const list = group.querySelector('.modal-dynamic-list');
+                                if (list) {
+                                    list.classList.remove('has-error');
+                                }
+                            }
+                        });
+                    });
+                }
 
-                    // Also clear list errors if typing in a list item
-                    const list = group.querySelector('.modal-dynamic-list');
-                    if (list) {
-                        list.classList.remove('has-error');
+                // Add icon preview update for service modal
+                if (type === 'service') {
+                    const iconInput = document.getElementById('modalServiceIcon');
+                    const iconPreview = document.getElementById('serviceIconPreview');
+                    if (iconInput && iconPreview) {
+                        iconInput.addEventListener('input', () => {
+                            const iconClass = iconInput.value.trim() || 'fas fa-cog';
+                            iconPreview.innerHTML = `<i class="${iconClass}"></i><span>Preview</span>`;
+                        });
                     }
                 }
-            });
-        });
-
-        // Add icon preview update for service modal
-        if (type === 'service') {
-            const iconInput = document.getElementById('modalServiceIcon');
-            const iconPreview = document.getElementById('serviceIconPreview');
-            if (iconInput && iconPreview) {
-                iconInput.addEventListener('input', () => {
-                    const iconClass = iconInput.value.trim() || 'fas fa-cog';
-                    iconPreview.innerHTML = `<i class="${iconClass}"></i><span>Preview</span>`;
-                });
             }
-        }
+        });
+    },
+
+    // Helper methods to generate form HTML (extracted from original openModal)
+    generateTechForm(item) {
+        return `
+            <form id="modalForm" class="swal-form">
+                <div class="form-group">
+                    <label>Skill Name</label>
+                    <input type="text" id="modalSkillName" class="swal2-input" required value="${item?.name || ''}" placeholder="e.g., Flutter, React, Python">
+                </div>
+                <div class="form-group">
+                    <label>Image Path or URL</label>
+                    <input type="text" id="modalSkillImage" class="swal2-input" required value="${item?.image || ''}" placeholder="assets/TechStack/example.png">
+                </div>
+                <button type="submit" class="btn gradient-btn btn-full">
+                    <i class="fas fa-save"></i> ${item ? 'Update' : 'Add'} Skill
+                </button>
+            </form>
+        `;
+    },
+
+    generateSoftForm(item) {
+        return `
+            <form id="modalForm" class="swal-form">
+                <div class="form-group">
+                    <label>Skill Name</label>
+                    <input type="text" id="modalSkillName" class="swal2-input" required value="${item?.name || ''}" placeholder="e.g., Teamwork, Leadership">
+                </div>
+                <div class="form-group">
+                    <label>Proficiency Percentage</label>
+                    <input type="number" id="modalSkillPercentage" class="swal2-input" required min="0" max="100" value="${item?.percentage || 50}">
+                </div>
+                <button type="submit" class="btn gradient-btn btn-full">
+                    <i class="fas fa-save"></i> ${item ? 'Update' : 'Add'} Skill
+                </button>
+            </form>
+        `;
+    },
+
+    generateLangForm(item) {
+        return `
+            <form id="modalForm" class="swal-form">
+                <div class="form-group">
+                    <label>Language Name</label>
+                    <input type="text" id="modalLangName" class="swal2-input" required value="${item?.name || ''}" placeholder="e.g., English, Arabic">
+                </div>
+                <div class="form-group">
+                    <label>Proficiency Level</label>
+                    <select id="modalLangLevel" class="swal2-select" required>
+                        <option value="">Select Level</option>
+                        <option value="Native" ${item?.level === 'Native' ? 'selected' : ''}>Native</option>
+                        <option value="Fluent" ${item?.level === 'Fluent' ? 'selected' : ''}>Fluent</option>
+                        <option value="Advanced" ${item?.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
+                        <option value="Intermediate" ${item?.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
+                        <option value="Basic" ${item?.level === 'Basic' ? 'selected' : ''}>Basic</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn gradient-btn btn-full">
+                    <i class="fas fa-save"></i> ${item ? 'Update' : 'Add'} Language
+                </button>
+            </form>
+        `;
+    },
+
+    generateProjectForm(item) {
+        const features = item?.features || [];
+        const screenshots = item?.screenshots || [];
+        const technologies = item?.technologies || [];
+        const packages = item?.packages || [];
+
+        return `
+            <form id="modalForm" class="swal-form">
+                <div class="form-group">
+                    <label>Project Title</label>
+                    <input type="text" id="modalProjectTitle" class="swal2-input" required value="${item?.title || ''}" placeholder="e.g., E-commerce App">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="modalProjectDesc" class="swal2-textarea" required rows="3" placeholder="Describe what this project does...">${item?.description || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image Path or URL</label>
+                    <input type="text" id="modalProjectImage" class="swal2-input" required value="${item?.image || ''}" placeholder="assets/project/logo.png">
+                </div>
+                <div class="form-group">
+                    <label>Technologies (at least 1 required)</label>
+                    <div class="modal-dynamic-list" id="modalTechList">
+                        ${technologies.length > 0 ? technologies.map(tech => `
+                            <div class="modal-dynamic-item">
+                                <input type="text" value="${this.escapeHtml(tech)}" placeholder="e.g., Flutter">
+                                <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                            </div>
+                        `).join('') : `
+                            <div class="modal-dynamic-item">
+                                <input type="text" value="" placeholder="e.g., Flutter">
+                                <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                            </div>
+                        `}
+                    </div>
+                    <button type="button" class="btn btn-outline btn-small" onclick="Dashboard.addModalListItem('modalTechList', 'e.g., Flutter')">
+                        <i class="fas fa-plus"></i> Add Technology
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>Packages (at least 1 required)</label>
+                    <div class="modal-dynamic-list" id="modalPackagesList">
+                        ${packages.length > 0 ? packages.map(pkg => `
+                            <div class="modal-dynamic-item">
+                                <input type="text" value="${this.escapeHtml(pkg)}" placeholder="e.g., flutter_bloc">
+                                <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                            </div>
+                        `).join('') : `
+                            <div class="modal-dynamic-item">
+                                <input type="text" value="" placeholder="e.g., flutter_bloc">
+                                <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                            </div>
+                        `}
+                    </div>
+                    <button type="button" class="btn btn-outline btn-small" onclick="Dashboard.addModalListItem('modalPackagesList', 'e.g., flutter_bloc')">
+                        <i class="fas fa-plus"></i> Add Package
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>Key Features (at least 1 required)</label>
+                    <div class="modal-dynamic-list" id="modalFeaturesList">
+                        ${features.length > 0 ? features.map(feature => `
+                            <div class="modal-dynamic-item">
+                                <input type="text" value="${this.escapeHtml(feature)}" placeholder="e.g., User authentication">
+                                <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                            </div>
+                        `).join('') : `
+                            <div class="modal-dynamic-item">
+                                <input type="text" value="" placeholder="e.g., User authentication">
+                                <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                            </div>
+                        `}
+                    </div>
+                    <button type="button" class="btn btn-outline btn-small" onclick="Dashboard.addModalListItem('modalFeaturesList', 'e.g., User authentication')">
+                        <i class="fas fa-plus"></i> Add Feature
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>Screenshots (optional)</label>
+                    <div class="modal-dynamic-list" id="modalScreenshotsList">
+                        ${screenshots.map(screenshot => `
+                            <div class="modal-dynamic-item">
+                                <input type="text" value="${this.escapeHtml(screenshot)}" placeholder="assets/project/1.png">
+                                <button type="button" class="btn-delete-modal" onclick="Dashboard.removeModalListItem(this)"><i class="fas fa-times"></i></button>
+                            </div>
+                        `).join('') || ''}
+                    </div>
+                    <button type="button" class="btn btn-outline btn-small" onclick="Dashboard.addModalListItem('modalScreenshotsList', 'assets/project/1.png')">
+                        <i class="fas fa-plus"></i> Add Screenshot
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>GitHub URL</label>
+                    <input type="url" id="modalProjectGithub" class="swal2-input" value="${item?.github || ''}" placeholder="https://github.com/username/repo">
+                </div>
+                <div class="form-group">
+                    <label>Store URL (optional)</label>
+                    <input type="url" id="modalProjectStore" class="swal2-input" value="${item?.store || ''}" placeholder="https://play.google.com/store/apps/...">
+                </div>
+                <button type="submit" class="btn gradient-btn btn-full">
+                    <i class="fas fa-save"></i> ${item ? 'Update' : 'Add'} Project
+                </button>
+            </form>
+        `;
+    },
+
+    generateCertificateForm(item) {
+        return `
+            <form id="modalForm" class="swal-form">
+                <div class="form-group">
+                    <label>Certificate Title</label>
+                    <input type="text" id="modalCertTitle" class="swal2-input" required value="${item?.title || ''}" placeholder="e.g., Flutter Development Bootcamp">
+                </div>
+                <div class="form-group">
+                    <label>Image Path or URL</label>
+                    <input type="text" id="modalCertImage" class="swal2-input" required value="${item?.image || ''}" placeholder="assets/Certificates/example.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Certificate URL</label>
+                    <input type="url" id="modalCertUrl" class="swal2-input" required value="${item?.url || ''}" placeholder="https://www.udemy.com/certificate/...">
+                </div>
+                <button type="submit" class="btn gradient-btn btn-full">
+                    <i class="fas fa-save"></i> ${item ? 'Update' : 'Add'} Certificate
+                </button>
+            </form>
+        `;
+    },
+
+    generateServiceForm(item) {
+        return `
+            <form id="modalForm" class="swal-form">
+                <div class="form-group">
+                    <label>Service Title</label>
+                    <input type="text" id="modalServiceTitle" class="swal2-input" required value="${item?.title || ''}" placeholder="e.g., Mobile App Development">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="modalServiceDesc" class="swal2-textarea" required rows="3" placeholder="Describe what this service includes...">${item?.description || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Icon Class (Font Awesome)</label>
+                    <input type="text" id="modalServiceIcon" class="swal2-input" required value="${item?.icon || ''}" placeholder="e.g., fas fa-mobile-alt">
+                    <div class="icon-preview" id="serviceIconPreview">
+                        <i class="${item?.icon || 'fas fa-cog'}"></i>
+                        <span>Preview</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn gradient-btn btn-full">
+                    <i class="fas fa-save"></i> ${item ? 'Update' : 'Add'} Service
+                </button>
+            </form>
+        `;
     },
 
     closeModal() {
-        document.getElementById('itemModal').classList.remove('show');
-        this.unlockScroll();
+        Swal.close();
         this.currentEditItem = null;
         this.currentEditType = null;
     },
+
 
     async handleModalSubmit() {
         let formData = {};
@@ -2644,45 +2647,40 @@ const Dashboard = {
 
     pendingDelete: null,
 
-    showDeleteDialog(title, message, callback, confirmBtn = { icon: 'fa-trash', text: 'Delete' }) {
-        const dialog = document.getElementById('deleteDialog');
-        document.getElementById('deleteDialogTitle').textContent = title || 'Delete Item?';
-        document.getElementById('deleteDialogMessage').textContent = message || 'Are you sure you want to delete this item? This action cannot be undone.';
+    async showDeleteDialog(title, message, callback, confirmBtn = { icon: 'fa-trash', text: 'Delete' }) {
+        const result = await Swal.fire({
+            title: title || 'Delete Item?',
+            text: message || 'Are you sure you want to delete this item? This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef5350',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: `<i class="fas ${confirmBtn.icon}"></i> ${confirmBtn.text}`,
+            cancelButtonText: '<i class="fas fa-times"></i> Cancel',
+            reverseButtons: true,
+            focusCancel: true,
+            customClass: {
+                popup: 'swal-dark',
+                title: 'swal-title',
+                confirmButton: 'swal-confirm-btn',
+                cancelButton: 'swal-cancel-btn'
+            }
+        });
 
-        // Update confirm button text/icon
-        const confirmBtnEl = document.getElementById('deleteDialogConfirm');
-        confirmBtnEl.innerHTML = `<i class="fas ${confirmBtn.icon}"></i> ${confirmBtn.text}`;
-
-        this.pendingDelete = callback;
-        this.centerDialogInViewport(dialog);
-        dialog.classList.add('show');
-        this.lockScroll();
+        if (result.isConfirmed && callback) {
+            await callback();
+        }
     },
 
     hideDeleteDialog() {
-        const dialog = document.getElementById('deleteDialog');
-        dialog.classList.remove('show');
-        this.unlockScroll();
-        this.pendingDelete = null;
-
-        // Reset confirm button to default
-        const confirmBtnEl = document.getElementById('deleteDialogConfirm');
-        confirmBtnEl.innerHTML = '<i class="fas fa-trash"></i> Delete';
+        // SweetAlert2 handles closing automatically
+        Swal.close();
     },
 
-    centerDialogInViewport(dialog) {
-        // Calculate the center position of the current viewport
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
+    // centerDialogInViewport removed - CSS flexbox handles centering automatically
+    // The modal uses position:fixed with display:flex, align-items:center, justify-content:center
+    // Setting inline top/left/width/height was overriding this and causing misalignment when scrolled
 
-        // Set the dialog to cover the entire viewport from the current scroll position
-        dialog.style.top = scrollTop + 'px';
-        dialog.style.left = scrollLeft + 'px';
-        dialog.style.height = viewportHeight + 'px';
-        dialog.style.width = viewportWidth + 'px';
-    },
 
     bindDeleteDialog() {
         const dialog = document.getElementById('deleteDialog');
@@ -2711,38 +2709,30 @@ const Dashboard = {
 
     resultDialogCallback: null,
 
-    showResultDialog(type, title, message, callback = null) {
-        const dialog = document.getElementById('resultDialog');
-        const icon = document.getElementById('resultDialogIcon');
-        const titleEl = document.getElementById('resultDialogTitle');
-        const messageEl = document.getElementById('resultDialogMessage');
+    async showResultDialog(type, title, message, callback = null) {
+        await Swal.fire({
+            title: title,
+            text: message,
+            icon: type, // 'success' or 'error'
+            confirmButtonColor: type === 'success' ? '#4caf50' : '#ef5350',
+            confirmButtonText: '<i class="fas fa-check"></i> OK',
+            timer: type === 'success' ? 3000 : undefined, // Auto-close success messages
+            timerProgressBar: true,
+            customClass: {
+                popup: 'swal-dark',
+                title: 'swal-title',
+                confirmButton: 'swal-confirm-btn'
+            }
+        });
 
-        // Set icon based on type
-        icon.className = `result-dialog-icon ${type}`;
-        if (type === 'success') {
-            icon.innerHTML = '<i class="fas fa-check-circle"></i>';
-        } else {
-            icon.innerHTML = '<i class="fas fa-times-circle"></i>';
+        if (callback) {
+            callback();
         }
-
-        titleEl.textContent = title;
-        messageEl.textContent = message;
-        this.resultDialogCallback = callback;
-
-        this.centerDialogInViewport(dialog);
-        dialog.classList.add('show');
-        this.lockScroll();
     },
 
     hideResultDialog() {
-        const dialog = document.getElementById('resultDialog');
-        dialog.classList.remove('show');
-        this.unlockScroll();
-
-        if (this.resultDialogCallback) {
-            this.resultDialogCallback();
-            this.resultDialogCallback = null;
-        }
+        // SweetAlert2 handles closing automatically
+        Swal.close();
     },
 
     bindResultDialog() {
