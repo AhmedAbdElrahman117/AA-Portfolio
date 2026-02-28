@@ -823,14 +823,14 @@ function initTabs() {
         btn.addEventListener('click', (e) => {
             const tab = btn.getAttribute('data-tab');
 
-            // Add click ripple effect with requestAnimationFrame
+            // Add click ripple effect with gradient colors
             requestAnimationFrame(() => {
                 const rect = btn.getBoundingClientRect();
                 const ripple = document.createElement('span');
                 ripple.className = 'tab-ripple';
                 ripple.style.cssText = `
                     position: absolute;
-                    background: rgba(255, 255, 255, 0.3);
+                    background: linear-gradient(135deg, rgba(33, 150, 243, 0.4), rgba(103, 58, 183, 0.4));
                     border-radius: 50%;
                     transform: scale(0);
                     animation: tabRipple 0.6s ease-out;

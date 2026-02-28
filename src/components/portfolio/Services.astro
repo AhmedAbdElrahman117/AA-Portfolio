@@ -1,0 +1,200 @@
+---
+// Services.astro
+import SectionHeader from '../common/SectionHeader.astro';
+---
+
+<style is:global>
+    /* ====================================
+       Services Section Styles (Imported from original)
+       ==================================== */
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem; /* var(--spacing-xl) */
+    }
+
+    @media (max-width: 1024px) {
+        .services-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .services-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .service-card {
+        background: rgba(255, 255, 255, 0.05); /* var(--glossy-bg) approx */
+        border: 1px solid rgba(255, 255, 255, 0.1); /* var(--border-color) */
+        border-radius: 1rem; /* var(--radius-lg) */
+        padding: 2rem; /* var(--spacing-xl) */
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .service-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(103, 58, 183, 0.1));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+
+    .service-card:hover::before {
+        opacity: 1;
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(33, 150, 243, 0.3), 0 10px 30px rgba(0, 0, 0, 0.5); /* var(--shadow-lg) approx */
+        border-color: #2196F3; /* var(--gradient-start) */
+    }
+
+    .service-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 1.5rem; /* var(--spacing-lg) */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #2196F3, #673AB7);
+        border-radius: 50%; /* var(--radius-full) */
+        font-size: 1.5rem; /* var(--font-size-2xl) approx */
+        box-shadow: 0 0 20px rgba(33, 150, 243, 0.4); /* var(--shadow-glow) approx */
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+    }
+
+    .service-card:hover .service-icon {
+        transform: scale(1.15) rotate(10deg);
+        box-shadow: 0 0 30px rgba(33, 150, 243, 0.6), 0 0 60px rgba(103, 58, 183, 0.4);
+    }
+
+    .service-icon i {
+        transition: transform 0.4s ease;
+        color: white; /* Ensure icons are visible */
+    }
+
+    .service-card:hover .service-icon i {
+        animation: iconPulse 0.6s ease;
+    }
+
+    .service-card h3 {
+        font-size: 1.125rem; /* var(--font-size-lg) approx */
+        font-weight: 600;
+        margin-bottom: 1rem; /* var(--spacing-md) */
+    }
+
+    .service-card p {
+        font-size: 1rem; /* var(--font-size-base) */
+        color: rgba(255, 255, 255, 0.7); /* var(--text-secondary) approx */
+        line-height: 1.6;
+    }
+
+    /* Scroll Animations for Service Card */
+    .service-card.animate-on-scroll {
+        opacity: 0;
+        transition-delay: calc(var(--stagger, 0) * 100ms);
+        transform: translateY(60px) scale(0.9);
+        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .service-card.animate-on-scroll.visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        /* Ensure normal hover transition resumes */
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+    }
+
+    /* Icon pulse animation for service cards */
+    @keyframes iconPulse {
+        0% { transform: scale(1); }
+        25% { transform: scale(1.2); }
+        50% { transform: scale(0.95); }
+        75% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+</style>
+
+<section id="services" class="py-section relative bg-gradient-to-b from-black/30 to-transparent overflow-hidden">
+    <div class="max-w-container mx-auto px-lg">
+        <SectionHeader title="My Services" />
+
+        <div class="services-grid" id="services-grid">
+            <!-- Services Injected Here dynamically -->
+        </div>
+    </div>
+</section>
+
+<script>
+    import { getPortfolioData } from '../../lib/firebase';
+
+    // Intersection Observer for scroll animations
+    let scrollObserver: IntersectionObserver | null = null;
+
+    function initServicesAnimations() {
+        const animatedElements = document.querySelectorAll('.service-card.animate-on-scroll');
+
+        if (scrollObserver) {
+            scrollObserver.disconnect();
+        }
+
+        scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Add small delay to let browser render initial state before animating
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, 50);
+                    scrollObserver!.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        animatedElements.forEach(el => {
+            scrollObserver!.observe(el);
+        });
+    }
+
+    async function loadServices() {
+        const data = await getPortfolioData();
+        const grid = document.getElementById('services-grid');
+        
+        if(!grid || !data || !data.services) return;
+        grid.innerHTML = '';
+        
+        data.services.forEach((service: any, index: number) => {
+            const card = document.createElement('div');
+            card.className = `service-card animate-on-scroll`;
+            card.style.setProperty('--stagger', index.toString());
+            // Original used `animation-delay: ${index * 0.08}s;` but we moved this to CSS with `--stagger` mapping.
+            
+            card.innerHTML = `
+                <div class="service-icon">
+                    <i class="${service.icon}"></i>
+                </div>
+                <h3 class="gradient-text">${service.title}</h3>
+                <p>${service.description}</p>
+            `;
+            grid.appendChild(card);
+        });
+
+        // Re-initialize animations after DOM update
+        initServicesAnimations();
+    }
+
+    document.addEventListener('DOMContentLoaded', loadServices);
+    window.addEventListener('portfolioDataLoaded', loadServices);
+</script>

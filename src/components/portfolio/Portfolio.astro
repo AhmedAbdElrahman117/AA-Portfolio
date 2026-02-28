@@ -1,0 +1,668 @@
+---
+// Portfolio.astro
+import SectionHeader from '../common/SectionHeader.astro';
+---
+
+<style is:global>
+    /* ====================================
+       Portfolio Section Styles (Imported from original)
+       ==================================== */
+
+    .portfolio-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        position: relative;
+        padding: 0.5rem;
+        border-radius: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: none;
+        border-radius: 0.75rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .tab-btn:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+        color: #ffffff;
+        background: linear-gradient(135deg, #2196F3, #673AB7);
+        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+    }
+
+    .tab-content {
+        display: none;
+        animation: tabFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes tabFadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Projects Grid */
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+        gap: 2rem;
+    }
+
+    .project-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        overflow: hidden;
+        cursor: pointer;
+        position: relative;
+        display: grid;
+        grid-template-rows: 200px 1fr;
+        min-height: 400px;
+        transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease, border-color 0.5s ease;
+        transform: translateZ(0);
+        will-change: transform, box-shadow;
+    }
+
+    .project-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, transparent 50%, rgba(103, 58, 183, 0.1) 100%);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .project-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(33, 150, 243, 0.2);
+        border-color: #2196F3;
+    }
+
+    .project-card:hover::before { opacity: 1; }
+
+    .project-image {
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .project-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; width: 100%; height: 60%;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .project-card:hover .project-image::after { opacity: 1; }
+
+    .project-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), filter 0.5s ease;
+    }
+
+    .project-card:hover .project-image img {
+        transform: scale(1.15) rotate(2deg);
+        filter: brightness(0.9);
+    }
+
+    .project-info {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .project-info h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #2196F3, #673AB7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .project-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .project-tags span {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        background: rgba(33, 150, 243, 0.1);
+        color: #2196F3;
+        border-radius: 1rem;
+        font-weight: 500;
+    }
+
+    .project-description {
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+    }
+
+    .view-project {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #2196F3, #673AB7);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        justify-content: center;
+        border: none;
+    }
+
+    .view-project:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+    }
+
+    /* Certificates Grid */
+    .certificates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+        gap: 2rem;
+    }
+
+    .certificate-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        position: relative;
+        transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: block;
+    }
+
+    .certificate-card::before {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        background: linear-gradient(135deg, #2196F3, #673AB7, #E91E63, #2196F3);
+        border-radius: calc(1rem + 3px);
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        background-size: 300% 300%;
+        animation: gradientShift 3s ease infinite;
+    }
+
+    .certificate-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 50%, rgba(33, 150, 243, 0.2), transparent 70%);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .certificate-card:hover::before, .certificate-card:hover::after { opacity: 1; }
+
+    .certificate-card:hover {
+        transform: translateY(-15px) scale(1.03);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(33, 150, 243, 0.3), 0 0 80px rgba(103, 58, 183, 0.2);
+        border-color: transparent;
+    }
+
+    @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+    .certificate-image {
+        position: relative;
+        aspect-ratio: 16/10;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .certificate-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), filter 0.5s ease;
+    }
+
+    .certificate-card:hover .certificate-image img {
+        transform: scale(1.08);
+        filter: brightness(0.4) saturate(1.2);
+    }
+
+    .certificate-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.85) 0%, rgba(103, 58, 183, 0.85) 50%, rgba(233, 30, 99, 0.85) 100%);
+        background-size: 200% 200%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        opacity: 0;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: scale(0.9);
+        z-index: 2;
+    }
+
+    .certificate-card:hover .certificate-overlay {
+        opacity: 1;
+        transform: scale(1);
+        animation: overlayGradient 3s ease infinite;
+    }
+
+    .certificate-overlay span:first-child {
+        transform: translateY(30px);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s, opacity 0.4s ease 0.1s;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        font-size: 1.125rem;
+        font-weight: 600;
+        text-align: center;
+        color: #ffffff !important;
+    }
+
+    .certificate-card:hover .certificate-overlay span:first-child { transform: translateY(0); opacity: 1; }
+
+    .certificate-overlay .view-btn {
+        transform: translateY(30px);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.2s, opacity 0.4s ease 0.2s, background 0.3s ease, box-shadow 0.3s ease;
+        padding: 0.5rem 1.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #ffffff;
+    }
+
+    .certificate-card:hover .certificate-overlay .view-btn { transform: translateY(0); opacity: 1; }
+    .view-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05) !important; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); }
+
+    /* Scroll Animations for Portfolio Cards */
+    .project-card.animate-lazy-card,
+    .certificate-card.animate-lazy-card {
+        opacity: 0;
+        transition-delay: calc(var(--stagger, 0) * 100ms);
+        transform: translateY(60px) scale(0.9);
+        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform, opacity;
+    }
+
+    .project-card.animate-lazy-card.visible,
+    .certificate-card.animate-lazy-card.visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        /* Resume normal hover effects after entry */
+        transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease, border-color 0.5s ease;
+        transition-delay: 0s;
+    }
+
+</style>
+
+<section id="portfolio" class="py-section relative bg-gradient-to-b from-transparent to-black/30">
+    <div class="max-w-container mx-auto px-lg">
+        <SectionHeader title="My Portfolio" />
+        
+        <!-- Tab Navigation -->
+        <div class="portfolio-tabs animate-on-scroll opacity-0 translate-y-8 transition-all duration-700">
+            <button class="tab-btn active" data-tab="projects">Projects</button>
+            <button class="tab-btn" data-tab="certificates">Certificates</button>
+        </div>
+
+        <!-- Projects Tab -->
+        <div class="tab-content active" id="projects-tab">
+            <div class="projects-grid" id="projects-grid">
+                <!-- Projects injected here dynamically -->
+            </div>
+        </div>
+
+        <!-- Certificates Tab -->
+        <div class="tab-content" id="certificates-tab">
+            <div class="certificates-grid" id="certificates-grid">
+                <!-- Certificates injected here dynamically -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for Project Details -->
+<div id="project-modal" class="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-[5px] flex items-center justify-center pt-[90px] pb-[20px] px-4 opacity-0 invisible transition-all duration-300">
+    <div class="bg-primary border border-border rounded-2xl w-full max-w-[800px] max-h-[calc(100vh-110px)] overflow-y-auto transform scale-95 transition-transform duration-300 relative shadow-2xl" id="modal-content">
+        <button id="close-modal" class="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-red-500/80 text-white rounded-full flex items-center justify-center transition-all duration-300 z-10 border border-white/20 hover:scale-110 hover:rotate-90 hover:border-red-500 shadow-lg">
+            <i class="fas fa-times"></i>
+        </button>
+        <div id="modal-body" class="p-0">
+            <!-- Modal Content Injected Here -->
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    import { getPortfolioData } from '../../lib/firebase';
+
+    // Scroll Animation Observer Setup
+    document.addEventListener('DOMContentLoaded', () => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        const tabs = document.querySelector('.portfolio-tabs');
+        if(tabs) observer.observe(tabs);
+    });
+
+    async function loadPortfolioSection() {
+        const data = await getPortfolioData();
+        
+        // 1. Setup Projects
+        const projectsGrid = document.getElementById('projects-grid');
+        if (projectsGrid && data && data.projects) {
+            projectsGrid.innerHTML = '';
+            data.projects.forEach((project, i) => {
+                const delay = (i % 3) * 0.1;
+                const imgSrc = project.image.startsWith('http') ? project.image : `/${project.image}`;
+                const shortDesc = project.description.length > 100 ? project.description.substring(0, 100) + '...' : project.description;
+                
+                const card = document.createElement('div');
+                card.className = `project-card animate-lazy-card`;
+                card.style.setProperty('--stagger', String(i % 3));
+                card.setAttribute('data-id', project.id);
+                card.innerHTML = `
+                    <div class="project-image">
+                        <img src="${imgSrc}" alt="${project.title}" loading="lazy" crossorigin="anonymous">
+                    </div>
+                    <div class="project-info">
+                        <h3>${project.title.split(' - ')[0]}</h3>
+                        ${project.technologies ? `<div class="project-tags">
+                            ${project.technologies.slice(0, 3).map(tech => `<span>${tech}</span>`).join('')}
+                        </div>` : ''}
+                        <p class="project-description">${shortDesc}</p>
+                        <button class="btn view-project view-details-btn" data-id="${project.id}">View Details</button>
+                    </div>
+                `;
+                projectsGrid.appendChild(card);
+            });
+        }
+
+        // 2. Setup Certificates
+        const certsGrid = document.getElementById('certificates-grid');
+        if (certsGrid && data && data.certificates) {
+            certsGrid.innerHTML = '';
+            data.certificates.forEach((cert, i) => {
+                const delay = (i % 3) * 0.1;
+                const imgSrc = cert.image.startsWith('http') ? cert.image : `/${cert.image}`;
+                const linkUrl = cert.url || cert.link || '#';
+
+                const card = document.createElement('a');
+                card.href = linkUrl;
+                card.target = "_blank";
+                card.className = `certificate-card animate-lazy-card`;
+                card.style.setProperty('--stagger', String(i % 3));
+                card.innerHTML = `
+                    <div class="certificate-image">
+                        <img src="${imgSrc}" alt="${cert.title}" loading="lazy" crossorigin="anonymous">
+                        <div class="certificate-overlay">
+                            <span>${cert.title}</span>
+                            <span class="view-btn">View <i class="fas fa-external-link-alt"></i></span>
+                        </div>
+                    </div>
+                `;
+                certsGrid.appendChild(card);
+            });
+        }
+
+        // Setup Observers & Tab interactions
+        setupCardAnimations();
+        setupTabs();
+        setupModals(data?.projects || []);
+    }
+
+    function setupCardAnimations() {
+        // Disconnect previous if any
+        if ((window as any).portfolioObserver) {
+            (window as any).portfolioObserver.disconnect();
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, 50);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        (window as any).portfolioObserver = observer;
+        document.querySelectorAll('.animate-lazy-card').forEach(card => observer.observe(card));
+    }
+
+    function setupTabs() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+
+                // Update active button
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Update tab content
+                tabContents.forEach(content => {
+                    if (content.id === `${targetTab}-tab`) {
+                        content.classList.add('active');
+                        // Reset staggering cards for nice re-entry animation
+                        const cards = content.querySelectorAll('.project-card, .certificate-card');
+                        cards.forEach((card, index) => {
+                            card.classList.remove('visible');
+                            (card as HTMLElement).style.setProperty('--stagger', String(index % 3));
+                            setTimeout(() => {
+                                card.classList.add('visible');
+                            }, 50);
+                        });
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+            });
+        });
+    }
+
+    function setupModals(projects) {
+        const modal = document.getElementById('project-modal');
+        const modalContent = document.getElementById('modal-content');
+        const modalBody = document.getElementById('modal-body');
+        const closeBtn = document.getElementById('close-modal');
+
+        if(!modal || !modalBody || !closeBtn) return;
+
+        const openModal = (project) => {
+            const imgSrc = project.image.startsWith('http') ? project.image : `/${project.image}`;
+            modalBody.innerHTML = `
+                <div class="w-full h-[300px] relative">
+                    <img src="${imgSrc}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-primary to-transparent"></div>
+                </div>
+                <div class="p-xl -mt-10 relative z-10">
+                    <h2 class="text-3xl font-bold text-white mb-2">${project.title}</h2>
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        ${(project.tags || project.technologies || []).map(tag => `<span class="px-3 py-1 bg-brand-light/20 text-brand-light rounded-full text-sm font-medium">${tag}</span>`).join('')}
+                    </div>
+                    <div class="prose prose-invert max-w-none text-text-muted">
+                        <p class="mb-6 whitespace-pre-line">${project.details || project.description}</p>
+
+                        <div class="flex flex-wrap gap-4 mb-8">
+                            ${project.github && project.github !== '#' ? `
+                            <a href="${project.github}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-brand-light text-white rounded-full transition-colors font-medium">
+                                <i class="fab fa-github"></i> View Source Code
+                            </a>` : ''}
+                            
+                            ${project.store && project.store !== '#' ? `
+                            <a href="${project.store}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-brand-light/10 hover:bg-brand-light border border-brand-light/30 text-brand-light hover:text-white rounded-full transition-colors font-medium">
+                                <i class="fas fa-store"></i> Store
+                            </a>` : ''}
+                        </div>
+
+                        ${project.features && project.features.length > 0 ? `
+                        <h3 class="text-white text-lg font-semibold mt-6 mb-3 border-b border-white/10 pb-2"><i class="fas fa-star text-brand-light mr-2"></i> Key Features</h3>
+                        <ul class="list-none space-y-2 mb-6">
+                            ${project.features.map(f => `<li class="flex items-start gap-2"><i class="fas fa-check-circle text-green-500 mt-1"></i> <span>${f}</span></li>`).join('')}
+                        </ul>` : ''}
+
+                        ${project.packages && project.packages.length > 0 ? `
+                        <h3 class="text-white text-lg font-semibold mt-6 mb-3 border-b border-white/10 pb-2"><i class="fas fa-cube text-brand-light mr-2"></i> Packages & Tools</h3>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            ${project.packages.map(p => `<span class="px-3 py-1 bg-white/5 border border-white/10 text-text-secondary rounded-lg text-sm">${p}</span>`).join('')}
+                        </div>` : ''}
+                        
+                        ${project.screenshots && project.screenshots.length > 0 ? `
+                        <h3 class="text-white text-lg font-semibold mt-6 mb-3 border-b border-white/10 pb-2"><i class="fas fa-images text-brand-light mr-2"></i> Screenshots</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            ${project.screenshots.map(screenshot => {
+                                let url = typeof screenshot === 'string' ? screenshot : (screenshot.image || screenshot.url || '');
+                                if(url) {
+                                    return '<img src="' + (url.startsWith('http') ? url : '/' + url) + '" alt="Screenshot" class="w-full h-auto rounded-lg border border-white/10 hover:border-brand-light transition-all duration-300 object-cover aspect-video bg-black/20 cursor-pointer hover:shadow-glow hover:scale-[1.02] screenshot-img">';
+                                }
+                                return '';
+                            }).join('')}
+                        </div>` : ''}
+                    </div>
+
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('opacity-0', 'invisible');
+            setTimeout(() => {
+                modalContent?.classList.remove('scale-95');
+                modalContent?.classList.add('scale-100');
+            }, 50);
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        };
+
+        const closeModalFunc = () => {
+            modalContent?.classList.remove('scale-100');
+            modalContent?.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('opacity-0', 'invisible');
+                if (document.getElementById('image-preview-modal')?.classList.contains('invisible')) {
+                     // Only re-enable window scroll if the image preview overlay isn't open
+                     document.body.style.overflow = '';
+                     document.documentElement.style.overflow = '';
+                }
+            }, 300);
+        };
+
+        // Click handler for opening image preview
+        const openImagePreview = (imgSrc) => {
+            const previewModal = document.getElementById('image-preview-modal');
+            const previewImg = document.getElementById('image-preview-content') as HTMLImageElement;
+            if (previewModal && previewImg) {
+                previewImg.src = imgSrc;
+                previewModal.classList.remove('opacity-0', 'invisible');
+            }
+        };
+
+        const closeImagePreview = () => {
+            const previewModal = document.getElementById('image-preview-modal');
+            if (previewModal) {
+                previewModal.classList.add('opacity-0', 'invisible');
+                if (modal.classList.contains('invisible')) {
+                    // Only unlock scroll if the main project modal is also closed
+                    document.body.style.overflow = '';
+                    document.documentElement.style.overflow = '';
+                }
+            }
+        };
+
+        // Attach global click listener to handle dynamically generated cards (fixes issue when tabs swap)
+        document.addEventListener('click', (e) => {
+            const target = e.target as HTMLElement;
+            const viewBtn = target.closest('.view-details-btn');
+            const projectCard = target.closest('.project-card');
+            const screenshotImage = target.closest('.screenshot-img');
+            const closePreviewBtn = target.closest('#close-preview-modal');
+            const previewOverlay = target.closest('#image-preview-modal');
+
+            // Handle clicking the "Details" button OR the card itself
+            if(viewBtn || projectCard) {
+                // Prevent opening if clicking on the actual button inside the footer to avoid double-triggers
+                if (projectCard && !viewBtn && (e.target as HTMLElement).tagName.toLowerCase() === 'button') {
+                     return;
+                }
+                const element = (viewBtn || projectCard);
+                if (element) {
+                    const id = element.getAttribute('data-id');
+                    const project = projects.find(p => p.id && p.id.toString() === id);
+                    if(project) openModal(project);
+                }
+            } 
+            // Handle clicking a screenshot inside the modal
+            else if (screenshotImage) {
+                const src = screenshotImage.getAttribute('src');
+                if (src) {
+                    openImagePreview(src);
+                }
+            }
+            // Handle closing the image preview
+            else if (closePreviewBtn || (previewOverlay && e.target === previewOverlay)) {
+                closeImagePreview();
+            }
+        });
+
+        closeBtn.addEventListener('click', closeModalFunc);
+        modal.addEventListener('click', (e) => {
+            if(e.target === modal) closeModalFunc();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPortfolioSection);
+    window.addEventListener('portfolioDataLoaded', loadPortfolioSection);
+</script>

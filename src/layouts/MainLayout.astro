@@ -1,0 +1,59 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = "Ahmed Abdelrahman - Portfolio", 
+  description = "Ahmed Abdelrahman - Flutter Developer Portfolio" 
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content={description}>
+    <meta name="theme-color" content="#000000">
+    <meta name="google-site-verification" content="8wZ2qjI_b8d3H6D2_F6I8p2_Z1E91_T1M0m1-U1W6J8">
+    
+    <title>{title}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/icons/portfolio.png">
+    <link rel="apple-touch-icon" href="/icons/portfolio.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+    
+    <!-- Lottie Script -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" defer></script>
+</head>
+<body class="bg-primary text-text-primary overflow-x-hidden min-h-screen">
+    
+    <slot />
+
+    <!-- Global Full-Screen Image Preview Modal -->
+    <div id="image-preview-modal" class="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 opacity-0 invisible transition-all duration-300">
+        <button id="close-preview-modal" class="absolute top-4 right-4 w-12 h-12 bg-black/50 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all duration-300 z-10 border border-white/20 hover:scale-110 shadow-lg">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+        <div class="w-full h-full flex items-center justify-center pointer-events-none">
+            <img id="image-preview-content" src="" alt="Full Screen Preview" class="max-w-full max-h-full object-contain pointer-events-auto rounded-lg shadow-2xl border border-white/10">
+        </div>
+    </div>
+
+</body>
+</html>

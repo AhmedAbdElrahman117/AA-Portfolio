@@ -1,0 +1,35 @@
+---
+import DashboardApp from '../../components/dashboard/DashboardApp.jsx';
+import '../../styles/global.css';
+
+const description = "Admin Dashboard for Portfolio";
+const title = "Dashboard - Ahmed Abdelrahman";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content={description}>
+    <title>{title}</title>
+
+    {/* Fonts and Icons */}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style is:global>
+        /* Base specific overrides to make the dashboard lock natively without scroll bouncing if needed */
+        body {
+            margin: 0;
+            overflow: hidden; /* Dashboard manages its own scroll */
+        }
+    </style>
+</head>
+<body class="bg-primary text-text-primary antialiased">
+    <!-- Load React App Client Side Only -->
+    <DashboardApp client:only="react" />
+</body>
+</html>

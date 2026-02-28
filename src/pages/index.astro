@@ -1,0 +1,45 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import SplashScreen from '../components/layout/SplashScreen.astro';
+import AnimatedBackground from '../components/layout/AnimatedBackground.astro';
+import Navbar from '../components/layout/Navbar.astro';
+import Home from '../components/portfolio/Home.astro';
+import About from '../components/portfolio/About.astro';
+import Skills from '../components/portfolio/Skills.astro';
+import Portfolio from '../components/portfolio/Portfolio.astro';
+import Services from '../components/portfolio/Services.astro';
+import Contact from '../components/portfolio/Contact.astro';
+
+---
+
+<MainLayout>
+    <SplashScreen />
+    <AnimatedBackground />
+    <Navbar />
+    
+    <main class="relative z-10 block">
+        <Home />
+        <About />
+        <Skills />
+        <Services />
+        <Portfolio />
+        <Contact />
+    </main>
+
+
+</MainLayout>
+
+<script>
+    import { getPortfolioData } from '../lib/firebase';
+    import { recordVisitor, setupSessionDurationTracking } from '../lib/utils';
+    
+    // Initialize data fetch and analytics when page starts running
+    document.addEventListener('DOMContentLoaded', async () => {
+         // This triggers the fetch and dispatches the 'portfolioDataLoaded' event
+         await getPortfolioData();
+         
+         // Trigger Analytics
+         recordVisitor();
+         setupSessionDurationTracking();
+    });
+</script>

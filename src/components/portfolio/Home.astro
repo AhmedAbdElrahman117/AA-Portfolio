@@ -1,0 +1,154 @@
+---
+// Home.astro
+---
+<section id="home" class="min-h-screen pt-[90px] pb-[60px] md:pt-[120px] md:pb-[100px] flex items-center justify-center relative overflow-hidden content-auto transition-opacity duration-[1200ms]">
+    <div class="max-w-container w-full mx-auto px-lg">
+        <div class="grid grid-cols-2 gap-2xl items-center max-md:grid-cols-1 max-md:text-center max-md:gap-lg">
+            <div class="flex flex-col justify-center translate-y-8 opacity-0 transition-all duration-700 delay-200 max-md:order-2" id="home-text">
+                <span class="text-brand-light font-medium tracking-wider mb-sm uppercase block text-sm" id="home-greeting">Welcome, I'm</span>
+                <h1 class="text-3xl md:text-5xl font-bold min-h-[60px] md:min-h-[80px] flex items-center max-md:justify-center">
+                    <span id="typewriter" class="gradient-text"></span>
+                    <span class="animate-blink ml-[2px]">|</span>
+                </h1>
+                
+                <p class="text-text-muted text-lg mb-xl leading-relaxed max-w-[500px] max-md:mx-auto" id="home-description">
+                    A passionate software developer creating elegant solutions for complex problems.
+                </p>
+                
+                <div class="flex gap-md mt-sm social-links max-md:justify-center">
+                    <!-- Social Links Injected Here via Firebase/script -->
+                </div>
+                
+                <div class="flex gap-md mt-lg max-md:justify-center">
+                    <button id="downloadCvBtn" class="relative overflow-hidden border-none text-white font-medium cursor-pointer rounded-full transition-all duration-300 py-3 px-6 text-sm bg-gradient-to-r from-brand-light to-brand-dark shadow-md hover:-translate-y-[2px] hover:shadow-glow group">
+                        <span class="relative z-10 flex items-center gap-2"><i class="fas fa-download"></i> Download CV</span>
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.3),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity duration-400 rounded-full"></div>
+                    </button>
+                    <a href="#contact" class="px-6 py-3 rounded-full font-medium text-sm transition-all duration-300 flex items-center gap-2 border border-brand-light text-brand-light bg-transparent hover:bg-brand-light hover:text-white hover:-translate-y-[2px] hover:shadow-md">
+                        <i class="fas fa-paper-plane"></i> Contact Me
+                    </a>
+                </div>
+            </div>
+            
+            <div class="flex justify-center items-center translate-x-8 opacity-0 transition-all duration-700 delay-400 max-md:order-1" id="home-anim">
+                <lottie-player 
+                    src="/assets/ProgrammingComputer.json" 
+                    background="transparent" 
+                    speed="1" 
+                    style="width: 100%; max-width: 500px; height: auto; aspect-ratio: 1;"
+                    class="max-md:!max-w-[280px]"
+                    loop 
+                    autoplay>
+                </lottie-player>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    import { getPortfolioData } from '../../lib/firebase';
+
+    let words = ["Ahmed Abdelrahman", "Flutter Developer", "Mobile Engineer"];
+    let i = 0;
+    
+    // Track instance to prevent duplicate overlapping loops causing garbled text
+    let currentTypewriterInstance = 0;
+
+    function startTypewriterLoop(instance) {
+        const typewriterEl = document.getElementById('typewriter');
+        if (!typewriterEl || instance !== currentTypewriterInstance) return;
+        
+        if (!words || words.length === 0 || !words[i]) {
+            words = ["Developer"]; 
+            i = 0;
+        }
+        
+        let word = words[i].split("");
+        
+        function loopTyping() {
+            if (instance !== currentTypewriterInstance) return;
+            if (word.length > 0) {
+                typewriterEl.innerHTML += word.shift();
+                setTimeout(loopTyping, 100);
+            } else {
+                setTimeout(loopDeleting, 2000);
+            }
+        }
+        
+        function loopDeleting() {
+            if (instance !== currentTypewriterInstance) return;
+            let currentText = typewriterEl.innerHTML;
+            
+            if (currentText.length > 0) {
+                // Remove the last character visually
+                typewriterEl.innerHTML = currentText.slice(0, -1);
+                setTimeout(loopDeleting, 50); // Delete next char quickly
+            } else {
+                // Move to the next word
+                i = (i + 1) % words.length;
+                word = words[i].split("");
+                setTimeout(loopTyping, 500); // Pause briefly before typing next word
+            }
+        }
+        
+        typewriterEl.innerHTML = '';
+        loopTyping();
+    }
+
+    async function initHomeData() {
+        const data = await getPortfolioData();
+        if (data && data.about) {
+            if (data.about.typewriterTexts && data.about.typewriterTexts.length > 0) {
+                words = data.about.typewriterTexts;
+            }
+            if (data.about.fullName) {
+                const greeting = document.getElementById('home-greeting');
+                if (greeting) greeting.textContent = `Welcome, I'm`;
+            }
+        }
+    }
+
+    // Trigger animations on load
+    document.addEventListener('DOMContentLoaded', async () => {
+        await initHomeData();
+
+        setTimeout(() => {
+            const hText = document.getElementById('home-text');
+            const hAnim = document.getElementById('home-anim');
+            if(hText) { hText.style.opacity = '1'; hText.style.transform = 'translateY(0)'; }
+            if(hAnim) { hAnim.style.opacity = '1'; hAnim.style.transform = 'translateX(0)'; }
+            
+            // Start it
+            currentTypewriterInstance++;
+            startTypewriterLoop(currentTypewriterInstance);
+        }, 1000); // Wait for splash screen
+        
+        // Setup CV Download
+        const downloadBtn = document.getElementById('downloadCvBtn');
+        if(downloadBtn) {
+            downloadBtn.addEventListener('click', async () => {
+                const data = await getPortfolioData();
+                if(data && data.cv && data.cv.path) {
+                    const link = document.createElement('a');
+                    link.href = data.cv.path.startsWith('http') ? data.cv.path : `/${data.cv.path}`;
+                    link.download = data.cv.filename || 'Ahmed_Abdelrahman_CV.pdf';
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    alert('CV file not available at the moment.');
+                }
+            });
+        }
+    });
+
+    // Handle secondary load event if needed based on Dashboard updates
+    window.addEventListener('portfolioDataLoaded', async () => {
+        await initHomeData();
+        currentTypewriterInstance++;
+        i = 0;
+        startTypewriterLoop(currentTypewriterInstance);
+    });
+
+</script>
