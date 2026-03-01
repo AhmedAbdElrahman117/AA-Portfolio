@@ -1,6 +1,6 @@
 // src/lib/firebase.js
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, getDoc, onSnapshot, collection, getDocs, addDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -92,7 +92,6 @@ Whether working independently or collaborating with a team, I bring dedication, 
 let app, db, auth;
 let cachedData = null;
 let isLoaded = false;
-let listeners = [];
 
 export function initFirebase() {
     if (!app) {
@@ -178,9 +177,3 @@ export async function getPortfolioData() {
     return cachedData;
 }
 
-export function subscribeToData(callback) {
-    listeners.push(callback);
-    if (isLoaded) {
-        callback(cachedData);
-    }
-}

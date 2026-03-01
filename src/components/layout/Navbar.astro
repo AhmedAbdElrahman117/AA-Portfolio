@@ -199,9 +199,6 @@
         });
     }
 
-    let isScrolling = false;
-    let scrollTimeout: ReturnType<typeof setTimeout> | undefined;
-
     // Scroll spy math using the original debounced implementation
     let debounceTimer: ReturnType<typeof setTimeout> | undefined;
     function debounce(func: (...args: unknown[]) => void, wait: number) {
