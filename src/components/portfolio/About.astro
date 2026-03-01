@@ -1,35 +1,65 @@
 ---
 // About.astro
-import SectionHeader from '../common/SectionHeader.astro';
+import SectionHeader from "../common/SectionHeader.astro";
 ---
-<section id="about" class="py-section relative overflow-hidden bg-gradient-to-b from-transparent to-black/30">
+
+<section
+    id="about"
+    class="py-section relative overflow-hidden bg-gradient-to-b from-transparent to-black/30"
+>
     <div class="max-w-container mx-auto px-lg">
         <SectionHeader title="About Me" />
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-xl md:gap-[60px] items-center mt-xl">
+
+        <div
+            class="grid grid-cols-1 md:grid-cols-2 gap-xl md:gap-[60px] items-center mt-xl"
+        >
             <!-- Left: Image -->
-            <div class="relative w-full max-w-[300px] md:max-w-[400px] mx-auto aspect-square flex items-center justify-center opacity-0 -translate-y-8 md:translate-y-0 md:-translate-x-[50px] transition-all duration-[800ms] about-img">
-                <div class="absolute inset-0 bg-secondary backdrop-blur-[10px] border border-border rounded-xl -rotate-6 transition-transform duration-500 hover:rotate-0"></div>
-                <div class="relative w-full h-full rounded-xl overflow-hidden shadow-lg border-[2px] border-white/10 group">
-                    <img 
-                        src="/assets/me.webp" 
-                        alt="Ahmed Abdelrahman" 
+            <div
+                class="relative w-full max-w-[300px] md:max-w-[400px] mx-auto aspect-square flex items-center justify-center opacity-0 -translate-y-8 md:translate-y-0 md:-translate-x-[50px] transition-all duration-[800ms] about-img"
+            >
+                <div
+                    class="absolute inset-0 bg-secondary backdrop-blur-[10px] border border-border rounded-xl -rotate-6 transition-transform duration-500 hover:rotate-0"
+                >
+                </div>
+                <div
+                    class="relative w-full h-full rounded-xl overflow-hidden shadow-lg border-[2px] border-white/10 group"
+                >
+                    <img
+                        src="/assets/me.webp"
+                        alt="Ahmed Abdelrahman — Flutter Developer"
+                        width="400"
+                        height="400"
                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        loading="lazy" 
+                        loading="lazy"
+                        decoding="async"
                         id="about-image-element"
                     />
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    >
+                    </div>
                 </div>
             </div>
 
             <!-- Right: Text & Stats -->
-            <div class="flex flex-col gap-lg opacity-0 translate-y-8 md:translate-y-0 md:translate-x-[50px] transition-all duration-[800ms] delay-200 about-text">
+            <div
+                class="flex flex-col gap-lg opacity-0 translate-y-8 md:translate-y-0 md:translate-x-[50px] transition-all duration-[800ms] delay-200 about-text"
+            >
                 <div id="about-text-container">
                     <p class="text-text-muted text-base leading-relaxed mb-6">
-                        Hello! I'm <strong class="gradient-text font-semibold text-lg">Ahmed Abdelrahman</strong>, a passionate Flutter developer with a strong foundation in building scalable, user-friendly, and high-performance cross-platform mobile applications.
+                        Hello! I'm <strong
+                            class="gradient-text font-semibold text-lg"
+                            >Ahmed Abdelrahman</strong
+                        >, a passionate Flutter developer with a strong
+                        foundation in building scalable, user-friendly, and
+                        high-performance cross-platform mobile applications.
                     </p>
                     <p class="text-text-muted text-base leading-relaxed">
-                        My journey in mobile development has been driven by a constant desire to learn and innovate. With Flutter, I enjoy crafting beautiful UIs and seamless user experiences that work flawlessly on both iOS and Android.
+                        My journey in mobile development has been driven by a
+                        constant desire to learn and innovate. With Flutter, I
+                        enjoy crafting beautiful UIs and seamless user
+                        experiences that work flawlessly on both iOS and
+                        Android.
                     </p>
                 </div>
             </div>
@@ -38,22 +68,26 @@ import SectionHeader from '../common/SectionHeader.astro';
 </section>
 
 <script>
-    import { getPortfolioData } from '../../lib/firebase';
+    import { getPortfolioData } from "../../lib/firebase";
 
     // Scroll Animations
-    document.addEventListener('DOMContentLoaded', () => {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translate(0, 0)';
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
+    document.addEventListener("DOMContentLoaded", () => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target as HTMLElement;
+                        el.style.opacity = "1";
+                        el.style.transform = "translate(0, 0)";
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.1 },
+        );
 
-        const img = document.querySelector('.about-img');
-        const text = document.querySelector('.about-text');
+        const img = document.querySelector(".about-img");
+        const text = document.querySelector(".about-text");
         if (img) observer.observe(img);
         if (text) observer.observe(text);
     });
@@ -61,35 +95,42 @@ import SectionHeader from '../common/SectionHeader.astro';
     // Load Data
     async function loadAboutData() {
         const data = await getPortfolioData();
-        if(!data || !data.about) return;
+        if (!data || !data.about) return;
 
-        const aboutTextContainer = document.getElementById('about-text-container');
-        if(aboutTextContainer) {
-            aboutTextContainer.innerHTML = '';
-            
+        const aboutTextContainer = document.getElementById(
+            "about-text-container",
+        );
+        if (aboutTextContainer) {
+            aboutTextContainer.innerHTML = "";
+
             // Re-create formatting safely
-            const paras = data.about.description.split('\n\n');
-            paras.forEach((pText, i) => {
-                 const p = document.createElement('p');
-                 p.className = 'text-text-muted text-base leading-relaxed mb-6';
-                 if(i === 0) {
-                     // Try to highlight name
-                     p.innerHTML = pText.replace(data.about.title, `<strong class="gradient-text font-semibold text-lg">${data.about.title}</strong>`);
-                 } else {
-                     p.textContent = pText;
-                 }
-                 aboutTextContainer.appendChild(p);
+            const paras = data.about.description.split("\n\n");
+            paras.forEach((pText: string, i: number) => {
+                const p = document.createElement("p");
+                p.className = "text-text-muted text-base leading-relaxed mb-6";
+                if (i === 0) {
+                    // Try to highlight name
+                    p.innerHTML = pText.replace(
+                        data.about.title,
+                        `<strong class="gradient-text font-semibold text-lg">${data.about.title}</strong>`,
+                    );
+                } else {
+                    p.textContent = pText;
+                }
+                aboutTextContainer.appendChild(p);
             });
         }
 
-
-
-        const imgElement = document.getElementById('about-image-element') as HTMLImageElement;
-        if(imgElement && data.about.image) {
-            imgElement.src = data.about.image.startsWith('http') ? data.about.image : `/${data.about.image}`;
+        const imgElement = document.getElementById(
+            "about-image-element",
+        ) as HTMLImageElement;
+        if (imgElement && data.about.image) {
+            imgElement.src = data.about.image.startsWith("http")
+                ? data.about.image
+                : `/${data.about.image}`;
         }
     }
 
-    document.addEventListener('DOMContentLoaded', loadAboutData);
-    window.addEventListener('portfolioDataLoaded', loadAboutData);
+    document.addEventListener("DOMContentLoaded", loadAboutData);
+    window.addEventListener("portfolioDataLoaded", loadAboutData);
 </script>

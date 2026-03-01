@@ -6,9 +6,21 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
-  vite: {
-    plugins: [tailwindcss()]
+  // PERF: Minify HTML output — removes whitespace, comments, collapses attributes
+  compressHTML: true,
+
+  build: {
+    // PERF: Let Astro decide whether to inline small stylesheets (critical CSS)
+    inlineStylesheets: 'auto',
   },
 
-  integrations: [react()]
+  vite: {
+    plugins: [tailwindcss()],
+    build: {
+      // PERF: Enable CSS code splitting for smaller initial payloads
+      cssCodeSplit: true,
+    },
+  },
+
+  integrations: [react()],
 });
