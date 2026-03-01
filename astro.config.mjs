@@ -6,6 +6,9 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://ahmedabdelrahman117.github.io',
+  base: '/AA-Portfolio/',
+
   // PERF: Minify HTML output — removes whitespace, comments, collapses attributes
   compressHTML: true,
 
