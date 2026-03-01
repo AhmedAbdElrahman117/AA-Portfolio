@@ -3,16 +3,23 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { initFirebase } from '../../../lib/firebase';
 import Swal from 'sweetalert2';
 import { UploadService } from '../../../lib/uploadService';
+import DraggableList from '../DraggableList';
 
 export default function SkillsManager() {
     const [activeTab, setActiveTab] = useState('tech');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [orderChanged, setOrderChanged] = useState(false);
 
     // Form lists
     const [techSkills, setTechSkills] = useState([]);
     const [softSkills, setSoftSkills] = useState([]);
     const [langSkills, setLangSkills] = useState([]);
+
+    // Clear order changed state when switching tabs to prevent accidental cross-tab saves
+    useEffect(() => {
+        setOrderChanged(false);
+    }, [activeTab]);
 
     useEffect(() => {
         loadSkills();
@@ -48,6 +55,22 @@ export default function SkillsManager() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleReorder = (newItems) => {
+        if (activeTab === 'tech') setTechSkills(newItems);
+        else if (activeTab === 'soft') setSoftSkills(newItems);
+        else if (activeTab === 'lang') setLangSkills(newItems);
+        setOrderChanged(true);
+    };
+
+    const saveOrder = async () => {
+        setSaving(true);
+        const currentList = activeTab === 'tech' ? techSkills : (activeTab === 'soft' ? softSkills : langSkills);
+        await saveToFirebase(activeTab, currentList);
+        setOrderChanged(false);
+        setSaving(false);
+        Swal.fire({ icon: 'success', title: 'Order Saved', text: 'Skill order updated.', background: '#1a1a1a', color: '#fff', timer: 1000 });
     };
 
     const saveToFirebase = async (tab, list) => {
@@ -231,6 +254,11 @@ export default function SkillsManager() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-white/10 pb-4">
                 <h3 className="text-xl font-bold text-white tracking-wide">Manage Skills</h3>
                 <div className="flex gap-3">
+                    {orderChanged && (
+                        <button onClick={saveOrder} disabled={saving} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 text-sm flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+                            <i className={saving ? 'fas fa-spinner fa-spin' : 'fas fa-save'}></i> {saving ? 'Saving...' : 'Save Order'}
+                        </button>
+                    )}
                     <button onClick={() => openSkillModal(-1)} className="bg-gradient-to-r from-brand-light to-brand-dark hover:brightness-110 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-[0_4px_15px_rgba(33,150,243,0.3)] text-sm flex items-center gap-2">
                         <i className="fas fa-plus"></i> Add {activeTab === 'tech' ? 'Tech' : activeTab === 'soft' ? 'Soft' : 'Language'} Skill
                     </button>
@@ -250,67 +278,66 @@ export default function SkillsManager() {
                 </button>
             </div>
 
-            {activeTab === 'tech' ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-2 auto-rows-max" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-                    {currentList.map((skill, idx) => (
-                        <div key={skill.id || idx} className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col gap-4 hover:-translate-y-[5px] hover:border-brand-light transition-all duration-300 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)] items-center text-center">
-                            <div className="w-[80px] h-[80px] shrink-0 mb-2">
-                                {skill.image ? (
-                                    <img src={skill.image.startsWith('http') ? skill.image : `/${skill.image}`} alt={skill.name} className="w-full h-full object-contain drop-shadow-lg" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-black/50 text-white/20 rounded-lg">
-                                        <i className="fas fa-code text-2xl"></i>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex flex-col justify-start w-full">
-                                <h4 className="text-[14px] font-semibold text-white">{skill.name || 'Unnamed Skill'}</h4>
-                            </div>
-                            <div className="flex gap-2 w-full mt-auto shrink-0">
-                                <button onClick={() => openSkillModal(idx)} className="flex-1 py-2 px-3 text-[12px] font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-brand-light">
-                                    <i className="fas fa-edit"></i>
-                                </button>
-                                <button onClick={() => deleteSkill(idx)} className="flex-1 py-2 px-3 text-[12px] font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-red-500">
-                                    <i className="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                    {currentList.length === 0 && (
-                        <div className="col-span-full py-8 text-center text-text-muted italic bg-white/5 border border-dashed border-white/10 rounded-lg">
-                            <p className="text-sm">No tech skills added yet.</p>
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <div className="flex flex-col gap-3 mt-2">
-                    {currentList.map((skill, idx) => (
-                        <div key={skill.id || idx} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:border-brand-light transition-all duration-300">
-                            <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full">
-                                <span className="text-[14px] font-medium min-w-[150px] text-white shrink-0">{skill.name}</span>
-                                {activeTab === 'lang' && skill.level && (
-                                    <span className="text-text-muted text-[12px] sm:mr-4 whitespace-nowrap shrink-0">{skill.level}</span>
-                                )}
-                                <div className="w-full sm:flex-1 h-2 bg-black/40 border border-white/5 rounded-full overflow-hidden mt-2 sm:mt-0 shrink-0">
-                                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${skill.percentage}%`, background: skill.color || 'linear-gradient(90deg, #2196F3, #673AB7)' }}></div>
+            <DraggableList
+                items={currentList}
+                onReorder={handleReorder}
+                getItemId={(item, i) => item.id ?? i}
+                renderItem={(skill, idx) => {
+                    if (activeTab === 'tech') {
+                        return (
+                            <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4 hover:border-brand-light/50 transition-all duration-300">
+                                <div className="w-[50px] h-[50px] shrink-0">
+                                    {skill.image ? (
+                                        <img src={skill.image.startsWith('http') ? skill.image : `/${skill.image}`} alt={skill.name} className="w-full h-full object-contain drop-shadow-lg" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-black/50 text-white/20 rounded-lg">
+                                            <i className="fas fa-code text-lg"></i>
+                                        </div>
+                                    )}
                                 </div>
-                                <span className="text-[14px] font-semibold text-brand-light min-w-[50px] text-right shrink-0">{skill.percentage}%</span>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="text-sm font-semibold text-white truncate">{skill.name || 'Unnamed Skill'}</h4>
+                                </div>
+                                <div className="flex gap-2 shrink-0">
+                                    <button onClick={() => openSkillModal(idx)} className="py-2 px-3 text-xs font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                        <i className="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button onClick={() => deleteSkill(idx)} className="py-2 px-3 text-xs font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500">
+                                        <i className="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div className="flex gap-2 shrink-0 self-end sm:self-auto mt-3 sm:mt-0">
-                                <button onClick={() => openSkillModal(idx)} className="py-2 px-3 text-[12px] font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-brand-light">
-                                    <i className="fas fa-edit"></i>
-                                </button>
-                                <button onClick={() => deleteSkill(idx)} className="py-2 px-3 text-[12px] font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-red-500">
-                                    <i className="fas fa-trash"></i>
-                                </button>
+                        );
+                    } else {
+                        return (
+                            <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4 hover:border-brand-light/50 transition-all duration-300">
+                                <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full">
+                                    <span className="text-[14px] font-medium min-w-[120px] text-white shrink-0 truncate">{skill.name}</span>
+                                    {activeTab === 'lang' && skill.level && (
+                                        <span className="text-text-muted text-[12px] sm:mr-2 whitespace-nowrap shrink-0">{skill.level}</span>
+                                    )}
+                                    <div className="w-full sm:flex-1 h-2 bg-black/40 border border-white/5 rounded-full overflow-hidden mt-2 sm:mt-0 shrink-0">
+                                        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${skill.percentage}%`, background: skill.color || 'linear-gradient(90deg, #2196F3, #673AB7)' }}></div>
+                                    </div>
+                                    <span className="text-[14px] font-semibold text-brand-light min-w-[40px] text-right shrink-0">{skill.percentage}%</span>
+                                </div>
+                                <div className="flex gap-2 shrink-0">
+                                    <button onClick={() => openSkillModal(idx)} className="py-2 px-3 text-xs font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                                        <i className="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button onClick={() => deleteSkill(idx)} className="py-2 px-3 text-xs font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500">
+                                        <i className="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                    {currentList.length === 0 && (
-                        <div className="py-8 text-center text-text-muted italic bg-white/5 border border-dashed border-white/10 rounded-lg">
-                            <p className="text-sm">No skills added yet for this category.</p>
-                        </div>
-                    )}
+                        );
+                    }
+                }}
+            />
+
+            {currentList.length === 0 && (
+                <div className="py-8 text-center text-text-muted italic bg-white/5 border border-dashed border-white/10 rounded-lg">
+                    <p className="text-sm">No skills added yet for this category.</p>
                 </div>
             )}
         </div>

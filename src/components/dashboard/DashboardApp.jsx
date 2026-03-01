@@ -3,6 +3,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { initFirebase } from '../../lib/firebase';
 import Login from './Login';
 import CMSManager from './CMSManager';
+import { ErrorBoundary } from './ErrorBoundary';
 
 export default function DashboardApp() {
     const [user, setUser] = useState(null);
@@ -33,5 +34,9 @@ export default function DashboardApp() {
     }
 
     // Pass the user context down if authenticated
-    return user ? <CMSManager user={user} /> : <Login />;
+    return (
+        <ErrorBoundary>
+            {user ? <CMSManager user={user} /> : <Login />}
+        </ErrorBoundary>
+    );
 }

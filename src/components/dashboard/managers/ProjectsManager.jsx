@@ -3,11 +3,13 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { initFirebase } from '../../../lib/firebase';
 import Swal from 'sweetalert2';
 import { UploadService } from '../../../lib/uploadService';
+import DraggableList from '../DraggableList';
 
 export default function ProjectsManager() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [orderChanged, setOrderChanged] = useState(false);
 
     useEffect(() => {
         loadProjects();
@@ -54,6 +56,19 @@ export default function ProjectsManager() {
             console.error("Error saving projects", error);
             Swal.fire('Error', 'Failed to save projects.', 'error');
         }
+    };
+
+    const handleReorder = (newItems) => {
+        setProjects(newItems);
+        setOrderChanged(true);
+    };
+
+    const saveOrder = async () => {
+        setSaving(true);
+        await saveToFirebase(projects);
+        setOrderChanged(false);
+        setSaving(false);
+        Swal.fire({ icon: 'success', title: 'Order Saved', text: 'Project order updated.', background: '#1a1a1a', color: '#fff', timer: 1000 });
     };
 
     const deleteProject = (index) => {
@@ -372,45 +387,53 @@ export default function ProjectsManager() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-white/10 pb-4">
                 <h3 className="text-xl font-bold text-white tracking-wide">Manage Projects</h3>
                 <div className="flex gap-3">
+                    {orderChanged && (
+                        <button onClick={saveOrder} disabled={saving} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 text-sm flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+                            <i className={saving ? 'fas fa-spinner fa-spin' : 'fas fa-save'}></i> {saving ? 'Saving...' : 'Save Order'}
+                        </button>
+                    )}
                     <button onClick={() => openProjectModal(-1)} className="bg-gradient-to-r from-brand-light to-brand-dark hover:brightness-110 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-[0_4px_15px_rgba(33,150,243,0.3)] text-sm flex items-center gap-2">
                         <i className="fas fa-plus"></i> Add Project
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-2 auto-rows-max" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-                {projects.map((project, idx) => (
-                    <div key={project.id || idx} className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col gap-4 hover:-translate-y-[5px] hover:border-brand-light transition-all duration-300 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)]">
-                        <div className="w-full h-[120px] shrink-0 bg-black/40 rounded overflow-hidden">
+            <DraggableList
+                items={projects}
+                onReorder={handleReorder}
+                getItemId={(item, i) => item.id ?? i}
+                renderItem={(project, idx) => (
+                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4 hover:border-brand-light/50 transition-all duration-300">
+                        <div className="w-[80px] h-[60px] shrink-0 bg-black/40 rounded overflow-hidden">
                             {project.image ? (
                                 <img src={project.image.startsWith('http') ? project.image : `/${project.image}`} alt={project.title} className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-white/20">
-                                    <i className="fas fa-image text-4xl"></i>
+                                    <i className="fas fa-image text-2xl"></i>
                                 </div>
                             )}
                         </div>
-                        <div className="text-center flex-1 flex flex-col justify-start">
-                            <h4 className="text-[14px] font-semibold text-white mb-1.5">{project.title || 'Untitled Project'}</h4>
-                            <p className="text-[12px] text-text-secondary line-clamp-2 leading-relaxed">{project.description}</p>
+                        <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-white truncate">{project.title || 'Untitled Project'}</h4>
+                            <p className="text-xs text-text-secondary truncate">{project.description}</p>
                         </div>
-                        <div className="flex gap-2 w-full mt-auto shrink-0">
-                            <button onClick={() => openProjectModal(idx)} className="flex-1 py-2 px-3 text-[12px] font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                        <div className="flex gap-2 shrink-0">
+                            <button onClick={() => openProjectModal(idx)} className="py-2 px-3 text-xs font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-light">
                                 <i className="fas fa-edit"></i> Edit
                             </button>
-                            <button onClick={() => deleteProject(idx)} className="flex-1 py-2 px-3 text-[12px] font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            <button onClick={() => deleteProject(idx)} className="py-2 px-3 text-xs font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500">
                                 <i className="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                ))}
-
-                {projects.length === 0 && (
-                    <div className="col-span-full py-8 text-center text-text-muted italic bg-white/5 border border-dashed border-white/10 rounded-lg">
-                        <p className="text-sm">No projects added yet.</p>
-                    </div>
                 )}
-            </div>
+            />
+
+            {projects.length === 0 && (
+                <div className="py-8 text-center text-text-muted italic bg-white/5 border border-dashed border-white/10 rounded-lg">
+                    <p className="text-sm">No projects added yet.</p>
+                </div>
+            )}
         </div>
     );
 }

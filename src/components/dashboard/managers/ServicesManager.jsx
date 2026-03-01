@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { initFirebase } from '../../../lib/firebase';
 import Swal from 'sweetalert2';
+import DraggableList from '../DraggableList';
 
 export default function ServicesManager() {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [orderChanged, setOrderChanged] = useState(false);
 
     useEffect(() => {
         loadServices();
@@ -52,6 +54,19 @@ export default function ServicesManager() {
                 background: '#1a1a1a', color: '#fff', confirmButtonColor: '#2196F3'
             });
         }
+    };
+
+    const handleReorder = (newItems) => {
+        setServices(newItems);
+        setOrderChanged(true);
+    };
+
+    const saveOrder = async () => {
+        setSaving(true);
+        await saveToFirebase(services);
+        setOrderChanged(false);
+        setSaving(false);
+        Swal.fire({ icon: 'success', title: 'Order Saved', text: 'Service order updated.', background: '#1a1a1a', color: '#fff', timer: 1000 });
     };
 
     const deleteService = (index) => {
@@ -151,39 +166,47 @@ export default function ServicesManager() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-white/10 pb-4">
                 <h3 className="text-xl font-bold text-white tracking-wide">Manage Services</h3>
                 <div className="flex gap-3">
+                    {orderChanged && (
+                        <button onClick={saveOrder} disabled={saving} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 text-sm flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+                            <i className={saving ? 'fas fa-spinner fa-spin' : 'fas fa-save'}></i> {saving ? 'Saving...' : 'Save Order'}
+                        </button>
+                    )}
                     <button onClick={() => openServiceModal(-1)} className="bg-gradient-to-r from-brand-light to-brand-dark hover:brightness-110 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-[0_4px_15px_rgba(33,150,243,0.3)] text-sm flex items-center gap-2">
                         <i className="fas fa-plus"></i> Add Service
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-2 auto-rows-max" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-                {services.map((svc, idx) => (
-                    <div key={svc.id || idx} className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col gap-4 hover:-translate-y-[5px] hover:border-brand-light transition-all duration-300 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)] items-center">
-                        <div className="w-[60px] h-[60px] rounded-xl bg-gradient-to-br from-brand-light to-brand-dark flex flex-col items-center justify-center shrink-0 shadow-lg border border-white/10">
-                            <i className={`${svc.icon || 'fas fa-cog'} text-2xl text-white`}></i>
+            <DraggableList
+                items={services}
+                onReorder={handleReorder}
+                getItemId={(item, i) => item.id ?? i}
+                renderItem={(svc, idx) => (
+                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4 hover:border-brand-light/50 transition-all duration-300">
+                        <div className="w-[50px] h-[50px] rounded-xl bg-gradient-to-br from-brand-light to-brand-dark flex items-center justify-center shrink-0 shadow-lg border border-white/10">
+                            <i className={`${svc.icon || 'fas fa-cog'} text-xl text-white`}></i>
                         </div>
-                        <div className="text-center flex-1 w-full justify-start flex flex-col">
-                            <h4 className="text-[14px] font-semibold text-white mb-1.5">{svc.title || 'Untitled Service'}</h4>
-                            <p className="text-[12px] text-text-secondary leading-relaxed line-clamp-3">{svc.description}</p>
+                        <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-white truncate">{svc.title || 'Untitled Service'}</h4>
+                            <p className="text-xs text-text-secondary truncate">{svc.description}</p>
                         </div>
-                        <div className="flex gap-2 w-full mt-auto shrink-0">
-                            <button onClick={() => openServiceModal(idx)} className="flex-1 py-2 px-3 text-[12px] font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                        <div className="flex gap-2 shrink-0">
+                            <button onClick={() => openServiceModal(idx)} className="py-2 px-3 text-xs font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center gap-1.5">
                                 <i className="fas fa-edit"></i> Edit
                             </button>
-                            <button onClick={() => deleteService(idx)} className="flex-1 py-2 px-3 text-[12px] font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            <button onClick={() => deleteService(idx)} className="py-2 px-3 text-xs font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center gap-1.5">
                                 <i className="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                ))}
-
-                {services.length === 0 && (
-                    <div className="col-span-full py-8 text-center text-text-muted italic bg-white/5 border border-dashed border-white/10 rounded-lg">
-                        <p className="text-sm">No services added yet.</p>
-                    </div>
                 )}
-            </div>
+            />
+
+            {services.length === 0 && (
+                <div className="py-8 text-center text-text-muted italic bg-white/5 border border-dashed border-white/10 rounded-lg">
+                    <p className="text-sm">No services added yet.</p>
+                </div>
+            )}
         </div>
     );
 }

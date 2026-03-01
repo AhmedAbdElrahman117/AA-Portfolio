@@ -3,11 +3,13 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { initFirebase } from '../../../lib/firebase';
 import Swal from 'sweetalert2';
 import { UploadService } from '../../../lib/uploadService';
+import DraggableList from '../DraggableList';
 
 export default function CertificatesManager() {
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [orderChanged, setOrderChanged] = useState(false);
 
     useEffect(() => {
         loadCertificates();
@@ -53,6 +55,19 @@ export default function CertificatesManager() {
                 background: '#1a1a1a', color: '#fff', confirmButtonColor: '#2196F3'
             });
         }
+    };
+
+    const handleReorder = (newItems) => {
+        setCertificates(newItems);
+        setOrderChanged(true);
+    };
+
+    const saveOrder = async () => {
+        setSaving(true);
+        await saveToFirebase(certificates);
+        setOrderChanged(false);
+        setSaving(false);
+        Swal.fire({ icon: 'success', title: 'Order Saved', text: 'Certificate order updated.', background: '#1a1a1a', color: '#fff', timer: 1000 });
     };
 
     const deleteCertificate = (index) => {
@@ -177,50 +192,57 @@ export default function CertificatesManager() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5 border-b border-white/10 pb-4">
                 <h3 className="text-xl font-bold text-white tracking-wide">Manage Certificates</h3>
                 <div className="flex gap-3">
+                    {orderChanged && (
+                        <button onClick={saveOrder} disabled={saving} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 text-sm flex items-center gap-2 shadow-[0_4px_15px_rgba(16,185,129,0.3)]">
+                            <i className={saving ? 'fas fa-spinner fa-spin' : 'fas fa-save'}></i> {saving ? 'Saving...' : 'Save Order'}
+                        </button>
+                    )}
                     <button onClick={() => openCertModal(-1)} className="bg-gradient-to-r from-brand-light to-brand-dark hover:brightness-110 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-[0_4px_15px_rgba(33,150,243,0.3)] text-sm flex items-center gap-2">
                         <i className="fas fa-plus"></i> Add Certificate
                     </button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-2 auto-rows-max" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-                {certificates.map((cert, idx) => (
-                    <div key={cert.id || idx} className="bg-white/5 border border-white/10 rounded-xl p-5 flex flex-col gap-4 hover:-translate-y-[5px] hover:border-brand-light transition-all duration-300 shadow-sm hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)]">
-                        <div className="w-full h-[120px] shrink-0 bg-black/40 rounded overflow-hidden">
+            <DraggableList
+                items={certificates}
+                onReorder={handleReorder}
+                getItemId={(item, i) => item.id ?? i}
+                renderItem={(cert, idx) => (
+                    <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4 hover:border-brand-light/50 transition-all duration-300">
+                        <div className="w-[80px] h-[60px] shrink-0 bg-black/40 rounded overflow-hidden">
                             {cert.image ? (
                                 <img src={cert.image.startsWith('http') ? cert.image : `/${cert.image}`} alt={cert.title || 'Certificate'} className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
-                                    <i className="fas fa-certificate text-4xl mb-2"></i>
-                                    <span className="text-[10px] tracking-wider uppercase">No Image</span>
+                                    <i className="fas fa-certificate text-2xl"></i>
                                 </div>
                             )}
                         </div>
-                        <div className="text-center flex-1 flex flex-col justify-start">
-                            <h4 className="text-[14px] font-semibold text-white mb-1.5">{cert.title || 'Untitled Certificate'}</h4>
+                        <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-white truncate">{cert.title || 'Untitled Certificate'}</h4>
                             {cert.url && (
-                                <a href={cert.url} target="_blank" rel="noopener noreferrer" className="text-[12px] text-brand-light hover:underline mt-1 break-all flex items-center justify-center gap-1">
-                                    <i className="fas fa-link text-[10px]"></i> View Link
+                                <a href={cert.url} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-light hover:underline mt-1 truncate block">
+                                    <i className="fas fa-link mr-1"></i> {cert.url}
                                 </a>
                             )}
                         </div>
-                        <div className="flex gap-2 w-full mt-auto shrink-0">
-                            <button onClick={() => openCertModal(idx)} className="flex-1 py-2 px-3 text-[12px] font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-light">
+                        <div className="flex gap-2 shrink-0">
+                            <button onClick={() => openCertModal(idx)} className="py-2 px-3 text-xs font-medium border border-white/20 rounded-lg text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-brand-light">
                                 <i className="fas fa-edit"></i> Edit
                             </button>
-                            <button onClick={() => deleteCertificate(idx)} className="flex-1 py-2 px-3 text-[12px] font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            <button onClick={() => deleteCertificate(idx)} className="py-2 px-3 text-xs font-medium bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500">
                                 <i className="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                ))}
-
-                {certificates.length === 0 && (
-                    <div className="col-span-full py-8 text-center text-text-muted italic bg-white/5 border border-dashed border-white/10 rounded-lg">
-                        <p className="text-sm">No certificates added yet.</p>
-                    </div>
                 )}
-            </div>
+            />
+
+            {certificates.length === 0 && (
+                <div className="py-8 text-center text-text-muted italic bg-white/5 border border-dashed border-white/10 rounded-lg">
+                    <p className="text-sm">No certificates added yet.</p>
+                </div>
+            )}
         </div>
     );
 }
