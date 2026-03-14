@@ -593,6 +593,19 @@ import SectionHeader from "../common/SectionHeader.astro";
                 `;
                 projectsGrid.appendChild(card);
             });
+
+            // Proactively decode all project images in the background right now.
+            // By the time the user clicks "Details", the images are already decoded
+            // in browser memory — the modal hero will appear instantly.
+            data.projects.forEach((project: Project) => {
+                if (!project.image) return;
+                const src = project.image.startsWith("http")
+                    ? optimizeCloudinaryUrl(project.image, 600)
+                    : `/${project.image}`;
+                const img = new Image();
+                img.src = src;
+                img.decode().catch(() => {}); // fire-and-forget, silent on error
+            });
         }
 
         // 2. Setup Certificates
@@ -706,12 +719,19 @@ import SectionHeader from "../common/SectionHeader.astro";
         if (!modal || !modalBody || !closeBtn) return;
 
         const openModal = (project: Project) => {
-            const imgSrc = project.image.startsWith("http")
-                ? optimizeCloudinaryUrl(project.image, 800)
+            // Use the EXACT same URL the card's <img> already downloaded (w_600)
+            // so the browser serves it instantly from its decoded image cache.
+            const thumbSrc = project.image.startsWith("http")
+                ? optimizeCloudinaryUrl(project.image, 600)
                 : `/${project.image}`;
+            // Higher-res version we'll swap in silently once decoded
+            const fullSrc = project.image.startsWith("http")
+                ? optimizeCloudinaryUrl(project.image, 800)
+                : thumbSrc;
+
             modalBody.innerHTML = `
                 <div class="w-full h-[300px] relative">
-                    <img src="${imgSrc}" class="w-full h-full object-cover">
+                    <img id="modal-hero-img" src="${thumbSrc}" class="w-full h-full object-cover" fetchpriority="high">
                     <div class="absolute inset-0 bg-gradient-to-t from-primary to-transparent"></div>
                 </div>
                 <div class="p-xl -mt-10 relative z-10">
@@ -804,6 +824,24 @@ import SectionHeader from "../common/SectionHeader.astro";
             }, 50);
             document.body.style.overflow = "hidden";
             document.documentElement.style.overflow = "hidden";
+
+            // Silently upgrade to the higher-res image once decoded.
+            // Since we're already showing thumbSrc, the user sees no blank period.
+            if (fullSrc !== thumbSrc) {
+                const hiRes = new Image();
+                hiRes.src = fullSrc;
+                hiRes
+                    .decode()
+                    .then(() => {
+                        const heroImg = document.getElementById(
+                            "modal-hero-img",
+                        ) as HTMLImageElement | null;
+                        if (heroImg) heroImg.src = fullSrc;
+                    })
+                    .catch(() => {
+                        /* silently keep the thumbnail */
+                    });
+            }
         };
 
         const closeModalFunc = () => {

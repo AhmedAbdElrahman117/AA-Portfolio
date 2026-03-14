@@ -11,10 +11,10 @@ const base = import.meta.env.BASE_URL.endsWith("/")
 >
     <div class="max-w-container w-full mx-auto px-lg">
         <div
-            class="grid grid-cols-2 gap-2xl items-center max-md:grid-cols-1 max-md:text-center max-md:gap-lg"
+            class="grid grid-cols-1 md:grid-cols-2 gap-lg md:gap-2xl items-center text-center md:text-left"
         >
             <div
-                class="flex flex-col justify-center translate-y-8 opacity-0 transition-all duration-700 delay-200 max-md:order-2"
+                class="flex flex-col justify-center order-2 md:order-1 home-intro-text"
                 id="home-text"
             >
                 <span
@@ -37,13 +37,13 @@ const base = import.meta.env.BASE_URL.endsWith("/")
                 </p>
 
                 <nav
-                    class="flex gap-md mt-sm social-links max-md:justify-center"
+                    class="flex gap-md mt-sm social-links justify-center md:justify-start"
                     aria-label="Social media links"
                 >
                     <!-- Social Links Injected Here via Firebase/script -->
                 </nav>
 
-                <div class="flex gap-md mt-lg max-md:justify-center">
+                <div class="flex gap-md mt-lg justify-center md:justify-start">
                     <button
                         id="downloadCvBtn"
                         class="relative overflow-hidden border-none text-white font-medium cursor-pointer rounded-full transition-all duration-300 py-3 px-6 text-sm bg-gradient-to-r from-brand-light to-brand-dark shadow-md hover:-translate-y-[2px] hover:shadow-glow group"
@@ -68,15 +68,15 @@ const base = import.meta.env.BASE_URL.endsWith("/")
             </div>
 
             <div
-                class="flex justify-center items-center translate-x-8 opacity-0 transition-all duration-700 delay-400 max-md:order-1"
+                class="flex justify-center items-center order-1 md:order-2 w-full home-intro-lottie"
                 id="home-anim"
             >
                 <lottie-player
                     src={`${base}assets/ProgrammingComputer.json`}
                     background="transparent"
                     speed="1"
-                    style="width: 100%; max-width: 500px; height: auto; aspect-ratio: 1;"
-                    class="max-md:!max-w-[280px]"
+                    style="width: 100%; max-width: 480px; height: auto; aspect-ratio: 1;"
+                    class="w-[220px] md:w-full"
                     loop
                     autoplay
                 >
@@ -85,6 +85,43 @@ const base = import.meta.env.BASE_URL.endsWith("/")
         </div>
     </div>
 </section>
+
+<style>
+    /* Intro animation: hidden by default, revealed once via JS class toggle.
+       Using keyframes instead of CSS transitions so resize events
+       can never re-trigger the animation. */
+    .home-intro-text {
+        opacity: 0;
+        transform: translateY(2rem);
+    }
+    .home-intro-text.is-visible {
+        animation: homeTextIn 0.7s ease forwards;
+    }
+    .home-intro-lottie {
+        opacity: 0;
+        transform: translateX(2rem);
+    }
+    .home-intro-lottie.is-visible {
+        animation: homeLottieIn 0.7s ease forwards;
+    }
+    @keyframes homeTextIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes homeLottieIn {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    /* Freeze final state so no flicker after animation ends */
+    .home-intro-text.is-visible,
+    .home-intro-lottie.is-visible {
+        animation-fill-mode: forwards;
+    }
+</style>
 
 <script>
     import { getPortfolioData } from "../../lib/firebase";
@@ -152,23 +189,17 @@ const base = import.meta.env.BASE_URL.endsWith("/")
         }
     }
 
-    // Trigger animations on load
+    // Trigger animations on load — class-based so resize never re-triggers them
     document.addEventListener("DOMContentLoaded", async () => {
         await initHomeData();
 
         setTimeout(() => {
             const hText = document.getElementById("home-text");
             const hAnim = document.getElementById("home-anim");
-            if (hText) {
-                hText.style.opacity = "1";
-                hText.style.transform = "translateY(0)";
-            }
-            if (hAnim) {
-                hAnim.style.opacity = "1";
-                hAnim.style.transform = "translateX(0)";
-            }
+            if (hText) hText.classList.add("is-visible");
+            if (hAnim) hAnim.classList.add("is-visible");
 
-            // Start it
+            // Start typewriter
             currentTypewriterInstance++;
             startTypewriterLoop(currentTypewriterInstance);
         }, 1000); // Wait for splash screen
