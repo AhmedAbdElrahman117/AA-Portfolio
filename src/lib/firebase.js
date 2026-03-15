@@ -46,7 +46,7 @@ const defaultData = {
 My journey in mobile development has been driven by a constant desire to learn and innovate. With Flutter, I enjoy crafting beautiful UIs and seamless user experiences that work flawlessly on both iOS and Android. I'm always eager to explore new technologies, tackle challenging problems, and contribute to meaningful projects.
 
 Whether working independently or collaborating with a team, I bring dedication, creativity, and a problem-solving mindset to every project. When I'm not coding, you can find me exploring the latest tech trends, participating in hackathons, or sharing my knowledge with the developer community.`,
-        image: 'assets/me.webp',
+        image: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
         stats: [
             { number: '1+', label: 'Years Experience' },
             { number: '10+', label: 'Projects Completed' },

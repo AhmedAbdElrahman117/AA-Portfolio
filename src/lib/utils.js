@@ -155,7 +155,6 @@ export function setupSessionDurationTracking() {
 
     // Send duration when user leaves
     window.addEventListener('beforeunload', sendDuration);
-    window.addEventListener('unload', sendDuration);
 
     // Also dispatch on pagehide (mobile)
     window.addEventListener('pagehide', sendDuration);
