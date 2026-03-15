@@ -33,6 +33,7 @@ const {
         <meta name="description" content={description} />
         <meta name="author" content="Ahmed Abdelrahman" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="keywords" content="Flutter Developer, Mobile App Developer, Ahmed Abdelrahman, Portfolio, Cross-Platform, Dart, Firebase, iOS, Android" />
         <link rel="canonical" href={canonicalUrl} />
         <meta
             name="google-site-verification"
@@ -143,11 +144,17 @@ const {
                 image: ogImage,
                 jobTitle: "Flutter Developer",
                 description: description,
-                sameAs: [],
+                sameAs: [
+                    "https://www.linkedin.com/in/ahmed-abo-el-naga-b200892a5/",
+                    "https://github.com/AhmedAbdElrahman117",
+                    "https://www.facebook.com/lorr.ahmed.37/",
+                    "https://www.upwork.com/freelancers/~0128038751f7bbffdf"
+                ],
             })}
         />
     </head>
     <body class="bg-primary text-text-primary overflow-x-hidden min-h-screen">
+        <a href="#home" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[99999] focus:bg-brand-light focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg">Skip to content</a>
         <slot />
 
         <!-- Global Full-Screen Image Preview Modal -->
@@ -170,7 +177,6 @@ const {
             >
                 <img
                     id="image-preview-content"
-                    src=""
                     alt="Full screen preview"
                     width="800"
                     height="600"

@@ -1,7 +1,23 @@
 // src/lib/firebase.js
-import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+// PERF: Firebase modules are lazy-loaded via dynamic import()
+// to keep them out of the critical rendering path (~200KB saved).
+let _initializeApp, _getFirestore, _doc, _getDoc, _getAuth;
+let _firebaseLoaded = false;
+
+async function loadFirebaseModules() {
+    if (_firebaseLoaded) return;
+    const [appModule, firestoreModule, authModule] = await Promise.all([
+        import('firebase/app'),
+        import('firebase/firestore'),
+        import('firebase/auth'),
+    ]);
+    _initializeApp = appModule.initializeApp;
+    _getFirestore = firestoreModule.getFirestore;
+    _doc = firestoreModule.doc;
+    _getDoc = firestoreModule.getDoc;
+    _getAuth = authModule.getAuth;
+    _firebaseLoaded = true;
+}
 
 const firebaseConfig = {
     apiKey: "AIzaSyC1Hr7L6yp27w6E9wInccgpPFMSSrBRvwE",
@@ -93,12 +109,13 @@ let app, db, auth;
 let cachedData = null;
 let isLoaded = false;
 
-export function initFirebase() {
+export async function initFirebase() {
     if (!app) {
         try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
+            await loadFirebaseModules();
+            app = _initializeApp(firebaseConfig);
+            db = _getFirestore(app);
+            auth = _getAuth(app);
             // Default load
             cachedData = { ...defaultData };
         } catch (error) {
@@ -113,7 +130,7 @@ export async function getPortfolioData() {
 
     // For this migration, we'll rely on default data first, and fetch from Firestore
     // Because this module is loaded client side.
-    const { db: database } = initFirebase();
+    const { db: database } = await initFirebase();
     if (!database) return defaultData;
 
     try {
@@ -122,7 +139,7 @@ export async function getPortfolioData() {
             'langSkills', 'projects', 'certificates', 'services', 'contact'
         ];
 
-        const fetchPromises = collections.map(docName => getDoc(doc(database, "portfolio", docName)));
+        const fetchPromises = collections.map(docName => _getDoc(_doc(database, "portfolio", docName)));
         const snapshots = await Promise.all(fetchPromises);
 
         const firebaseData = {};

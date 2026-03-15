@@ -416,6 +416,7 @@ import SectionHeader from "../common/SectionHeader.astro";
 <section
     id="portfolio"
     class="py-section relative bg-gradient-to-b from-transparent to-black/30"
+    style="content-visibility: auto; contain-intrinsic-size: auto 1200px;"
 >
     <div class="max-w-container mx-auto px-lg">
         <SectionHeader title="My Portfolio" />
@@ -483,7 +484,7 @@ import SectionHeader from "../common/SectionHeader.astro";
             id="close-modal"
             class="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-red-500/80 text-white rounded-full flex items-center justify-center transition-all duration-300 z-10 border border-white/20 hover:scale-110 hover:rotate-90 hover:border-red-500 shadow-lg"
         >
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times" aria-hidden="true"></i>
         </button>
         <div id="modal-body" class="p-0">
             <!-- Modal Content Injected Here -->

@@ -96,8 +96,8 @@
         splashActive = false;
     }
 
-    // Wait 4.5 seconds for the sped-up full CSS animation sequence to gracefully finish
-    setTimeout(hideSplashScreen, 4500);
+    // Wait 2 seconds for the sped-up full CSS animation sequence to gracefully finish
+    setTimeout(hideSplashScreen, 2000);
 </script>
 
 <style is:global>
@@ -115,10 +115,9 @@
         z-index: 10000;
         overflow: hidden;
         transition:
-            opacity 1s ease,
-            visibility 1s ease,
-            transform 1s ease;
-        will-change: opacity, visibility, transform;
+            opacity 0.6s ease,
+            visibility 0.6s ease,
+            transform 0.6s ease;
         -webkit-backface-visibility: hidden;
         backface-visibility: hidden;
         transform: translateZ(0);
@@ -377,10 +376,10 @@
         filter: drop-shadow(0 0 15px rgba(33, 150, 243, 0.4));
     }
     .logo-letter:nth-child(1) {
-        animation: letterFadeIn 0.4s ease forwards 0.05s;
+        animation: letterFadeIn 0.3s ease forwards 0.05s;
     }
     .logo-letter:nth-child(2) {
-        animation: letterFadeIn 0.4s ease forwards 0.2s;
+        animation: letterFadeIn 0.3s ease forwards 0.15s;
     }
     @keyframes letterFadeIn {
         0% {
@@ -437,22 +436,22 @@
         filter: blur(3px);
     }
     .splash-icons > :nth-child(2) {
-        animation: connectorGrow 0.2s ease forwards 0.8s;
+        animation: connectorGrow 0.15s ease forwards 0.35s;
     }
     .splash-icons > :nth-child(4) {
-        animation: connectorGrow 0.2s ease forwards 1.3s;
+        animation: connectorGrow 0.15s ease forwards 0.6s;
     }
     .splash-icons > :nth-child(6) {
-        animation: connectorGrow 0.2s ease forwards 1.8s;
+        animation: connectorGrow 0.15s ease forwards 0.85s;
     }
     .splash-icons > :nth-child(2)::before {
-        animation: connectorLight 1s ease-in-out 2.4s infinite;
+        animation: connectorLight 1s ease-in-out 1.1s infinite;
     }
     .splash-icons > :nth-child(4)::before {
-        animation: connectorLight 1s ease-in-out 2.5s infinite;
+        animation: connectorLight 1s ease-in-out 1.15s infinite;
     }
     .splash-icons > :nth-child(6)::before {
-        animation: connectorLight 1s ease-in-out 2.6s infinite;
+        animation: connectorLight 1s ease-in-out 1.2s infinite;
     }
 
     @keyframes connectorGrow {
@@ -500,16 +499,16 @@
         transform: scale(0);
     }
     .splash-icons > :nth-child(1) {
-        animation: iconPop 0.3s ease forwards 0.5s;
+        animation: iconPop 0.2s ease forwards 0.2s;
     }
     .splash-icons > :nth-child(3) {
-        animation: iconPop 0.3s ease forwards 1s;
+        animation: iconPop 0.2s ease forwards 0.45s;
     }
     .splash-icons > :nth-child(5) {
-        animation: iconPop 0.3s ease forwards 1.5s;
+        animation: iconPop 0.2s ease forwards 0.7s;
     }
     .splash-icons > :nth-child(7) {
-        animation: iconPop 0.3s ease forwards 2s;
+        animation: iconPop 0.2s ease forwards 0.95s;
     }
 
     @keyframes iconPop {
@@ -534,7 +533,7 @@
         gap: 5px;
         opacity: 0;
         transform: translateY(20px);
-        animation: fadeInUp 0.4s ease forwards 2.5s;
+        animation: fadeInUp 0.3s ease forwards 1.1s;
     }
     .welcome-text {
         font-size: 18px;
@@ -557,14 +556,14 @@
         position: relative;
         margin-top: 20px;
         opacity: 0;
-        animation: fadeIn 0.4s ease forwards 2.8s;
+        animation: fadeIn 0.3s ease forwards 1.3s;
     }
     .splash-loader-bar {
         height: 100%;
         width: 0;
         background: linear-gradient(90deg, #2196f3, #673ab7, #2196f3);
         border-radius: 4px;
-        animation: loadProgress 1.2s ease-in-out forwards 3s;
+        animation: loadProgress 0.5s ease-in-out forwards 1.4s;
     }
     .splash-loading-text {
         font-size: 12px;
@@ -573,7 +572,7 @@
         text-transform: uppercase;
         margin-top: -15px;
         opacity: 0;
-        animation: blinkText 1s ease-in-out infinite 2.8s;
+        animation: blinkText 1s ease-in-out infinite 1.3s;
     }
 
     @keyframes fadeInUp {

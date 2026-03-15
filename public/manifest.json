@@ -2,7 +2,7 @@
   "name": "AA Portfolio - Ahmed Abdelrahman",
   "short_name": "AA Portfolio",
   "description": "Ahmed Abdelrahman - Flutter Developer Portfolio",
-  "start_url": "/index.html",
+  "start_url": "/AA-Portfolio/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#2196F3",
