@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { initFirebase } from '../../../lib/firebase';
 import Swal from 'sweetalert2';
@@ -6,9 +6,13 @@ import { UploadService } from '../../../lib/uploadService';
 
 export default function AboutManager() {
     const [profile, setProfile] = useState({ profileImage: '', fullName: '', paragraphs: [] });
+    const [previewImage, setPreviewImage] = useState(''); // local object URL for instant preview
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('profile');
+    // Tracks the Cloudinary URL currently saved in Firebase so we can delete it when a new image is uploaded
+    const savedProfileImage = useRef('');
+    const previewObjectUrl = useRef(''); // keeps track of the revocable object URL
 
     useEffect(() => {
         loadAbout();
@@ -23,11 +27,15 @@ export default function AboutManager() {
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 const data = docSnap.data().data || docSnap.data();
+                const loadedImage = data.profileImage || '';
                 setProfile({
-                    profileImage: data.profileImage || '',
+                    profileImage: loadedImage,
                     fullName: data.fullName || '',
                     paragraphs: Array.isArray(data.paragraphs) ? data.paragraphs : []
                 });
+                // Remember the currently-saved Cloudinary URL
+                savedProfileImage.current = loadedImage;
+                setPreviewImage(loadedImage);
             }
         } catch (error) {
             Swal.fire({ icon: 'error', title: 'Load Failed', text: error.message, background: '#1a1a1a', color: '#fff' });
@@ -39,7 +47,12 @@ export default function AboutManager() {
     const handleImageClick = async () => {
         const file = await UploadService.openFilePicker('about_profile', 'image/*');
         if (file) {
-            setProfile({ ...profile, profileImage: file.name });
+            // Revoke old object URL to free memory
+            if (previewObjectUrl.current) URL.revokeObjectURL(previewObjectUrl.current);
+            const localUrl = URL.createObjectURL(file);
+            previewObjectUrl.current = localUrl;
+            setPreviewImage(localUrl);
+            setProfile(prev => ({ ...prev, profileImage: file.name }));
         }
     };
 
@@ -59,12 +72,27 @@ export default function AboutManager() {
                     didOpen: () => Swal.showLoading(),
                     background: '#1a1a1a', color: '#fff'
                 });
+
+                // Delete the old image from Cloudinary before uploading the new one
+                if (savedProfileImage.current) {
+                    await UploadService.deleteFromCloudinary(savedProfileImage.current);
+                }
+
                 finalImage = await UploadService.uploadPendingFile('about_profile', 'portfolio');
                 setProfile(prev => ({ ...prev, profileImage: finalImage }));
             }
 
             const docRef = doc(db, "portfolio", "about");
             await setDoc(docRef, { data: { ...profile, profileImage: finalImage } }, { merge: true });
+
+            // Update the tracked URL to the newly saved one
+            savedProfileImage.current = finalImage;
+            // Revoke local object URL now that the real Cloudinary URL is available
+            if (previewObjectUrl.current) {
+                URL.revokeObjectURL(previewObjectUrl.current);
+                previewObjectUrl.current = '';
+            }
+            setPreviewImage(finalImage);
 
             Swal.fire({
                 icon: 'success', title: 'Saved!', text: 'About section updated.',
@@ -118,8 +146,8 @@ export default function AboutManager() {
                 {activeTab === 'profile' && (
                     <div className="flex flex-col md:flex-row gap-6 items-start">
                         <div className="w-[120px] h-[120px] rounded-lg bg-black/20 border border-white/10 flex items-center justify-center overflow-hidden shrink-0 mt-7">
-                            {profile.profileImage ? (
-                                <img src={profile.profileImage.startsWith('http') ? profile.profileImage : `/${profile.profileImage}`} alt="Preview" className="w-full h-full object-cover" />
+                            {previewImage ? (
+                                <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
                             ) : (
                                 <i className="fas fa-user text-4xl text-white/20"></i>
                             )}
