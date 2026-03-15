@@ -17,7 +17,7 @@ export default function ProjectsManager() {
 
     const loadProjects = async () => {
         setLoading(true);
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         if (!db) return;
 
         try {
@@ -42,7 +42,7 @@ export default function ProjectsManager() {
     };
 
     const saveToFirebase = async (updatedProjects) => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         try {
             const docRef = doc(db, "portfolio", "projects");
             // Re-normalize for save

@@ -16,7 +16,7 @@ export default function CertificatesManager() {
     }, []);
 
     const loadCertificates = async () => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         if (!db) return;
 
         try {
@@ -44,7 +44,7 @@ export default function CertificatesManager() {
     };
 
     const saveToFirebase = async (updatedCertificates) => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         try {
             const docRef = doc(db, "portfolio", "certificates");
             await setDoc(docRef, { data: updatedCertificates }, { merge: true });

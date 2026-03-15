@@ -19,7 +19,7 @@ export default function HomeManager() {
     }, []);
 
     const loadHomeData = async () => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         if (!db) return;
 
         try {
@@ -64,7 +64,7 @@ export default function HomeManager() {
 
     const handleSaveTypewriter = async () => {
         setSaving(true);
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         try {
             await setDoc(doc(db, "portfolio", "about"), { data: { typewriterTexts } }, { merge: true });
             Swal.fire({ icon: 'success', title: 'Saved!', text: 'Typewriter texts updated.', background: '#1a1a1a', color: '#fff', timer: 1500 });
@@ -77,7 +77,7 @@ export default function HomeManager() {
 
     const handleSaveSocial = async () => {
         setSaving(true);
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         try {
             await setDoc(doc(db, "portfolio", "social"), { data: social }, { merge: true });
             Swal.fire({ icon: 'success', title: 'Saved!', text: 'Social links updated.', background: '#1a1a1a', color: '#fff', timer: 1500 });
@@ -97,7 +97,7 @@ export default function HomeManager() {
 
     const handleSaveCv = async () => {
         setSaving(true);
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         try {
             let finalPath = cv.path;
             const pendingFile = UploadService.getPendingFile('cv_upload');

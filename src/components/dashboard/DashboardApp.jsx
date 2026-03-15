@@ -10,18 +10,26 @@ export default function DashboardApp() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const { auth } = initFirebase();
-        if (!auth) {
-            setLoading(false);
-            return;
-        }
+        let unsubscribe;
 
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setLoading(false);
-        });
+        const setupAuth = async () => {
+            const { auth } = await initFirebase();
+            if (!auth) {
+                setLoading(false);
+                return;
+            }
 
-        return () => unsubscribe();
+            unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                setUser(currentUser);
+                setLoading(false);
+            });
+        };
+
+        setupAuth();
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, []);
 
     if (loading) {

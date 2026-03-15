@@ -76,7 +76,6 @@ export const UploadService = {
     async uploadBlobToCloudinary(blob, folder, originalFilename) {
         // Optimize the image before converting to base64
         const { blob: optimizedBlob, filename: finalFilename } = await this.optimizeImage(blob);
-        optimizedBlob.name = finalFilename; // Required by some callers if they check name
 
         const base64 = await this.blobToBase64(optimizedBlob);
         const response = await fetch(this.apiEndpoints.upload, {

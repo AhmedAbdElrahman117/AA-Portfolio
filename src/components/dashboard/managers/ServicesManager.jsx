@@ -15,7 +15,7 @@ export default function ServicesManager() {
     }, []);
 
     const loadServices = async () => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         if (!db) return;
 
         try {
@@ -43,7 +43,7 @@ export default function ServicesManager() {
     };
 
     const saveToFirebase = async (updatedServices) => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         try {
             const docRef = doc(db, "portfolio", "services");
             await setDoc(docRef, { data: updatedServices }, { merge: true });

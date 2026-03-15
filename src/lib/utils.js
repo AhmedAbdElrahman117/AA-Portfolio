@@ -51,7 +51,7 @@ export async function recordVisitor() {
         const { getFirestore, collection, addDoc, Timestamp } = await import('firebase/firestore');
         const { initFirebase } = await import('./firebase');
 
-        const db = initFirebase();
+        const { db } = await initFirebase();
         if (!db) return;
 
         // Prevent recording on localhost or dashboard

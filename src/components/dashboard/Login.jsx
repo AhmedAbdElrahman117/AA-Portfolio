@@ -37,7 +37,7 @@ export default function Login() {
         }
 
         setLoading(true);
-        const { auth } = initFirebase();
+        const { auth } = await initFirebase();
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
@@ -54,17 +54,13 @@ export default function Login() {
             // State will be handled by the parent App component (onAuthStateChanged)
         } catch (error) {
             console.error("Login mapping error", error);
-            let message = 'Invalid email or password.';
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                message = 'Invalid email or password.';
-            } else if (error.code === 'auth/too-many-requests') {
-                message = 'Too many failed attempts. Please try again later.';
-            }
+            let message = error.message || 'Invalid email or password.';
 
             Swal.fire({
                 icon: 'error',
                 title: 'Login Failed',
                 text: message,
+                footer: `Error code: ${error.code || 'Unknown'}`,
                 background: '#1a1a1a',
                 color: '#fff',
                 confirmButtonColor: '#2196F3'

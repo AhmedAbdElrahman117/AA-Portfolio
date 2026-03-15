@@ -26,7 +26,7 @@ export default function SkillsManager() {
     }, []);
 
     const loadSkills = async () => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         if (!db) return;
 
         try {
@@ -74,7 +74,7 @@ export default function SkillsManager() {
     };
 
     const saveToFirebase = async (tab, list) => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         try {
             if (tab === 'tech') {
                 await setDoc(doc(db, "portfolio", "techSkills"), { data: list }, { merge: true });

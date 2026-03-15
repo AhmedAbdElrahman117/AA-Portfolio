@@ -19,7 +19,7 @@ export default function AboutManager() {
     }, []);
 
     const loadAbout = async () => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         if (!db) return;
 
         try {
@@ -58,7 +58,7 @@ export default function AboutManager() {
 
     const handleSave = async () => {
         setSaving(true);
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
 
         try {
             let finalImage = profile.profileImage;

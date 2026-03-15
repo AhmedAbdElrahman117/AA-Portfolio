@@ -29,7 +29,7 @@ export default function CMSManager({ user }) {
         });
 
         if (result.isConfirmed) {
-            const { auth } = initFirebase();
+            const { auth } = await initFirebase();
             try {
                 await signOut(auth);
             } catch (error) {

@@ -13,7 +13,7 @@ export default function ContactManager() {
     }, []);
 
     const loadContact = async () => {
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
         if (!db) return;
 
         try {
@@ -40,7 +40,7 @@ export default function ContactManager() {
 
     const handleSave = async () => {
         setSaving(true);
-        const { db } = initFirebase();
+        const { db } = await initFirebase();
 
         try {
             const docRef = doc(db, "portfolio", "contact");

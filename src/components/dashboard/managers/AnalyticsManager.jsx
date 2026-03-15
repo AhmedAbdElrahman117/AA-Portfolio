@@ -26,7 +26,7 @@ export default function AnalyticsManager() {
 
         const subscribeToVisits = async () => {
             setLoading(true);
-            const { db } = initFirebase();
+            const { db } = await initFirebase();
             if (!db) return;
 
             let durationMap = {};
