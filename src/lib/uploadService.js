@@ -16,12 +16,73 @@ export const UploadService = {
         });
     },
 
-    async uploadBlobToCloudinary(blob, folder, filename) {
-        const base64 = await this.blobToBase64(blob);
+    /**
+     * Optimizes an image file locally in the browser by compressing it to WebP.
+     * Non-image files or GIFs are passed through untouched.
+     */
+    async optimizeImage(file) {
+        if (!file.type.startsWith('image/') || file.type === 'image/gif' || file.type === 'image/webp') {
+            return { blob: file, filename: file.name };
+        }
+
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Maximum reasonable dimensions for web portfolio
+                    const MAX_WIDTH = 1920;
+                    const MAX_HEIGHT = 1920;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = Math.round((width * MAX_HEIGHT) / height);
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to WebP at 75% quality
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            const newFilename = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+                            resolve({ blob: blob, filename: newFilename });
+                        } else {
+                            resolve({ blob: file, filename: file.name });
+                        }
+                    }, 'image/webp', 0.75);
+                };
+                img.onerror = () => resolve({ blob: file, filename: file.name });
+                img.src = e.target.result;
+            };
+            reader.onerror = () => resolve({ blob: file, filename: file.name });
+            reader.readAsDataURL(file);
+        });
+    },
+
+    async uploadBlobToCloudinary(blob, folder, originalFilename) {
+        // Optimize the image before converting to base64
+        const { blob: optimizedBlob, filename: finalFilename } = await this.optimizeImage(blob);
+        optimizedBlob.name = finalFilename; // Required by some callers if they check name
+
+        const base64 = await this.blobToBase64(optimizedBlob);
         const response = await fetch(this.apiEndpoints.upload, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ file: base64, folder: folder, filename: filename })
+            body: JSON.stringify({ file: base64, folder: folder, filename: finalFilename })
         });
         if (!response.ok) {
             const errorText = await response.text();

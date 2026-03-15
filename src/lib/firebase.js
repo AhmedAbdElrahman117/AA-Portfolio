@@ -108,89 +108,100 @@ Whether working independently or collaborating with a team, I bring dedication, 
 let app, db, auth;
 let cachedData = null;
 let isLoaded = false;
+let _initPromise = null;
+let _fetchPromise = null;
 
 export async function initFirebase() {
-    if (!app) {
-        try {
-            await loadFirebaseModules();
-            app = _initializeApp(firebaseConfig);
-            db = _getFirestore(app);
-            auth = _getAuth(app);
-            // Default load
-            cachedData = { ...defaultData };
-        } catch (error) {
-            console.error("Firebase init failed:", error);
-        }
+    if (app) return { db, auth };
+    if (!_initPromise) {
+        _initPromise = (async () => {
+            try {
+                await loadFirebaseModules();
+                app = _initializeApp(firebaseConfig);
+                db = _getFirestore(app);
+                auth = _getAuth(app);
+                // Default load
+                cachedData = { ...defaultData };
+            } catch (error) {
+                console.error("Firebase init failed:", error);
+            }
+        })();
     }
+    await _initPromise;
     return { db, auth };
 }
 
 export async function getPortfolioData() {
     if (isLoaded) return cachedData;
+    if (_fetchPromise) return _fetchPromise;
 
-    // For this migration, we'll rely on default data first, and fetch from Firestore
-    // Because this module is loaded client side.
-    const { db: database } = await initFirebase();
-    if (!database) return defaultData;
+    _fetchPromise = (async () => {
+        // For this migration, we'll rely on default data first, and fetch from Firestore
+        // Because this module is loaded client side.
+        const { db: database } = await initFirebase();
+        if (!database) return defaultData;
 
-    try {
-        const collections = [
-            'social', 'about', 'cv', 'techSkills', 'softSkills',
-            'langSkills', 'projects', 'certificates', 'services', 'contact'
-        ];
+        try {
+            const collections = [
+                'social', 'about', 'cv', 'techSkills', 'softSkills',
+                'langSkills', 'projects', 'certificates', 'services', 'contact'
+            ];
 
-        const fetchPromises = collections.map(docName => _getDoc(_doc(database, "portfolio", docName)));
-        const snapshots = await Promise.all(fetchPromises);
+            const fetchPromises = collections.map(docName => _getDoc(_doc(database, "portfolio", docName)));
+            const snapshots = await Promise.all(fetchPromises);
 
-        const firebaseData = {};
+            const firebaseData = {};
 
-        snapshots.forEach((snap, index) => {
-            const docName = collections[index];
-            if (snap.exists()) {
-                const docData = snap.data();
-                if (docData && docData.data !== undefined) {
-                    firebaseData[docName] = docData.data;
+            snapshots.forEach((snap, index) => {
+                const docName = collections[index];
+                if (snap.exists()) {
+                    const docData = snap.data();
+                    if (docData && docData.data !== undefined) {
+                        firebaseData[docName] = docData.data;
+                    } else {
+                        firebaseData[docName] = docData;
+                    }
+                }
+            });
+
+            cachedData = { ...defaultData };
+
+            // Normalize Firebase data to match our rendering schema without losing default stats, etc.
+            for (const [key, value] of Object.entries(firebaseData)) {
+                if (key === 'about') {
+                    cachedData.about = { ...defaultData.about, ...value };
+                    if (value.profileImage) cachedData.about.image = value.profileImage;
+                    if (value.paragraphs && Array.isArray(value.paragraphs)) {
+                        cachedData.about.description = value.paragraphs.join('\n\n');
+                    }
+                    if (value.fullName) cachedData.about.title = value.fullName;
+                } else if (key === 'projects' && Array.isArray(value)) {
+                    cachedData.projects = value.map(p => ({
+                        ...p,
+                        tags: p.technologies || p.tags || [],
+                        details: p.details || p.description
+                    }));
+                } else if (Array.isArray(value)) {
+                    // Fully overwrite arrays
+                    cachedData[key] = value;
+                } else if (typeof value === 'object' && value !== null) {
+                    // Merge nested objects
+                    cachedData[key] = { ...defaultData[key], ...value };
                 } else {
-                    firebaseData[docName] = docData;
+                    cachedData[key] = value;
                 }
             }
-        });
 
-        cachedData = { ...defaultData };
-
-        // Normalize Firebase data to match our rendering schema without losing default stats, etc.
-        for (const [key, value] of Object.entries(firebaseData)) {
-            if (key === 'about') {
-                cachedData.about = { ...defaultData.about, ...value };
-                if (value.profileImage) cachedData.about.image = value.profileImage;
-                if (value.paragraphs && Array.isArray(value.paragraphs)) {
-                    cachedData.about.description = value.paragraphs.join('\n\n');
-                }
-                if (value.fullName) cachedData.about.title = value.fullName;
-            } else if (key === 'projects' && Array.isArray(value)) {
-                cachedData.projects = value.map(p => ({
-                    ...p,
-                    tags: p.technologies || p.tags || [],
-                    details: p.details || p.description
-                }));
-            } else if (Array.isArray(value)) {
-                // Fully overwrite arrays
-                cachedData[key] = value;
-            } else if (typeof value === 'object' && value !== null) {
-                // Merge nested objects
-                cachedData[key] = { ...defaultData[key], ...value };
-            } else {
-                cachedData[key] = value;
-            }
+        } catch (e) {
+            console.error("Error fetching data:", e);
+            // Fallback already assigned
         }
 
-    } catch (e) {
-        console.error("Error fetching data:", e);
-        // Fallback already assigned
-    }
+        isLoaded = true;
+        window.dispatchEvent(new Event('portfolioDataLoaded'));
+        return cachedData;
+    })();
 
-    isLoaded = true;
-    window.dispatchEvent(new Event('portfolioDataLoaded'));
-    return cachedData;
+    return _fetchPromise;
 }
 
