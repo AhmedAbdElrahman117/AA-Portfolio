@@ -1,5 +1,8 @@
 ---
 // SplashScreen.astro
+const base = import.meta.env.BASE_URL.endsWith("/")
+    ? import.meta.env.BASE_URL
+    : import.meta.env.BASE_URL + "/";
 ---
 
 <!-- Splash Screen -->
@@ -46,19 +49,19 @@
         <!-- Animated Icons with Connectors -->
         <div class="splash-icons">
             <div class="splash-icon" style="--delay: 0">
-                <i class="fas fa-code"></i>
+                <img src={`${base}assets/code-solid-full.svg`} class="splash-svg-icon" alt="Code" />
             </div>
             <div class="icon-connector"></div>
             <div class="splash-icon" style="--delay: 1">
-                <i class="fas fa-mobile-alt"></i>
+                <img src={`${base}assets/mobile-solid-full.svg`} class="splash-svg-icon" alt="Mobile" />
             </div>
             <div class="icon-connector"></div>
             <div class="splash-icon" style="--delay: 2">
-                <i class="fa-brands fa-flutter"></i>
+                <img src={`${base}assets/flutter-brands-solid-full.svg`} class="splash-svg-icon" alt="Flutter" />
             </div>
             <div class="icon-connector"></div>
             <div class="splash-icon" style="--delay: 3">
-                <i class="fab fa-github"></i>
+                <img src={`${base}assets/github-brands-solid-full.svg`} class="splash-svg-icon" alt="GitHub" />
             </div>
         </div>
 
@@ -497,6 +500,11 @@
             0 0 40px rgba(103, 58, 183, 0.15);
         opacity: 0;
         transform: scale(0);
+    }
+    .splash-svg-icon {
+        width: 28px;
+        height: 28px;
+        filter: invert(1);
     }
     .splash-icons > :nth-child(1) {
         animation: iconPop 0.2s ease forwards 0.2s;
