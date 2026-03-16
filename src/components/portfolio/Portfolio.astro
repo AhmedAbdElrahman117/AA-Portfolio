@@ -571,7 +571,7 @@ import SectionHeader from "../common/SectionHeader.astro";
                 const card = document.createElement("div");
                 card.className = `project-card animate-lazy-card`;
                 card.style.setProperty("--stagger", String(i % 3));
-                card.setAttribute("data-id", project.id);
+                card.setAttribute("data-index", String(i));
                 card.innerHTML = `
                     <div class="project-image">
                         <img src="${imgSrc}" alt="${project.title}" loading="lazy" crossorigin="anonymous">
@@ -589,7 +589,7 @@ import SectionHeader from "../common/SectionHeader.astro";
                                 : ""
                         }
                         <p class="project-description">${shortDesc}</p>
-                        <button class="btn view-project view-details-btn" data-id="${project.id}">View Details</button>
+                        <button class="btn view-project view-details-btn" data-index="${i}">View Details</button>
                     </div>
                 `;
                 projectsGrid.appendChild(card);
@@ -897,17 +897,12 @@ import SectionHeader from "../common/SectionHeader.astro";
 
             // Handle clicking the "Details" button OR the card itself
             if (viewBtn || projectCard) {
-                // If it's a click inside the card, but NOT on the viewBtn or its children,
-                // and there are other interactive elements (like links), we might want to ignore it.
-                // However, since the whole card is meant to be clickable in this design,
-                // we'll just open the modal.
                 const element = viewBtn || projectCard;
                 if (element) {
-                    const id = element.getAttribute("data-id");
-                    const project = projects.find(
-                        (p: Project) => p.id && p.id.toString() === id,
-                    );
-                    if (project) openModal(project);
+                    const idx = parseInt(element.getAttribute("data-index") || "-1", 10);
+                    if (idx >= 0 && idx < projects.length) {
+                        openModal(projects[idx]);
+                    }
                 }
             }
             // Handle clicking a screenshot inside the modal

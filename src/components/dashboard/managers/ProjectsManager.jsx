@@ -254,8 +254,10 @@ export default function ProjectsManager() {
                     // Add screenshot upload listener if applicable
                     if (isScreenshot) {
                         const inputField = itemDiv.querySelector('input');
+                        const uniqueUploadId = 'screenshot_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        inputField.setAttribute('data-upload-id', uniqueUploadId);
                         inputField.addEventListener('click', async () => {
-                            const file = await UploadService.openFilePicker('project_screenshots', 'image/*');
+                            const file = await UploadService.openFilePicker(uniqueUploadId, 'image/*');
                             if (file) {
                                 inputField.value = file.name;
                                 inputField.setAttribute('data-pending', 'true');
@@ -292,8 +294,10 @@ export default function ProjectsManager() {
 
                 // Attach existing screenshots to upload picker
                 document.querySelectorAll('#modalScreenshotsList input').forEach(input => {
+                    const uniqueUploadId = 'screenshot_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    input.setAttribute('data-upload-id', uniqueUploadId);
                     input.addEventListener('click', async () => {
-                        const file = await UploadService.openFilePicker('project_screenshots', 'image/*');
+                        const file = await UploadService.openFilePicker(uniqueUploadId, 'image/*');
                         if (file) {
                             input.value = file.name;
                             input.setAttribute('data-pending', 'true');
@@ -325,7 +329,7 @@ export default function ProjectsManager() {
                 if (packages.length === 0) { Swal.showValidationMessage('At least 1 Package is required.'); return false; }
                 if (features.length === 0) { Swal.showValidationMessage('At least 1 Feature is required.'); return false; }
 
-                // Process screenshots strictly simulating the original multi-file logic
+                // Process screenshots logic
                 const screenshotInputs = Array.from(document.querySelectorAll('#modalScreenshotsList input'));
                 const finalScreenshots = [];
 
@@ -334,10 +338,13 @@ export default function ProjectsManager() {
                     if (inp.getAttribute('data-pending') === 'true') {
                         // The file has just been opened/attached internally and needs Cloudinary execution
                         try {
-                            Swal.showLoading();
-                            Swal.update({ title: `Uploading screenshot ${i + 1}...` });
-                            const url = await UploadService.uploadPendingFile('project_screenshots', 'portfolio');
-                            finalScreenshots.push(url);
+                            const uploadId = inp.getAttribute('data-upload-id');
+                            if (uploadId && UploadService.getPendingFile(uploadId)) {
+                                Swal.showLoading();
+                                Swal.update({ title: `Uploading screenshot ${i + 1}...` });
+                                const url = await UploadService.uploadPendingFile(uploadId, 'portfolio');
+                                finalScreenshots.push(url);
+                            }
                         } catch (e) {
                             console.warn("Screenshot upload ignored/failed", e);
                         }
