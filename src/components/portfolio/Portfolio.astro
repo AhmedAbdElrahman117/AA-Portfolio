@@ -886,8 +886,8 @@ import SectionHeader from "../common/SectionHeader.astro";
             }
         };
 
-        // Attach global click listener to handle dynamically generated cards (fixes issue when tabs swap)
-        document.addEventListener("click", (e) => {
+        // Define click handler once to prevent duplicates
+        const handleGlobalClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             const viewBtn = target.closest(".view-details-btn");
             const projectCard = target.closest(".project-card");
@@ -897,14 +897,10 @@ import SectionHeader from "../common/SectionHeader.astro";
 
             // Handle clicking the "Details" button OR the card itself
             if (viewBtn || projectCard) {
-                // Prevent opening if clicking on the actual button inside the footer to avoid double-triggers
-                if (
-                    projectCard &&
-                    !viewBtn &&
-                    (e.target as HTMLElement).tagName.toLowerCase() === "button"
-                ) {
-                    return;
-                }
+                // If it's a click inside the card, but NOT on the viewBtn or its children,
+                // and there are other interactive elements (like links), we might want to ignore it.
+                // However, since the whole card is meant to be clickable in this design,
+                // we'll just open the modal.
                 const element = viewBtn || projectCard;
                 if (element) {
                     const id = element.getAttribute("data-id");
@@ -928,7 +924,16 @@ import SectionHeader from "../common/SectionHeader.astro";
             ) {
                 closeImagePreview();
             }
-        });
+        };
+
+        // Remove the old listener if it exists so we don't stack them,
+        // and so we capture the LATEST `projects` array in this closure.
+        if ((window as any).portfolioClickHandler) {
+            document.removeEventListener("click", (window as any).portfolioClickHandler);
+        }
+        
+        document.addEventListener("click", handleGlobalClick as EventListener);
+        (window as any).portfolioClickHandler = handleGlobalClick;
 
         closeBtn.addEventListener("click", closeModalFunc);
         modal.addEventListener("click", (e) => {

@@ -99,8 +99,14 @@ const base = import.meta.env.BASE_URL.endsWith("/")
         splashActive = false;
     }
 
-    // Wait 2 seconds for the sped-up full CSS animation sequence to gracefully finish
-    setTimeout(hideSplashScreen, 2000);
+    // Wait for the data to load from Firebase before hiding
+    window.addEventListener('portfolioDataLoaded', () => {
+        // Minimum time (e.g. 1.5s) so the animation is fully visible before hiding
+        setTimeout(hideSplashScreen, 1500); 
+    });
+
+    // Failsafe wait 6 seconds max
+    setTimeout(hideSplashScreen, 6000);
 </script>
 
 <style is:global>
