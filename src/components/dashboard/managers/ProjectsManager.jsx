@@ -228,7 +228,7 @@ export default function ProjectsManager() {
             },
             width: '600px',
             didOpen: () => {
-                const addModalListItem = (listId, placeholder) => {
+                const addModalListItem = (listId, placeholder, prefilledData = null) => {
                     const list = document.getElementById(listId);
                     if (!list) return;
 
@@ -236,8 +236,11 @@ export default function ProjectsManager() {
                     itemDiv.className = 'modal-dynamic-item flex gap-2 mt-2';
                     const isScreenshot = listId === 'modalScreenshotsList';
 
+                    // If we have prefilledData from a multi-picker, use its ID and filename immediately
+                    const prefilledHtml = prefilledData ? `data-upload-id="${escapeHtml(prefilledData.id)}" value="${escapeHtml(prefilledData.file.name)}" data-pending="true" style="color: #2196F3;"` : `value=""`;
+
                     const inputHtml = isScreenshot ?
-                        `<input type="text" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-light" readonly style="cursor: pointer" value="" placeholder="${placeholder}">` :
+                        `<input type="text" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-light" readonly style="cursor: pointer" ${prefilledHtml} placeholder="${placeholder}">` :
                         `<input type="text" class="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-light" value="" placeholder="${placeholder}">`;
 
                     itemDiv.innerHTML = `
@@ -251,8 +254,8 @@ export default function ProjectsManager() {
                         this.closest('.modal-dynamic-item').remove();
                     });
 
-                    // Add screenshot upload listener if applicable
-                    if (isScreenshot) {
+                    // Add screenshot upload listener if applicable, but only if it's NOT already prefilled from a multi-select
+                    if (isScreenshot && !prefilledData) {
                         const inputField = itemDiv.querySelector('input');
                         const uniqueUploadId = 'screenshot_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                         inputField.setAttribute('data-upload-id', uniqueUploadId);
@@ -271,7 +274,14 @@ export default function ProjectsManager() {
                 document.getElementById('btnAddTech')?.addEventListener('click', () => addModalListItem('modalTechList', 'e.g., Flutter'));
                 document.getElementById('btnAddPackage')?.addEventListener('click', () => addModalListItem('modalPackagesList', 'e.g., flutter_bloc'));
                 document.getElementById('btnAddFeature')?.addEventListener('click', () => addModalListItem('modalFeaturesList', 'e.g., User authentication'));
-                document.getElementById('btnAddScreenshot')?.addEventListener('click', () => addModalListItem('modalScreenshotsList', 'Click to select screenshot...'));
+                document.getElementById('btnAddScreenshot')?.addEventListener('click', async () => {
+                    const filesData = await UploadService.openMultiFilePicker('screenshot_multi', 'image/*');
+                    if (filesData && filesData.length > 0) {
+                        filesData.forEach(fileData => {
+                            addModalListItem('modalScreenshotsList', 'Click to select screenshot...', fileData);
+                        });
+                    }
+                });
 
                 // Bind initial delete buttons universally
                 document.querySelectorAll('.btn-delete-modal').forEach(btn => {

@@ -139,6 +139,43 @@ export const UploadService = {
         });
     },
 
+    openMultiFilePicker(baseInputId, accept = 'image/*') {
+        return new Promise((resolve) => {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = accept;
+            fileInput.multiple = true;
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files || []);
+                if (files.length > 0) {
+                    const results = files.map((file, i) => {
+                        const uniqueId = `${baseInputId}_${Date.now()}_${i}`;
+                        this.pendingFiles.set(uniqueId, file);
+                        return { file, id: uniqueId };
+                    });
+                    resolve(results);
+                } else {
+                    resolve([]);
+                }
+                document.body.removeChild(fileInput);
+            });
+
+            window.addEventListener('focus', () => {
+                setTimeout(() => {
+                    if (document.body.contains(fileInput)) {
+                        document.body.removeChild(fileInput);
+                        resolve([]);
+                    }
+                }, 1000);
+            }, { once: true });
+
+            fileInput.click();
+        });
+    },
+
     getPendingFile(inputId) {
         return this.pendingFiles.get(inputId);
     },
