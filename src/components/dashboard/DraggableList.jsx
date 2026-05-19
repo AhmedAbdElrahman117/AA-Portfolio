@@ -40,10 +40,15 @@ function SortableItem({ id, children }) {
 
     return (
         <div ref={setNodeRef} style={style} className="flex items-center gap-3 group">
-            {/* Drag Handle */}
+            {/*
+              * Drag Handle
+              * `touch-action: none` is REQUIRED on mobile — without it, the browser's
+              * native scroll handler grabs the touchmove event first and the item never drags.
+              */}
             <button
                 {...attributes}
                 {...listeners}
+                style={{ touchAction: 'none' }}
                 className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg
                            text-white/30 hover:text-white hover:bg-white/10
                            cursor-grab active:cursor-grabbing transition-colors"
@@ -76,8 +81,16 @@ function SortableItem({ id, children }) {
  */
 export default function DraggableList({ items, onReorder, renderItem, getItemId }) {
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-        useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+        // Mouse/stylus: activate after moving 5px to avoid accidental drags on clicks.
+        useSensor(PointerSensor, {
+            activationConstraint: { distance: 5 },
+        }),
+        // Touch: hold for 200ms before drag starts.
+        // A quick swipe (<200ms) still scrolls the page normally.
+        // A deliberate press-and-hold on the ⠿ grip initiates the drag.
+        useSensor(TouchSensor, {
+            activationConstraint: { delay: 200, tolerance: 8 },
+        }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
