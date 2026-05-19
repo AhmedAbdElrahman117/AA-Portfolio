@@ -165,6 +165,19 @@
     outline: 2px solid var(--color-brand-light);
     outline-offset: 2px;
   }
+
+  @media (max-width: 768px) {
+    /* Prevent iOS Safari zoom and width overflow on mobile */
+    input, textarea, select {
+      font-size: 16px !important;
+      max-width: 100% !important;
+    }
+    /* Ensure SweetAlert modals don't break the viewport */
+    .swal2-popup {
+      width: 95vw !important;
+      max-width: 400px !important;
+    }
+  }
 }
 
 @layer utilities {

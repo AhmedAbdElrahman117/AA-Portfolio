@@ -4,6 +4,7 @@ import {
     closestCenter,
     KeyboardSensor,
     PointerSensor,
+    TouchSensor,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
@@ -76,6 +77,7 @@ function SortableItem({ id, children }) {
 export default function DraggableList({ items, onReorder, renderItem, getItemId }) {
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
